@@ -14,7 +14,7 @@ export default isProduction
         {
           format: 'cjs',
           exports: 'auto',
-          file: pkg.main,
+          file: 'dist/index.cjs.js',
           sourcemap: true,
         },
         {
@@ -45,7 +45,7 @@ export default isProduction
         {
           format: 'cjs',
           exports: 'auto',
-          file: pkg.main.replace('cjs.js', (s) => `development.${s}`),
+          file: 'dist/index.cjs.development.js',
           sourcemap: true,
         },
       ],

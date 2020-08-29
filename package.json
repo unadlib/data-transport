@@ -2,7 +2,7 @@
   "name": "data-transport",
   "version": "0.0.0",
   "description": "Data Transport",
-  "main": "dist/index.cjs.js",
+  "main": "lib/index.js",
   "unpkg": "dist/index.umd.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
