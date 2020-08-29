@@ -12,7 +12,7 @@ test('', () => {
   }
 
   class ExternalTransport
-    extends Transport<Internal>
+    extends Transport<any, Internal>
     implements Receiver<Internal> {
     @respond
     hello(option: { num: number }) {
