@@ -12,3 +12,22 @@ export interface TransportData<T, S> {
 }
 
 export type Response<T extends TransportData<any, any>> = T['response'];
+
+interface Options {
+  type: string;
+  __transport_uuid__: string;
+}
+
+export interface SendOptions extends Options {
+  request: Request<any>;
+}
+
+export interface ListenOptions extends Options {
+  response?: Response<any>;
+  request?: Request<any>;
+}
+
+export interface TransportOptions {
+  send: (options: SendOptions) => void;
+  listen: (callback: (options: ListenOptions) => void) => void;
+}

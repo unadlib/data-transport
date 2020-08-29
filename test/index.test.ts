@@ -8,10 +8,16 @@ test('', () => {
   class InternalTransport extends Transport<Internal> {
     constructor() {
       super({
-        listen: (callback, options) => {
-          // window.addEventListener('message', callback, options);
+        listen: (callback) => {
+          window.addEventListener(
+            'message',
+            ({ data }) => callback(data),
+            options
+          );
         },
-        send: (message, options) => {},
+        send: (message) => {
+          window.parent.postMessage(message, options);
+        },
       });
     }
 
