@@ -1,4 +1,4 @@
-import { Receiver, Transport, respond, TransportData } from '..';
+import { Receiver, Transport, respond, TransportData } from '../src';
 
 test('', () => {
   type Internal = {
@@ -6,6 +6,15 @@ test('', () => {
   };
 
   class InternalTransport extends Transport<Internal> {
+    constructor() {
+      super({
+        listen: (callback, options) => {
+          // window.addEventListener('message', callback, options);
+        },
+        send: (message, options) => {},
+      });
+    }
+
     async a(s: string) {
       const a = await this.emit('hello', { num: 1 });
     }
