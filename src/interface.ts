@@ -1,33 +1,54 @@
+import { transportKey } from './constant';
+
 export type Receiver<T extends TransportDataMap> = {
-  [P in keyof T]: (request: T[P]['request']) => void;
+  [P in keyof T]: (
+    request: Request<T[P]>,
+    callback: (response: Response<T[P]>) => void
+  ) => void;
 };
 
-export type Request<T extends TransportData<any, any>> = T['request'];
+export interface ITransportData<T = any, S = any> {
+  (): TransportData<T, S>;
+}
 
-export type TransportDataMap = Record<string, TransportData<any, any>>;
+export type Request<T extends ITransportData> = ReturnType<T>['request'];
 
-export interface TransportData<T, S> {
+export type Response<T extends ITransportData> = ReturnType<T>['response'];
+
+export type TransportDataMap = Record<string, ITransportData>;
+
+export interface TransportData<T, S = void> {
   request: T;
   response: S;
 }
 
-export type Response<T extends TransportData<any, any>> = T['response'];
-
 interface Options {
   type: string;
-  __transport_uuid__: string;
+  [transportKey]: string;
 }
 
 export interface SendOptions extends Options {
+  request?: Request<any>;
+  response?: Response<any>;
+}
+
+export interface IRequest extends Options {
   request: Request<any>;
 }
 
-export interface ListenOptions extends Options {
-  response?: Response<any>;
-  request?: Request<any>;
+export interface IResponse extends Options {
+  response: Response<any>;
 }
+
+export type ListenOptions = IRequest | IResponse;
 
 export interface TransportOptions {
   send: (options: SendOptions) => void;
   listen: (callback: (options: ListenOptions) => void) => void;
 }
+
+export type CallBack<T extends ITransportData> = (
+  response: Response<T>
+) => void;
+
+export type Respond = (request: any, callback: (response: any) => void) => any;

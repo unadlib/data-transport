@@ -57,7 +57,10 @@
     }
   },
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "globals": {
+      "__DEV__": true
+    }
   },
   "dependencies": {
     "uuid": "^8.3.0"

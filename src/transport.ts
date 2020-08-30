@@ -1,73 +1,119 @@
-import uuid from 'uuid';
+import * as uuid from 'uuid';
 import {
+  listenKey,
+  originalRespondsMapKey,
+  requestsMapKey,
+  respondsMapKey,
+  sendKey,
+  transportKey,
+} from './constant';
+import {
+  IRequest,
+  IResponse,
   ListenOptions,
   Request,
-  SendOptions,
+  Respond,
   Response,
   TransportDataMap,
   TransportOptions,
 } from './interface';
 
-const transportKey = '__transport_uuid__';
-const defaultTimeout = 60 * 1000; // 1 min
+const defaultTimeout = 3 * 1000;
 
-export abstract class Transport<
-  T extends TransportDataMap,
-  R extends TransportDataMap = any
-> {
-  protected _listen: TransportOptions['listen'];
-  protected _send: TransportOptions['send'];
-  protected _requestsMap: Map<string, (value: any) => void> = new Map();
-  protected _respondsMap!: Record<string, (...args: any) => any>;
+export abstract class Transport<T extends TransportDataMap = any> {
+  /**
+   * listen for data transfer events on the current transport
+   */
+  private [listenKey]: TransportOptions['listen'];
+  /**
+   *
+   */
+  private [sendKey]: TransportOptions['send'];
+  private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
+  private [respondsMapKey]!: Record<
+    string,
+    (request: any, transportId: string) => any
+  >;
+  private [originalRespondsMapKey]!: Record<string, Respond>;
 
   constructor(options: TransportOptions) {
-    this._listen = options.listen;
-    this._send = options.send;
-    this._listen((listenOptions: ListenOptions) => {
+    this[respondsMapKey] ??= {};
+    this[originalRespondsMapKey] ??= {};
+
+    Object.entries(this[originalRespondsMapKey]).forEach(([key, fn]) => {
+      this[respondsMapKey][key] = (request: any, transportId) => {
+        fn?.call(this, request, (response: any) =>
+          this[sendKey]({
+            type: key,
+            response,
+            [transportKey]: transportId,
+          })
+        );
+      };
+    });
+
+    this[listenKey] = options.listen;
+    this[sendKey] = options.send;
+    this[listenKey]((listenOptions: ListenOptions) => {
       if (listenOptions[transportKey]) {
-        if (listenOptions.response) {
-          const resolve = this._requestsMap.get(listenOptions[transportKey]);
+        if ((listenOptions as IResponse).response) {
+          const resolve = this[requestsMapKey].get(listenOptions[transportKey]);
           if (resolve) {
             resolve(listenOptions);
           }
-        } else if (listenOptions.request) {
-          const respond = this._respondsMap[listenOptions.type];
+        } else if ((listenOptions as IRequest).request) {
+          const respond = this[respondsMapKey][listenOptions.type];
           if (typeof respond === 'function') {
-            respond(listenOptions.request);
+            respond(
+              (listenOptions as IRequest).request,
+              listenOptions[transportKey]
+            );
+          } else {
+            if (__DEV__) {
+              console.error(
+                `In '${this.constructor.name}' class, the listener method '${listenOptions.type}' is NOT decorated by decorator '@respond'.`
+              );
+            }
           }
         }
       }
     });
   }
 
-  public async emit<K extends keyof T>(
+  protected async emit<K extends keyof T>(
     type: K,
     request: Request<T[K]>
   ): Promise<Response<T[K]>> {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: number;
     const transportId = uuid.v4();
     const promise = Promise.race([
       new Promise((resolve) => {
-        this._requestsMap.set(transportId, resolve);
-        this._send({ type, request, [transportKey]: transportId });
+        this[requestsMapKey].set(transportId, resolve);
+        this[sendKey]({
+          type: type as string,
+          request,
+          [transportKey]: transportId,
+        });
       }),
       new Promise((_, reject) => {
-        timeoutId = setTimeout(() => {
-          reject();
+        timeoutId = window.setTimeout(() => {
+          reject(timeoutId);
         }, defaultTimeout);
       }),
     ]);
     return promise
-      .catch(() => {
-        console.warn(`Event ${type} timed out.`);
+      .catch((error) => {
+        if (typeof error === 'number') {
+          console.warn(`Event '${type}' timed out.`);
+        } else {
+          if (__DEV__) {
+            throw error;
+          }
+        }
       })
       .finally(() => {
         clearTimeout(timeoutId);
-        this._requestsMap.delete(transportId);
+        this[requestsMapKey].delete(transportId);
       });
-  }
-
-  public respond<K extends keyof R>(type: K, response: Response<R[K]>) {
-    // this._send({ type, response, [transportKey]: transportId });
   }
 }

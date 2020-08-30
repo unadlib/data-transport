@@ -1,39 +1,62 @@
-import { Receiver, Transport, respond, TransportData } from '../src';
+import {
+  Receiver,
+  Transport,
+  respond,
+  TransportData,
+  Request,
+  CallBack,
+} from '../src';
 
-test('', () => {
+test('base', async () => {
   type Internal = {
-    hello: TransportData<{ num: number }, { str: string }>;
+    hello(): TransportData<{ num: number }, { text: string }>;
   };
+
+  let mockExternalSend: (...args: any) => void;
+  let mockInternalSend: (...args: any) => void;
 
   class InternalTransport extends Transport<Internal> {
     constructor() {
       super({
         listen: (callback) => {
-          window.addEventListener(
-            'message',
-            ({ data }) => callback(data),
-            options
-          );
+          mockExternalSend = callback;
         },
         send: (message) => {
-          window.parent.postMessage(message, options);
+          mockInternalSend(JSON.parse(JSON.stringify(message)));
         },
       });
     }
 
-    async a(s: string) {
-      const a = await this.emit('hello', { num: 1 });
+    async sayHello() {
+      const response = await this.emit('hello', { num: 42 })
+      console.log(response, 'response');
     }
   }
 
-  class ExternalTransport
-    extends Transport<any, Internal>
-    implements Receiver<Internal> {
+  class ExternalTransport extends Transport implements Receiver<Internal> {
+    constructor() {
+      super({
+        listen: (callback) => {
+          mockInternalSend = callback;
+        },
+        send: (message) => {
+          mockExternalSend(JSON.parse(JSON.stringify(message)));
+        },
+      });
+    }
+
     @respond
-    hello(option: { num: number }) {
-      this.respond('hello', {
-        str: '1',
+    hello(
+      request: Request<Internal['hello']>,
+      callback: CallBack<Internal['hello']>
+    ) {
+      callback({
+        text: `hello ${request.num}`,
       });
     }
   }
+
+  const internal = new InternalTransport();
+  const external = new ExternalTransport();
+  await internal.sayHello();
 });
