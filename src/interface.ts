@@ -43,8 +43,18 @@ export interface IResponse extends Options {
 export type ListenOptions = IRequest | IResponse;
 
 export interface TransportOptions {
+  /**
+   * send method defines an sender to the specified transport
+   */
   send: (options: SendOptions) => void;
+  /**
+   * listen method attaches an event handler to the specified transport
+   */
   listen: (callback: (options: ListenOptions) => void) => void;
+  /**
+   * timeout for sending a request
+   */
+  timeout?: number;
 }
 
 export type CallBack<T extends ITransportData> = (

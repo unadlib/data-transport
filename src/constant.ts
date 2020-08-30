@@ -3,4 +3,5 @@ export const sendKey: unique symbol = Symbol('send');
 export const requestsMapKey: unique symbol = Symbol('requestsMap');
 export const respondsMapKey: unique symbol = Symbol('respondsMap');
 export const originalRespondsMapKey: unique symbol = Symbol('originalRespondsMap');
+export const timeoutKey: unique symbol = Symbol('timeout');
 export const transportKey = '__DATA_TRANSPORT_UUID__';

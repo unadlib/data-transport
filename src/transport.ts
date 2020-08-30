@@ -5,6 +5,7 @@ import {
   requestsMapKey,
   respondsMapKey,
   sendKey,
+  timeoutKey,
   transportKey,
 } from './constant';
 import {
@@ -18,17 +19,12 @@ import {
   TransportOptions,
 } from './interface';
 
-const defaultTimeout = 3 * 1000;
+const defaultTimeout = 60 * 1000;
 
 export abstract class Transport<T extends TransportDataMap = any> {
-  /**
-   * listen for data transfer events on the current transport
-   */
   private [listenKey]: TransportOptions['listen'];
-  /**
-   *
-   */
   private [sendKey]: TransportOptions['send'];
+  private [timeoutKey]: TransportOptions['timeout'];
   private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
   private [respondsMapKey]!: Record<
     string,
@@ -36,9 +32,12 @@ export abstract class Transport<T extends TransportDataMap = any> {
   >;
   private [originalRespondsMapKey]!: Record<string, Respond>;
 
-  constructor(options: TransportOptions) {
+  constructor({ listen, send, timeout = defaultTimeout }: TransportOptions) {
     this[respondsMapKey] ??= {};
     this[originalRespondsMapKey] ??= {};
+    this[listenKey] = listen;
+    this[sendKey] = send;
+    this[timeoutKey] = timeout;
 
     Object.entries(this[originalRespondsMapKey]).forEach(([key, fn]) => {
       this[respondsMapKey][key] = (request: any, transportId) => {
@@ -52,8 +51,6 @@ export abstract class Transport<T extends TransportDataMap = any> {
       };
     });
 
-    this[listenKey] = options.listen;
-    this[sendKey] = options.send;
     this[listenKey]((listenOptions: ListenOptions) => {
       if (listenOptions[transportKey]) {
         if ((listenOptions as IResponse).response) {

@@ -28,8 +28,8 @@ test('base', async () => {
     }
 
     async sayHello() {
-      const response = await this.emit('hello', { num: 42 })
-      console.log(response, 'response');
+      const response = await this.emit('hello', { num: 42 });
+      return response;
     }
   }
 
@@ -58,5 +58,5 @@ test('base', async () => {
 
   const internal = new InternalTransport();
   const external = new ExternalTransport();
-  await internal.sayHello();
+  expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 });
