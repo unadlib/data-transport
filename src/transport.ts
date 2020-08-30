@@ -59,7 +59,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
         if ((listenOptions as IResponse).response) {
           const resolve = this[requestsMapKey].get(listenOptions[transportKey]);
           if (resolve) {
-            resolve(listenOptions);
+            resolve((listenOptions as IResponse).response);
           }
         } else if ((listenOptions as IRequest).request) {
           const respond = this[respondsMapKey][listenOptions.type];
