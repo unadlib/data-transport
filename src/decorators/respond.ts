@@ -5,7 +5,7 @@ import { Transport } from '../transport';
 export const respond = (
   target: Transport,
   key: string,
-  descriptor: TypedPropertyDescriptor<Respond>
+  descriptor: TypedPropertyDescriptor<(...args: any) => any>
 ) => {
   const fn = descriptor.value;
   if (__DEV__) {
@@ -23,7 +23,7 @@ export const respond = (
     value(this: Transport) {
       if (__DEV__) {
         throw new Error(
-          `The method ${key} is a listener function that can NOT be actively called.`
+          `The method '${key}' is a listener function that can NOT be actively called.`
         );
       }
     },
