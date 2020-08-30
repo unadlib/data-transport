@@ -22,9 +22,15 @@ export interface TransportData<T, S = void> {
   response: S;
 }
 
+export interface EmitOptions {
+  respond?: boolean;
+  timeout?: number;
+}
+
 interface Options {
   type: string;
   [transportKey]: string;
+  hasRespond: boolean;
 }
 
 export interface SendOptions extends Options {
@@ -44,15 +50,15 @@ export type ListenOptions = IRequest | IResponse;
 
 export interface TransportOptions {
   /**
-   * send method defines an sender to the specified transport
+   * Send method defines an sender to the specified transport.
    */
   send: (options: SendOptions) => void;
   /**
-   * listen method attaches an event handler to the specified transport
+   * Listen method attaches an event handler to the specified transport.
    */
   listen: (callback: (options: ListenOptions) => void) => void;
   /**
-   * timeout for sending a request
+   * Timeout milliseconds for sending a request.
    */
   timeout?: number;
 }

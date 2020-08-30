@@ -9,6 +9,7 @@ import {
   transportKey,
 } from './constant';
 import {
+  EmitOptions,
   IRequest,
   IResponse,
   ListenOptions,
@@ -28,7 +29,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
   private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
   private [respondsMapKey]!: Record<
     string,
-    (request: any, transportId: string) => any
+    (request: any, options: { hasRespond: boolean; transportId: string }) => any
   >;
   private [originalRespondsMapKey]!: Record<string, Respond>;
 
@@ -40,14 +41,26 @@ export abstract class Transport<T extends TransportDataMap = any> {
     this[timeoutKey] = timeout;
 
     Object.entries(this[originalRespondsMapKey]).forEach(([key, fn]) => {
-      this[respondsMapKey][key] = (request: any, transportId) => {
-        fn?.call(this, request, (response: any) =>
+      this[respondsMapKey][key] = (
+        request: any,
+        { hasRespond, transportId }
+      ) => {
+        fn?.call(this, request, (response: any) => {
+          if (__DEV__) {
+            if (!hasRespond) {
+              console.warn(
+                `The event '${key}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
+              );
+              return;
+            }
+          }
           this[sendKey]({
             type: key,
             response,
+            hasRespond,
             [transportKey]: transportId,
-          })
-        );
+          });
+        });
       };
     });
 
@@ -61,10 +74,10 @@ export abstract class Transport<T extends TransportDataMap = any> {
         } else if ((listenOptions as IRequest).request) {
           const respond = this[respondsMapKey][listenOptions.type];
           if (typeof respond === 'function') {
-            respond(
-              (listenOptions as IRequest).request,
-              listenOptions[transportKey]
-            );
+            respond((listenOptions as IRequest).request, {
+              transportId: listenOptions[transportKey],
+              hasRespond: (listenOptions as IRequest).hasRespond,
+            });
           } else {
             if (__DEV__) {
               console.error(
@@ -79,29 +92,44 @@ export abstract class Transport<T extends TransportDataMap = any> {
 
   protected async emit<K extends keyof T>(
     type: K,
-    request: Request<T[K]>
+    request: Request<T[K]>,
+    options: EmitOptions = {}
   ): Promise<Response<T[K]>> {
-    let timeoutId: number;
+    const hasRespond = options.respond ?? true;
+    const timeout = options.timeout ?? this[timeoutKey];
     const transportId = uuid.v4();
+    if (!hasRespond) {
+      return new Promise((resolve) => {
+        this[sendKey]({
+          type: type as string,
+          request,
+          hasRespond,
+          [transportKey]: transportId,
+        });
+        resolve();
+      });
+    }
+    let timeoutId: number;
     const promise = Promise.race([
       new Promise((resolve) => {
         this[requestsMapKey].set(transportId, resolve);
         this[sendKey]({
           type: type as string,
           request,
+          hasRespond,
           [transportKey]: transportId,
         });
       }),
       new Promise((_, reject) => {
         timeoutId = window.setTimeout(() => {
           reject(timeoutId);
-        }, defaultTimeout);
+        }, timeout);
       }),
     ]);
     return promise
       .catch((error) => {
         if (typeof error === 'number') {
-          console.warn(`Event '${type}' timed out.`);
+          console.warn(`The event '${type}' timed out for ${timeout} seconds...`);
         } else {
           if (__DEV__) {
             throw error;

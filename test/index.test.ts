@@ -60,3 +60,59 @@ test('base', async () => {
   const external = new ExternalTransport();
   expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 });
+
+test('base with `{ hasRespond: false }`', async () => {
+  type Internal = {
+    hello(): TransportData<{ num: number }>;
+  };
+
+  let mockExternalSend: (...args: any) => void;
+  let mockInternalSend: (...args: any) => void;
+
+  class InternalTransport extends Transport<Internal> {
+    constructor() {
+      super({
+        listen: (callback) => {
+          mockExternalSend = callback;
+        },
+        send: (message) => {
+          mockInternalSend(JSON.parse(JSON.stringify(message)));
+        },
+      });
+    }
+
+    async sayHello() {
+      const response = await this.emit(
+        'hello',
+        { num: 42 },
+        { respond: false, timeout: 42 }
+      );
+      return response;
+    }
+  }
+
+  class ExternalTransport extends Transport implements Receiver<Internal> {
+    constructor() {
+      super({
+        listen: (callback) => {
+          mockInternalSend = callback;
+        },
+        send: (message) => {
+          mockExternalSend(JSON.parse(JSON.stringify(message)));
+        },
+      });
+    }
+
+    @respond
+    hello(
+      request: Request<Internal['hello']>,
+      callback: CallBack<Internal['hello']>
+    ) {
+      expect(request.num).toBe(42);
+    }
+  }
+
+  const internal = new InternalTransport();
+  const external = new ExternalTransport();
+  expect(await internal.sayHello()).toBeUndefined();
+});
