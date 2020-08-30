@@ -1,7 +1,7 @@
 {
   "name": "data-transport",
-  "version": "0.0.0",
-  "description": "Data Transport",
+  "version": "0.0.1",
+  "description": "A Common Transporter",
   "main": "lib/index.js",
   "unpkg": "dist/index.umd.js",
   "module": "dist/index.esm.js",

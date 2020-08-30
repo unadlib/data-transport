@@ -109,7 +109,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
         resolve();
       });
     }
-    let timeoutId: number;
+    let timeoutId: NodeJS.Timeout | number;
     const promise = Promise.race([
       new Promise((resolve) => {
         this[requestsMapKey].set(transportId, resolve);
@@ -121,7 +121,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
         });
       }),
       new Promise((_, reject) => {
-        timeoutId = window.setTimeout(() => {
+        timeoutId = setTimeout(() => {
           reject(timeoutId);
         }, timeout);
       }),
@@ -129,7 +129,9 @@ export abstract class Transport<T extends TransportDataMap = any> {
     return promise
       .catch((error) => {
         if (typeof error === 'number') {
-          console.warn(`The event '${type}' timed out for ${timeout} seconds...`);
+          console.warn(
+            `The event '${type}' timed out for ${timeout} seconds...`
+          );
         } else {
           if (__DEV__) {
             throw error;
@@ -137,7 +139,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
         }
       })
       .finally(() => {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId as NodeJS.Timeout);
         this[requestsMapKey].delete(transportId);
       });
   }
