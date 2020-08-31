@@ -9,7 +9,7 @@ import {
 
 test('base', async () => {
   type Internal = {
-    hello(): TransportData<{ num: number }, { text: string }>;
+    hello: TransportData<{ num: number }, { text: string }>;
   };
 
   let mockExternalSend: (...args: any) => void;
@@ -63,7 +63,7 @@ test('base', async () => {
 
 test('base with `{ hasRespond: false }`', async () => {
   type Internal = {
-    hello(): TransportData<{ num: number }>;
+    hello: TransportData<{ num: number }>;
   };
 
   let mockExternalSend: (...args: any) => void;
@@ -116,11 +116,11 @@ test('base with `{ hasRespond: false }`', async () => {
 
 test('base with two-way', async () => {
   type Internal = {
-    hello(): TransportData<{ num: number }, { text: string }>;
+    hello: TransportData<{ num: number }, { text: string }>;
   };
 
   type External = {
-    help(): TransportData<{ key: number }, { text: string }>;
+    help: TransportData<{ key: number }, { text: string }>;
   };
 
   let mockExternalSend: (...args: any) => void;

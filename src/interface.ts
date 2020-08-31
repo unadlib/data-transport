@@ -7,15 +7,11 @@ export type Receiver<T extends TransportDataMap> = {
   ) => void;
 };
 
-export interface ITransportData<T = any, S = any> {
-  (): TransportData<T, S>;
-}
+export type Request<T extends TransportData<any, any>> = T['request'];
 
-export type Request<T extends ITransportData> = ReturnType<T>['request'];
+export type Response<T extends TransportData<any, any>> = T['response'];
 
-export type Response<T extends ITransportData> = ReturnType<T>['response'];
-
-export type TransportDataMap = Record<string, ITransportData>;
+export type TransportDataMap = Record<string, TransportData<any, any>>;
 
 export interface TransportData<T, S = void> {
   request: T;
@@ -63,7 +59,7 @@ export interface TransportOptions {
   timeout?: number;
 }
 
-export type CallBack<T extends ITransportData> = (
+export type CallBack<T extends TransportData<any, any>> = (
   response: Response<T>
 ) => void;
 

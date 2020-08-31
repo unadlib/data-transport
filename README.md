@@ -28,7 +28,7 @@ yarn add data-transport
 
 ```ts
 type Internal = {
-  hello(): TransportData<{ num: number }, { text: string }>;
+  hello: TransportData<{ num: number }, { text: string }>;
 };
 ```
 
@@ -36,16 +36,6 @@ type Internal = {
 
 ```ts
 class InternalTransport extends Transport<Internal> {
-  constructor() {
-    super({
-      listen: (callback) =>
-        window.addEventListener('message', ({ data }: MessageEvent<any>) =>
-          callback(data)
-        ),
-      send: (message: any) => window.parent.postMessage(message, '*'),
-    });
-  }
-
   async sayHello() {
     const response = await this.emit('hello', { num: 42 });
     return response;
@@ -53,16 +43,6 @@ class InternalTransport extends Transport<Internal> {
 }
 
 class ExternalTransport extends Transport implements Receiver<Internal> {
-  constructor() {
-    super({
-      listen: (callback) =>
-        window.addEventListener('message', ({ data }: MessageEvent<any>) =>
-          callback(data)
-        ),
-      send: (message: any) => window.frames[0].postMessage(message, '*'),
-    });
-  }
-
   @respond
   hello(
     request: Request<Internal['hello']>,
@@ -74,7 +54,20 @@ class ExternalTransport extends Transport implements Receiver<Internal> {
   }
 }
 
-const internal = new InternalTransport();
-const external = new ExternalTransport();
+const internal = new InternalTransport({
+  listen: (callback) =>
+    window.addEventListener('message', ({ data }: MessageEvent<any>) =>
+      callback(data)
+    ),
+  send: (message: any) => window.parent.postMessage(message, '*'),
+});
+const external = new ExternalTransport({
+  listen: (callback) =>
+    window.addEventListener('message', ({ data }: MessageEvent<any>) =>
+      callback(data)
+    ),
+  send: (message: any) => window.frames[0].postMessage(message, '*'),
+});
+
 expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 ```
