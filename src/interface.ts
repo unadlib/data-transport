@@ -13,6 +13,9 @@ export type Response<T extends TransportData<any, any>> = T['response'];
 
 export type TransportDataMap = Record<string, TransportData<any, any>>;
 
+/**
+ * define request and response interfaces for transport
+ */
 export interface TransportData<T, S = void> {
   request: T;
   response: S;
