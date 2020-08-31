@@ -90,6 +90,17 @@ export abstract class Transport<T extends TransportDataMap = any> {
     });
   }
 
+  /**
+   * Emit an event that transport data.
+   *
+   * @param type A transport type as post message data type
+   * @param request A request data
+   * @param options A option for the transport data
+   * * `respond`: (optional) A boolean for defined need to be respond.
+   * * `timeout`: (optional) Define a timeout for responding.
+   *
+   * @returns Return a response for the request.
+   */
   protected async emit<K extends keyof T>(
     type: K,
     request: Request<T[K]>,

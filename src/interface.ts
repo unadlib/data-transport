@@ -22,7 +22,13 @@ export interface TransportData<T, S = void> {
 }
 
 export interface EmitOptions {
+  /**
+   * Whether a response is required.
+   */
   respond?: boolean;
+  /**
+   * Timeout for the emitting event.
+   */
   timeout?: number;
 }
 
@@ -57,6 +63,7 @@ export interface TransportOptions {
    */
   listen: (callback: (options: ListenOptions) => void) => void;
   /**
+   * @description
    * Timeout milliseconds for sending a request.
    */
   timeout?: number;
