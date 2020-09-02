@@ -25,11 +25,15 @@ export default isProduction
         },
         {
           format: 'umd',
-          name: pkg.name,
+          name: 'DataTransport',
           file: pkg.unpkg,
           sourcemap: true,
+          globals: {
+            uuid: 'uuid',
+          }
         },
       ],
+      external: ['uuid'],
       plugins: [
         resolve(),
         commonjs(),
@@ -49,6 +53,7 @@ export default isProduction
           sourcemap: true,
         },
       ],
+      external: ['uuid'],
       plugins: [
         resolve(),
         commonjs(),
