@@ -28,14 +28,12 @@ export default isProduction
           name: 'DataTransport',
           file: pkg.unpkg,
           sourcemap: true,
-          globals: {
-            uuid: 'uuid',
-          }
         },
       ],
-      external: ['uuid'],
       plugins: [
-        resolve(),
+        resolve({
+          browser: true,
+        }),
         commonjs(),
         replace({
           __DEV__: 'false',
@@ -53,9 +51,10 @@ export default isProduction
           sourcemap: true,
         },
       ],
-      external: ['uuid'],
       plugins: [
-        resolve(),
+        resolve({
+          browser: true,
+        }),
         commonjs(),
         replace({
           __DEV__: 'true',
