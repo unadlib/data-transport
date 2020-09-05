@@ -18,14 +18,11 @@ export default isProduction
           sourcemap: true,
         },
         {
-          format: 'es',
-          exports: 'named',
-          file: pkg.module,
-          sourcemap: true,
-        },
-        {
           format: 'umd',
-          name: 'DataTransport',
+          name: pkg.name
+            .split('-')
+            .map(([s, ...rest]) => [s.toUpperCase(), ...rest].join(''))
+            .join(''),
           file: pkg.unpkg,
           sourcemap: true,
         },

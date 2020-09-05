@@ -1,4 +1,4 @@
-import * as uuid from 'uuid';
+import { v4 } from 'uuid';
 import {
   listenKey,
   originalRespondsMapKey,
@@ -108,7 +108,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
   ): Promise<Response<T[K]>> {
     const hasRespond = options.respond ?? true;
     const timeout = options.timeout ?? this[timeoutKey];
-    const transportId = uuid.v4();
+    const transportId = v4();
     if (!hasRespond) {
       return new Promise((resolve) => {
         this[sendKey]({
