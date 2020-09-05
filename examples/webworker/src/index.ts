@@ -1,5 +1,5 @@
 import {
-  Transport,
+  WorkerTransport,
   Receiver,
   Request,
   CallBack,
@@ -8,7 +8,7 @@ import {
 import { Internal, External } from './interface';
 
 class ExternalTransport
-  extends Transport<External>
+  extends WorkerTransport.External<External>
   implements Receiver<Internal> {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
@@ -28,11 +28,6 @@ class ExternalTransport
 
 const worker = new Worker('worker.bundle.js');
 const externalTransport = new ExternalTransport({
-  listen: (callback) => {
-    worker.onmessage = ({ data }: MessageEvent<any>) => {
-      callback(data);
-    };
-  },
-  send: (message: any) => worker.postMessage(message),
+  worker,
 });
 (window as any).externalTransport = externalTransport;

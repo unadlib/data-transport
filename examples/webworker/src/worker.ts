@@ -1,5 +1,5 @@
 import {
-  Transport,
+  WorkerTransport,
   Receiver,
   Request,
   CallBack,
@@ -8,7 +8,7 @@ import {
 import { Internal, External } from './interface';
 
 class InternalTransport
-  extends Transport<Internal>
+  extends WorkerTransport.Internal<Internal>
   implements Receiver<External> {
   @respond
   help(
@@ -26,14 +26,6 @@ class InternalTransport
   }
 }
 
-const internalTransport = new InternalTransport({
-  listen: (callback) => {
-    self.onmessage = ({ data }: MessageEvent<any>) => {
-      callback(data);
-    };
-  },
-  // TODO: fix - https://github.com/microsoft/TypeScript/issues/12657
-  send: (message: any) => (self as DedicatedWorkerGlobalScope).postMessage(message),
-});
+const internalTransport = new InternalTransport();
 
 (self as any).internalTransport = internalTransport;
