@@ -27,14 +27,17 @@ class ExternalTransport
   }
 }
 
+const useExternalTransport = (iframe: HTMLIFrameElement) =>
+  new ExternalTransport({
+    iframe,
+  });
+
 const init = () => {
   const iframe = document.createElement('iframe');
   iframe.width = '100%';
   iframe.src = 'http://127.0.0.1:8080/iframe.html';
   iframe.onload = () => {
-    const externalTransport = new ExternalTransport({
-      iframe,
-    });
+    const externalTransport = useExternalTransport(iframe);
     const button = document.createElement('button');
     button.textContent = 'help';
     button.onclick = async () => {

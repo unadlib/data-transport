@@ -26,9 +26,11 @@ class InternalTransport
   }
 }
 
+const useInternalTransport = () => new InternalTransport();
+
 const init = () => {
   window.addEventListener('load', () => {
-    const internalTransport = new InternalTransport();
+    const internalTransport = useInternalTransport();
     const button = document.createElement('button');
     button.textContent = 'sayHello';
     button.onclick = async () => {
