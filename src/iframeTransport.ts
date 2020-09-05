@@ -9,7 +9,7 @@ export interface IFrameExternalTransportOptions extends IFrameTransportOptions {
   iframe: HTMLIFrameElement;
 }
 
-export class IFrameExternalTransport<
+class IFrameExternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -30,7 +30,7 @@ export class IFrameExternalTransport<
   }
 }
 
-export class IFrameInternalTransport<
+class IFrameInternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -41,7 +41,7 @@ export class IFrameInternalTransport<
       );
     },
     send = (message: any) => window.parent.postMessage(message, targetOrigin),
-  }: IFrameTransportOptions) {
+  }: IFrameTransportOptions = {}) {
     super({
       listen,
       send,

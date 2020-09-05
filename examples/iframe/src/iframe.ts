@@ -1,6 +1,6 @@
 import {
+  IFrameTransport,
   Receiver,
-  Transport,
   Request,
   CallBack,
   respond,
@@ -8,7 +8,7 @@ import {
 import { Internal, External } from './interface';
 
 class InternalTransport
-  extends Transport<Internal>
+  extends IFrameTransport.Internal<Internal>
   implements Receiver<External> {
   @respond
   help(
@@ -26,29 +26,19 @@ class InternalTransport
   }
 }
 
-const init = (load: () => void) => {
+const init = () => {
   window.addEventListener('load', () => {
-    load();
+    const internalTransport = new InternalTransport();
+    const button = document.createElement('button');
+    button.textContent = 'sayHello';
+    button.onclick = async () => {
+      const data = await internalTransport.sayHello();
+      const div = document.createElement('div');
+      div.innerText = `${new Date()}: ${data.text}`;
+      document.body.appendChild(div);
+    };
+    document.body.appendChild(button);
   });
 };
 
-init(() => {
-  const internalTransport = new InternalTransport({
-    listen: (callback) => {
-      window.addEventListener('message', ({ data }: MessageEvent<any>) =>
-        callback(data)
-      );
-    },
-    send: (message: any) => window.parent.postMessage(message, '*'),
-  });
-
-  const button = document.createElement('button');
-  button.textContent = 'sayHello';
-  button.onclick = async () => {
-    const data = await internalTransport.sayHello();
-    const div = document.createElement('div');
-    div.innerText = `${new Date()}: ${data.text}`;
-    document.body.appendChild(div);
-  };
-  document.body.appendChild(button);
-});
+init();
