@@ -16,7 +16,7 @@ export interface IFrameExternalTransportOptions extends IFrameTransportOptions {
   iframe: HTMLIFrameElement;
 }
 
-class IFrameExternalTransport<
+abstract class IFrameExternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -37,7 +37,7 @@ class IFrameExternalTransport<
   }
 }
 
-class IFrameInternalTransport<
+abstract class IFrameInternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({

@@ -15,7 +15,7 @@ export interface ServiceWorkerExternalTransportOptions
   serviceWorker: ServiceWorker;
 }
 
-class ServiceWorkerExternalTransport<
+abstract class ServiceWorkerExternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -38,7 +38,7 @@ class ServiceWorkerExternalTransport<
   }
 }
 
-class ServiceWorkerInternalTransport<
+abstract class ServiceWorkerInternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
