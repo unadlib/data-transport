@@ -5,4 +5,5 @@ export * from './workerTransport';
 export * from './serviceWorkerTransport';
 export * from './broadcastTransport';
 export * from './browserExtensionsTransport';
+export * from './webRTCTransport';
 export * from './interface';
