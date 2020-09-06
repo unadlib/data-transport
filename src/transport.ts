@@ -48,7 +48,8 @@ export abstract class Transport<T extends TransportDataMap = any> {
     Object.entries(this[originalRespondsMapKey]).forEach(([key, fn]) => {
       this[respondsMapKey][key] = (
         request: any,
-        { hasRespond, transportId }
+        // `args` for custom fields data from `listenOptions` request
+        { hasRespond, transportId, ...args }
       ) => {
         fn?.call(this, request, (response: any) => {
           if (__DEV__) {
@@ -60,6 +61,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
             }
           }
           this[sendKey]({
+            ...args,
             type: key,
             response,
             hasRespond,
@@ -78,11 +80,13 @@ export abstract class Transport<T extends TransportDataMap = any> {
         }
       }
       if (listenOptions[transportKey]) {
+        const hasListener =
+          typeof (this as any)[listenOptions.type] === 'function';
         if ((listenOptions as IResponse).response) {
           const resolve = this[requestsMapKey].get(listenOptions[transportKey]);
           if (resolve) {
             resolve((listenOptions as IResponse).response);
-          } else {
+          } else if (hasListener) {
             if (__DEV__) {
               console.warn(
                 `The type '${listenOptions.type}' event '${listenOptions[transportKey]}' has been resolved. Please check for a duplicate response.`
@@ -93,10 +97,12 @@ export abstract class Transport<T extends TransportDataMap = any> {
           const respond = this[respondsMapKey][listenOptions.type];
           if (typeof respond === 'function') {
             respond((listenOptions as IRequest).request, {
+              // `listenOptions` custom fields data from request
+              ...listenOptions,
               transportId: listenOptions[transportKey],
               hasRespond: (listenOptions as IRequest).hasRespond,
             });
-          } else {
+          } else if (hasListener) {
             if (__DEV__) {
               console.error(
                 `In '${this.constructor.name}' class, the listener method '${listenOptions.type}' is NOT decorated by decorator '@respond'.`
