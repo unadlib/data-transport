@@ -33,7 +33,12 @@ export abstract class Transport<T extends TransportDataMap = any> {
   >;
   private [originalRespondsMapKey]!: Record<string, Respond>;
 
-  constructor({ listen, send, timeout = defaultTimeout }: TransportOptions) {
+  constructor({
+    listen,
+    send,
+    timeout = defaultTimeout,
+    verbose = false,
+  }: TransportOptions) {
     this[respondsMapKey] ??= {};
     this[originalRespondsMapKey] ??= {};
     this[listenKey] = listen;
@@ -65,11 +70,24 @@ export abstract class Transport<T extends TransportDataMap = any> {
     });
 
     this[listenKey]((listenOptions: ListenOptions) => {
+      if (verbose) {
+        if (typeof verbose === 'function') {
+          verbose(listenOptions);
+        } else {
+          console.info('DataTransport Receive: ', listenOptions);
+        }
+      }
       if (listenOptions[transportKey]) {
         if ((listenOptions as IResponse).response) {
           const resolve = this[requestsMapKey].get(listenOptions[transportKey]);
           if (resolve) {
             resolve((listenOptions as IResponse).response);
+          } else {
+            if (__DEV__) {
+              console.warn(
+                `The type '${listenOptions.type}' event '${listenOptions[transportKey]}' has been resolved. Please check for a duplicate response.`
+              );
+            }
           }
         } else if ((listenOptions as IRequest).request) {
           const respond = this[respondsMapKey][listenOptions.type];
@@ -97,7 +115,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
    * @param request A request data
    * @param options A option for the transport data
    * * `respond`: (optional) A boolean for defined need to be respond.
-   * * `timeout`: (optional) Define a timeout for responding.
+   * * `timeout`: (optional) A number for defined a timeout for responding.
    *
    * @returns Return a response for the request.
    */

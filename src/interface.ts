@@ -55,10 +55,12 @@ export type ListenOptions = IRequest | IResponse;
 
 export interface TransportOptions {
   /**
+   * @description
    * Send method defines an sender to the specified transport.
    */
   send: (options: SendOptions) => void;
   /**
+   * @description
    * Listen method attaches an event handler to the specified transport.
    */
   listen: (callback: (options: ListenOptions) => void) => void;
@@ -67,6 +69,11 @@ export interface TransportOptions {
    * Timeout milliseconds for sending a request.
    */
   timeout?: number;
+  /**
+   * @description
+   * Display verbose receive data log
+   */
+  verbose?: boolean | ((listenOptions: ListenOptions) => void);
 }
 
 export type CallBack<T extends TransportData<any, any>> = (
