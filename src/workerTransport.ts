@@ -1,29 +1,19 @@
-import { ListenOptions, TransportDataMap, TransportOptions } from './interface';
+import {
+  ListenOptions,
+  TransferableWorkerData,
+  TransportDataMap,
+  TransportOptions,
+  WorkerData,
+} from './interface';
 import { Transport } from './transport';
 
-export interface WorkerExternalTransportOptions
+export interface WebWorkerExternalTransportOptions
   extends Partial<TransportOptions> {
   /**
    * Pass web worker using data transport.
    */
   worker: Worker;
 }
-
-type TransferableWorkerData = Record<string, any> & {
-  /**
-   * Specify data by transferring ownership (transferable objects)
-   */
-  transfer?: Transferable[];
-};
-
-export type WorkerData =
-  | TransferableWorkerData
-  | any[]
-  | string
-  | number
-  | boolean
-  | null
-  | undefined;
 
 class WorkerExternalTransport<
   T extends TransportDataMap = any
@@ -40,7 +30,7 @@ class WorkerExternalTransport<
         message,
         (message as TransferableWorkerData)?.transfer || []
       ),
-  }: WorkerExternalTransportOptions) {
+  }: WebWorkerExternalTransportOptions) {
     super({
       listen,
       send,
@@ -60,7 +50,10 @@ class WorkerInternalTransport<
     // TODO: fix - https://github.com/microsoft/TypeScript/issues/12657
     // TODO: fix type
     send = (message: WorkerData) =>
-      (postMessage as any)(message, (message as TransferableWorkerData)?.transfer || []),
+      (postMessage as any)(
+        message,
+        (message as TransferableWorkerData)?.transfer || []
+      ),
   } = {}) {
     super({
       listen,

@@ -74,3 +74,19 @@ export type CallBack<T extends TransportData<any, any>> = (
 ) => void;
 
 export type Respond = (request: any, callback: (response: any) => void) => any;
+
+export type TransferableWorkerData = Record<string, any> & {
+  /**
+   * Specify data by transferring ownership (transferable objects)
+   */
+  transfer?: Transferable[];
+};
+
+export type WorkerData =
+  | TransferableWorkerData
+  | any[]
+  | string
+  | number
+  | boolean
+  | null
+  | undefined;

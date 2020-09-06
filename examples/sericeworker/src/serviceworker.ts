@@ -1,17 +1,14 @@
 import {
-  Transport,
+  ServiceWorkerTransport,
   Receiver,
   Request,
   CallBack,
   respond,
-  ListenOptions
 } from 'data-transport';
 import { Internal, External } from './interface';
 
-declare var self: ServiceWorkerGlobalScope;
-
 class InternalTransport
-  extends Transport<Internal>
+  extends ServiceWorkerTransport.Internal<Internal>
   implements Receiver<External> {
   @respond
   help(
@@ -29,17 +26,6 @@ class InternalTransport
   }
 }
 
-const internalTransport = new InternalTransport({
-  listen: (callback: (options: ListenOptions) => void) => {
-    self.addEventListener('message', ({ data }) => {
-      callback(data);
-    });
-  },
-  send: (message: any) => {
-    self.clients
-      .matchAll()
-      .then((all) => all.map((client) => client.postMessage(message)));
-  },
-});
+const internalTransport = new InternalTransport();
 
 (self as any).internalTransport = internalTransport;

@@ -1,15 +1,14 @@
 import {
-  Transport,
+  ServiceWorkerTransport,
   Receiver,
   Request,
   CallBack,
   respond,
-  ListenOptions,
 } from 'data-transport';
 import { Internal, External } from './interface';
 
 class ExternalTransport
-  extends Transport<External>
+  extends ServiceWorkerTransport.External<External>
   implements Receiver<Internal> {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
@@ -21,8 +20,9 @@ class ExternalTransport
     request: Request<Internal['hello']>,
     callback: CallBack<Internal['hello']>
   ) {
+    const input = document.getElementById('input') as HTMLInputElement;
     callback({
-      text: `hello, ${request.num}`,
+      text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
     });
   }
 }
@@ -31,12 +31,7 @@ if (navigator.serviceWorker) {
   navigator.serviceWorker.register('serviceworker.bundle.js');
   navigator.serviceWorker.ready.then((registration) => {
     (window as any).externalTransport = new ExternalTransport({
-      listen: (callback: (options: ListenOptions) => void) => {
-        navigator.serviceWorker.addEventListener('message', ({ data }) => {
-          callback(data);
-        });
-      },
-      send: (message: any) => registration.active!.postMessage(message),
+      serviceWorker: registration.active!,
     });
   });
 }

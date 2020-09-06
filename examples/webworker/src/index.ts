@@ -20,8 +20,9 @@ class ExternalTransport
     request: Request<Internal['hello']>,
     callback: CallBack<Internal['hello']>
   ) {
+    const input = document.getElementById('input') as HTMLInputElement;
     callback({
-      text: `hello, ${request.num}`,
+      text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
     });
   }
 }
