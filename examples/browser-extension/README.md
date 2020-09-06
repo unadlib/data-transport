@@ -1,8 +1,8 @@
-# broadcast
+# browser-extension
 
 ```sh
 yarn install
-yarn webpack-dev-server
+yarn start
 ```
 
-open `http://localhost:8080/`.
+export folder `dist` for google chrome extension
