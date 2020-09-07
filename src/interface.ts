@@ -80,7 +80,7 @@ export interface TransportOptions {
   verbose?: boolean | ((listenOptions: ListenOptions) => void);
 }
 
-export type CallBack<T extends TransportData<any, any>> = (
+type CallBack<T extends TransportData<any, any>> = (
   response: Response<T>
 ) => void;
 

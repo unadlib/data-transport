@@ -1,9 +1,8 @@
 import {
   BrowserExtensionsTransport,
   respond,
-  Request,
-  CallBack,
   Receiver,
+  Respond,
 } from 'data-transport';
 import {
   BackgroundToClient,
@@ -19,17 +18,14 @@ class BackgroundTransport
   }
 
   @respond
-  toggleText(
-    request: Request<ClientToBackground['toggleText']>,
-    callback: CallBack<ClientToBackground['toggleText']>
-  ) {
+  toggleText({ request, callback }: Respond<ClientToBackground['toggleText']>) {
     callback({
       status: !request.status,
     });
   }
 
   @respond
-  openClient(request: Request<PopupToBackground['openClient']>) {
+  openClient({ request }: Respond<PopupToBackground['openClient']>) {
     window.open(request.path, '', request.features);
   }
 }

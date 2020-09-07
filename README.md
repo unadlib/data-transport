@@ -18,13 +18,13 @@ A common transporter
 
 ## Usage
 
-* Installation
+- Installation
 
 ```sh
 yarn add data-transport
 ```
 
-* Define type
+- Define type
 
 ```ts
 type Internal = {
@@ -32,7 +32,7 @@ type Internal = {
 };
 ```
 
-* Implement class
+- Implement class
 
 ```ts
 class InternalTransport extends Transport<Internal> {
@@ -44,10 +44,7 @@ class InternalTransport extends Transport<Internal> {
 
 class ExternalTransport extends Transport implements Receiver<Internal> {
   @respond
-  hello(
-    request: Request<Internal['hello']>,
-    callback: CallBack<Internal['hello']>
-  ) {
+  hello({ request, callback }: Respond<Internal['hello']>) {
     callback({
       text: `hello ${request.num}`,
     });

@@ -1,9 +1,8 @@
 import {
-  CallBack,
   Receiver,
   BrowserExtensionsTransport,
-  Request,
   respond,
+  Respond,
 } from 'data-transport';
 import { ClientToBackground, BackgroundToClient } from '../../interface';
 
@@ -21,10 +20,10 @@ class ClientTransport
   }
 
   @respond
-  changeTextDisplay(
-    request: Request<BackgroundToClient['changeTextDisplay']>,
-    callback: CallBack<BackgroundToClient['changeTextDisplay']>
-  ) {
+  changeTextDisplay({
+    request,
+    callback,
+  }: Respond<BackgroundToClient['changeTextDisplay']>) {
     this.hasDisplay = request.status;
     this.render();
     callback({

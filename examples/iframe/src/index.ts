@@ -1,10 +1,4 @@
-import {
-  IFrameTransport,
-  Receiver,
-  Request,
-  CallBack,
-  respond,
-} from 'data-transport';
+import { IFrameTransport, Receiver, Respond, respond } from 'data-transport';
 import { Internal, External } from './interface';
 
 class ExternalTransport
@@ -16,10 +10,7 @@ class ExternalTransport
   }
 
   @respond
-  hello(
-    request: Request<Internal['hello']>,
-    callback: CallBack<Internal['hello']>
-  ) {
+  hello({ request, callback }: Respond<Internal['hello']>) {
     const input = document.getElementById('input') as HTMLInputElement;
     callback({
       text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
