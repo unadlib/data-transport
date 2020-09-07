@@ -8,7 +8,6 @@ A common transporter
 ## Support Transport
 
 - iframe
-- Network Request
 - Broadcast
 - Web Worker
 - Service Worker
@@ -62,4 +61,5 @@ expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 ## TODO
 
 - [ ] support without decorator
-- [ ] retry
+- [ ] support retry
+- [ ] support Network Request
