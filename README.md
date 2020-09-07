@@ -35,14 +35,14 @@ type Internal = {
 - Implement class
 
 ```ts
-class InternalTransport extends Transport<Internal> {
+class InternalTransport extends IFrameTransport.Internal<Internal> {
   async sayHello() {
     const response = await this.emit('hello', { num: 42 });
     return response;
   }
 }
 
-class ExternalTransport extends Transport implements Receiver<Internal> {
+class ExternalTransport extends IFrameTransport.External implements Receiver<Internal> {
   @respond
   hello({ request, callback }: Respond<Internal['hello']>) {
     callback({
@@ -51,20 +51,15 @@ class ExternalTransport extends Transport implements Receiver<Internal> {
   }
 }
 
-const internal = new InternalTransport({
-  listen: (callback) =>
-    window.addEventListener('message', ({ data }: MessageEvent<any>) =>
-      callback(data)
-    ),
-  send: (message: any) => window.parent.postMessage(message, '*'),
-});
+const internal = new InternalTransport();
 const external = new ExternalTransport({
-  listen: (callback) =>
-    window.addEventListener('message', ({ data }: MessageEvent<any>) =>
-      callback(data)
-    ),
-  send: (message: any) => window.frames[0].postMessage(message, '*'),
+  iframe: document.getElementsByTagName('iframe')[0],
 });
 
 expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 ```
+
+## TODO
+
+- [ ] support without decorator
+- [ ] retry
