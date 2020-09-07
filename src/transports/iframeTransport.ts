@@ -1,5 +1,5 @@
-import { ListenOptions, TransportDataMap, TransportOptions } from './interface';
-import { Transport } from './transport';
+import { ListenOptions, TransportDataMap, TransportOptions } from '../interface';
+import { Transport } from '../transport';
 
 export interface IFrameTransportOptions extends Partial<TransportOptions> {
   /**

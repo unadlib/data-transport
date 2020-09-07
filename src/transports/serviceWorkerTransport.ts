@@ -4,8 +4,8 @@ import {
   TransportDataMap,
   TransportOptions,
   WorkerData,
-} from './interface';
-import { Transport } from './transport';
+} from '../interface';
+import { Transport } from '../transport';
 
 export interface ServiceWorkerExternalTransportOptions
   extends Partial<TransportOptions> {

@@ -1,6 +1,6 @@
 import Peer from 'simple-peer';
-import { TransportDataMap, TransportOptions } from './interface';
-import { Transport } from './transport';
+import { TransportDataMap, TransportOptions } from '../interface';
+import { Transport } from '../transport';
 
 export interface WebRTCTransportOptions extends Partial<TransportOptions> {
   peer: Peer.Instance;
