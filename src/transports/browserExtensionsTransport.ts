@@ -1,5 +1,5 @@
-import { TransportDataMap, TransportOptions } from './interface';
-import { Transport } from './transport';
+import { TransportDataMap, TransportOptions } from '../interface';
+import { Transport } from '../transport';
 
 export interface BrowserExtensionsTransportOptions
   extends Partial<TransportOptions> {
