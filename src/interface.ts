@@ -1,9 +1,13 @@
 import { transportKey } from './constant';
 
+interface RespondOptions<R, C> {
+  request: R;
+  callback: C;
+}
+
 export type Receiver<T extends TransportDataMap> = {
   [P in keyof T]: (
-    request: Request<T[P]>,
-    callback: (response: Response<T[P]>) => void
+    options: RespondOptions<Request<T[P]>, (response: Response<T[P]>) => void>
   ) => void;
 };
 
@@ -80,7 +84,21 @@ export type CallBack<T extends TransportData<any, any>> = (
   response: Response<T>
 ) => void;
 
-export type Respond = (request: any, callback: (response: any) => void) => any;
+export type Respond<
+  T extends TransportData<any, any> = TransportData<any, any>
+> = RespondOptions<Request<T>, CallBack<T>>;
+
+export type RespondsMap = Record<
+  string,
+  (
+    request: Request<any>,
+    options: {
+      hasRespond: Options['hasRespond'];
+      transportId: Options[typeof transportKey];
+      [key: string]: any;
+    }
+  ) => any
+>;
 
 export type TransferableWorkerData = Record<string, any> & {
   /**

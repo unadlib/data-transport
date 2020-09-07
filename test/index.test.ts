@@ -1,11 +1,4 @@
-import {
-  Receiver,
-  Transport,
-  respond,
-  TransportData,
-  Request,
-  CallBack,
-} from '../src';
+import { Transport, respond, Receiver, Respond, TransportData } from '../src';
 
 test('base', async () => {
   type Internal = {
@@ -46,10 +39,8 @@ test('base', async () => {
     }
 
     @respond
-    hello(
-      request: Request<Internal['hello']>,
-      callback: CallBack<Internal['hello']>
-    ) {
+    hello({ request, callback }: Respond<Internal['hello']>) {
+      request.num;
       callback({
         text: `hello ${request.num}`,
       });
@@ -104,7 +95,7 @@ test('base with `{ hasRespond: false }`', async () => {
     }
 
     @respond
-    hello(request: Request<Internal['hello']>) {
+    hello({ request }: Respond<Internal['hello']>) {
       expect(request.num).toBe(42);
     }
   }
@@ -141,10 +132,7 @@ test('base with two-way', async () => {
     }
 
     @respond
-    help(
-      request: Request<External['help']>,
-      callback: CallBack<External['help']>
-    ) {
+    help({ request, callback }: Respond<External['help']>) {
       callback({
         text: String.fromCharCode(request.key),
       });
@@ -175,10 +163,7 @@ test('base with two-way', async () => {
     }
 
     @respond
-    hello(
-      request: Request<Internal['hello']>,
-      callback: CallBack<Internal['hello']>
-    ) {
+    hello({ request, callback }: Respond<Internal['hello']>) {
       callback({
         text: `hello ${request.num}`,
       });
@@ -190,12 +175,18 @@ test('base with two-way', async () => {
   expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
   expect(await external.help()).toEqual({ text: 'A' });
   expect(() => {
-    external.hello({ num: 1 }, () => {});
+    external.hello({
+      request: { num: 1 },
+      callback: () => {},
+    });
   }).toThrowError(
     "The method 'hello' is a listener function that can NOT be actively called."
   );
   expect(() => {
-    internal.help({ key: 1 }, () => {});
+    internal.help({
+      request: { key: 1 },
+      callback: () => {},
+    });
   }).toThrowError(
     "The method 'help' is a listener function that can NOT be actively called."
   );

@@ -15,6 +15,7 @@ import {
   ListenOptions,
   Request,
   Respond,
+  RespondsMap,
   Response,
   TransportDataMap,
   TransportOptions,
@@ -27,11 +28,11 @@ export abstract class Transport<T extends TransportDataMap = any> {
   private [sendKey]: TransportOptions['send'];
   private [timeoutKey]: TransportOptions['timeout'];
   private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
-  private [respondsMapKey]!: Record<
+  private [respondsMapKey]!: RespondsMap;
+  private [originalRespondsMapKey]!: Record<
     string,
-    (request: any, options: { hasRespond: boolean; transportId: string }) => any
+    (options: Respond) => void | Promise<void>
   >;
-  private [originalRespondsMapKey]!: Record<string, Respond>;
 
   constructor({
     listen,
@@ -47,26 +48,29 @@ export abstract class Transport<T extends TransportDataMap = any> {
 
     Object.entries(this[originalRespondsMapKey]).forEach(([key, fn]) => {
       this[respondsMapKey][key] = (
-        request: any,
+        request,
         // `args` for custom fields data from `listenOptions` request
         { hasRespond, transportId, ...args }
       ) => {
-        fn?.call(this, request, (response: any) => {
-          if (__DEV__) {
-            if (!hasRespond) {
-              console.warn(
-                `The event '${key}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
-              );
-              return;
+        fn?.call(this, {
+          request,
+          callback: (response: any) => {
+            if (__DEV__) {
+              if (!hasRespond) {
+                console.warn(
+                  `The event '${key}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
+                );
+                return;
+              }
             }
-          }
-          this[sendKey]({
-            ...args,
-            type: key,
-            response,
-            hasRespond,
-            [transportKey]: transportId,
-          });
+            this[sendKey]({
+              ...args,
+              type: key,
+              response,
+              hasRespond,
+              [transportKey]: transportId,
+            });
+          },
         });
       };
     });
