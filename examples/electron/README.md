@@ -1,4 +1,4 @@
-# broadcast
+# electron
 
 ```sh
 yarn install
