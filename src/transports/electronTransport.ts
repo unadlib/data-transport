@@ -1,5 +1,5 @@
-import { TransportDataMap, TransportOptions } from '../interface';
 import { BrowserWindow, IpcRendererEvent, IpcMainEvent } from 'electron';
+import { TransportDataMap, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$Electron_Transport$$';

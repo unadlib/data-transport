@@ -30,10 +30,6 @@ module.exports = [
     },
     devServer: {
       writeToDisk: true,
-      after: () => {
-        const { exec } = require('child_process');
-        exec('yarn run electron ./dist/main.js');
-      },
     },
   },
   {

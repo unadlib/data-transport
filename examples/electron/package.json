@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server"
+    "dev": "webpack-dev-server",
+    "start": "electron ./dist/main.js --inspect"
   },
   "keywords": [],
   "author": "",
