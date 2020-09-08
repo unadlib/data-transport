@@ -25,6 +25,9 @@ export default isProduction
             .join(''),
           file: pkg.unpkg,
           sourcemap: true,
+          globals: {
+            electron: 'electron',
+          },
         },
       ],
       plugins: [
@@ -37,6 +40,7 @@ export default isProduction
         }),
         terser(),
       ],
+      external: ['electron'],
     }
   : {
       input,
@@ -57,4 +61,5 @@ export default isProduction
           __DEV__: 'true',
         }),
       ],
+      external: ['electron'],
     };
