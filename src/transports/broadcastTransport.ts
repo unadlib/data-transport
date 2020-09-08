@@ -15,7 +15,7 @@ abstract class BroadcastTransport<
         callback(data);
       };
     },
-    send = (message: any) => broadcastChannel.postMessage(message),
+    send = (message) => broadcastChannel.postMessage(message),
   }: BroadcastTransportOptions) {
     super({
       listen,

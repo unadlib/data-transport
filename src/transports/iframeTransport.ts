@@ -1,4 +1,8 @@
-import { ListenOptions, TransportDataMap, TransportOptions } from '../interface';
+import {
+  ListenOptions,
+  TransportDataMap,
+  TransportOptions,
+} from '../interface';
 import { Transport } from '../transport';
 
 export interface IFrameTransportOptions extends Partial<TransportOptions> {
@@ -13,22 +17,29 @@ export interface IFrameExternalTransportOptions extends IFrameTransportOptions {
   /**
    * Pass an iframe for using data transport.
    */
-  iframe: HTMLIFrameElement;
+  iframe?: HTMLIFrameElement;
 }
 
 abstract class IFrameExternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
-    iframe,
+    iframe = undefined,
     targetOrigin = '*',
     listen = (callback) => {
       window.addEventListener('message', ({ data }: MessageEvent<any>) =>
         callback(data)
       );
     },
-    send = (message: any) =>
-      iframe.contentWindow!.postMessage(message, targetOrigin),
+    send = (message) => {
+      if (iframe) {
+        iframe.contentWindow!.postMessage(message, targetOrigin);
+      } else if (window.frames[0]) {
+        window.frames[0].postMessage(message, targetOrigin);
+      } else {
+        console.error('The current page does not have any iframe elements');
+      }
+    },
   }: IFrameExternalTransportOptions) {
     super({
       listen,
@@ -42,7 +53,7 @@ abstract class IFrameInternalTransport<
 > extends Transport<T> {
   constructor({
     targetOrigin = '*',
-    listen = (callback: (options: ListenOptions) => void) => {
+    listen = (callback) => {
       window.addEventListener('message', ({ data }: MessageEvent<any>) =>
         callback(data)
       );

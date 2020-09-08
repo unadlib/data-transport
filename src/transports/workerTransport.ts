@@ -42,7 +42,7 @@ abstract class WorkerInternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
-    listen = (callback: (options: ListenOptions) => void) => {
+    listen = (callback) => {
       onmessage = ({ data }: MessageEvent<any>) => {
         callback(data);
       };
@@ -54,7 +54,7 @@ abstract class WorkerInternalTransport<
         message,
         (message as TransferableWorkerData)?.transfer || []
       ),
-  } = {}) {
+  }: Partial<TransportOptions> = {}) {
     super({
       listen,
       send,

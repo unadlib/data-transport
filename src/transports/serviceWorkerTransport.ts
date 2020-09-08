@@ -20,7 +20,7 @@ abstract class ServiceWorkerExternalTransport<
 > extends Transport<T> {
   constructor({
     serviceWorker,
-    listen = (callback: (options: ListenOptions) => void) => {
+    listen = (callback) => {
       navigator.serviceWorker.addEventListener('message', ({ data }) => {
         callback(data);
       });
@@ -42,7 +42,7 @@ abstract class ServiceWorkerInternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
-    listen = (callback: (options: ListenOptions) => void) => {
+    listen = (callback) => {
       addEventListener('message', ({ data }) => {
         callback(data);
       });
@@ -60,7 +60,7 @@ abstract class ServiceWorkerInternalTransport<
           )
         );
     },
-  } = {}) {
+  }: Partial<TransportOptions> = {}) {
     super({
       listen,
       send,
