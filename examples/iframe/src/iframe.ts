@@ -1,11 +1,11 @@
 import { IFrameTransport, Receiver, Respond, respond } from 'data-transport';
-import { Internal, External } from './interface';
+import { Main, IFrame } from './interface';
 
-class InternalTransport
-  extends IFrameTransport.Internal<Internal>
-  implements Receiver<External> {
+class IFrameInternalTransport
+  extends IFrameTransport.IFrame<IFrame>
+  implements Receiver<Main> {
   @respond
-  help({ request, callback }: Respond<External['help']>) {
+  help({ request, callback }: Respond<Main['help']>) {
     callback({
       text: 'COPY!!!',
     });
@@ -17,15 +17,15 @@ class InternalTransport
   }
 }
 
-const useInternalTransport = () => new InternalTransport();
+const useIFrameInternalTransport = () => new IFrameInternalTransport();
 
 const init = () => {
   window.addEventListener('load', () => {
-    const internalTransport = useInternalTransport();
+    const iframeTransport = useIFrameInternalTransport();
     const button = document.createElement('button');
     button.textContent = 'sayHello';
     button.onclick = async () => {
-      const data = await internalTransport.sayHello();
+      const data = await iframeTransport.sayHello();
       const div = document.createElement('div');
       div.innerText = `${new Date()}: ${data.text}`;
       document.body.appendChild(div);

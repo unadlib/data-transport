@@ -13,14 +13,14 @@ export interface IFrameTransportOptions extends Partial<TransportOptions> {
   targetOrigin?: string;
 }
 
-export interface IFrameExternalTransportOptions extends IFrameTransportOptions {
+export interface IFrameMainTransportOptions extends IFrameTransportOptions {
   /**
    * Pass an iframe for using data transport.
    */
   iframe?: HTMLIFrameElement;
 }
 
-abstract class IFrameExternalTransport<
+abstract class IFrameMainTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -40,7 +40,7 @@ abstract class IFrameExternalTransport<
         console.error('The current page does not have any iframe elements');
       }
     },
-  }: IFrameExternalTransportOptions) {
+  }: IFrameMainTransportOptions) {
     super({
       listen,
       send,
@@ -68,6 +68,6 @@ abstract class IFrameInternalTransport<
 }
 
 export const IFrameTransport = {
-  External: IFrameExternalTransport,
-  Internal: IFrameInternalTransport,
+  Main: IFrameMainTransport,
+  IFrame: IFrameInternalTransport,
 };

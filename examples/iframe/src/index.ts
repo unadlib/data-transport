@@ -1,16 +1,16 @@
 import { IFrameTransport, Receiver, Respond, respond } from 'data-transport';
-import { Internal, External } from './interface';
+import { Main, IFrame } from './interface';
 
-class ExternalTransport
-  extends IFrameTransport.External<External>
-  implements Receiver<Internal> {
+class MainTransport
+  extends IFrameTransport.Main<Main>
+  implements Receiver<IFrame> {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;
   }
 
   @respond
-  hello({ request, callback }: Respond<Internal['hello']>) {
+  hello({ request, callback }: Respond<IFrame['hello']>) {
     const input = document.getElementById('input') as HTMLInputElement;
     callback({
       text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
@@ -18,8 +18,8 @@ class ExternalTransport
   }
 }
 
-const useExternalTransport = (iframe: HTMLIFrameElement) =>
-  new ExternalTransport({
+const useMainTransport = (iframe: HTMLIFrameElement) =>
+  new MainTransport({
     iframe,
   });
 
@@ -28,11 +28,11 @@ const init = () => {
   iframe.width = '100%';
   iframe.src = 'http://127.0.0.1:8080/iframe.html';
   iframe.onload = () => {
-    const externalTransport = useExternalTransport(iframe);
+    const mainTransport = useMainTransport(iframe);
     const button = document.createElement('button');
     button.textContent = 'help';
     button.onclick = async () => {
-      const response = await externalTransport.help();
+      const response = await mainTransport.help();
       const div = document.createElement('div');
       div.innerText = `${new Date()}: ${response.text}`;
       document.body.appendChild(div);
