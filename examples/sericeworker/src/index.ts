@@ -6,7 +6,7 @@ import {
 } from 'data-transport';
 import { Service, Client } from './interface';
 
-class ExternalTransport
+class ClientTransport
   extends ServiceWorkerTransport.Client<Client>
   implements Receiver<Service> {
   async help() {
@@ -26,7 +26,7 @@ class ExternalTransport
 if (navigator.serviceWorker) {
   navigator.serviceWorker.register('serviceworker.bundle.js');
   navigator.serviceWorker.ready.then((registration) => {
-    (window as any).externalTransport = new ExternalTransport({
+    (window as any).clientTransport = new ClientTransport({
       serviceWorker: registration.active!,
     });
   });

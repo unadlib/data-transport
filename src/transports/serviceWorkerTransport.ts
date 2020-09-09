@@ -37,7 +37,7 @@ abstract class ServiceWorkerClientTransport<
   }
 }
 
-export abstract class ServiceWorkerTransport<
+abstract class ServiceWorkerServiceTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -65,6 +65,9 @@ export abstract class ServiceWorkerTransport<
       send,
     });
   }
-
-  static Client = ServiceWorkerClientTransport;
 }
+
+export const ServiceWorkerTransport = {
+  Client: ServiceWorkerClientTransport,
+  Service: ServiceWorkerServiceTransport,
+};

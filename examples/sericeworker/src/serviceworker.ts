@@ -6,8 +6,8 @@ import {
 } from 'data-transport';
 import { Service, Client } from './interface';
 
-class InternalTransport
-  extends ServiceWorkerTransport<Service>
+class ServiceTransport
+  extends ServiceWorkerTransport.Service<Service>
   implements Receiver<Client> {
   @respond
   help({ request, callback }: Respond<Client['help']>) {
@@ -22,6 +22,4 @@ class InternalTransport
   }
 }
 
-const internalTransport = new InternalTransport();
-
-(self as any).internalTransport = internalTransport;
+(self as any).serviceTransport = new ServiceTransport();
