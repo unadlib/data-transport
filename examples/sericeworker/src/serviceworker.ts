@@ -4,13 +4,13 @@ import {
   Respond,
   respond,
 } from 'data-transport';
-import { Internal, External } from './interface';
+import { Service, Client } from './interface';
 
 class InternalTransport
-  extends ServiceWorkerTransport.Internal<Internal>
-  implements Receiver<External> {
+  extends ServiceWorkerTransport<Service>
+  implements Receiver<Client> {
   @respond
-  help({ request, callback }: Respond<External['help']>) {
+  help({ request, callback }: Respond<Client['help']>) {
     callback({
       text: 'COPY!!!',
     });

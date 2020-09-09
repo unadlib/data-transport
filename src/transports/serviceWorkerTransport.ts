@@ -1,5 +1,4 @@
 import {
-  ListenOptions,
   TransferableWorkerData,
   TransportDataMap,
   TransportOptions,
@@ -7,7 +6,7 @@ import {
 } from '../interface';
 import { Transport } from '../transport';
 
-export interface ServiceWorkerExternalTransportOptions
+export interface ServiceWorkerClientTransportOptions
   extends Partial<TransportOptions> {
   /**
    * Pass service worker using data transport.
@@ -15,7 +14,7 @@ export interface ServiceWorkerExternalTransportOptions
   serviceWorker: ServiceWorker;
 }
 
-abstract class ServiceWorkerExternalTransport<
+abstract class ServiceWorkerClientTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -30,7 +29,7 @@ abstract class ServiceWorkerExternalTransport<
         message,
         (message as TransferableWorkerData)?.transfer || []
       ),
-  }: ServiceWorkerExternalTransportOptions) {
+  }: ServiceWorkerClientTransportOptions) {
     super({
       listen,
       send,
@@ -38,7 +37,7 @@ abstract class ServiceWorkerExternalTransport<
   }
 }
 
-abstract class ServiceWorkerInternalTransport<
+export abstract class ServiceWorkerTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -66,9 +65,6 @@ abstract class ServiceWorkerInternalTransport<
       send,
     });
   }
-}
 
-export const ServiceWorkerTransport = {
-  External: ServiceWorkerExternalTransport,
-  Internal: ServiceWorkerInternalTransport,
-};
+  static Client = ServiceWorkerClientTransport;
+}
