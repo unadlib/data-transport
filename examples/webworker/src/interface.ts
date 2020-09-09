@@ -1,9 +1,9 @@
 import { TransportData } from 'data-transport';
 
-export type Internal = {
+export type Worker = {
   hello: TransportData<{ num: number }, { text: string }>;
 };
 
-export type External = {
+export type Main = {
   help: TransportData<{ text: string }, { text: string }>;
 };

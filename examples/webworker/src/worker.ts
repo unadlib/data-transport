@@ -1,11 +1,11 @@
 import { WorkerTransport, Receiver, Respond, respond } from 'data-transport';
-import { Internal, External } from './interface';
+import { Main, Worker } from './interface';
 
-class InternalTransport
-  extends WorkerTransport.Internal<Internal>
-  implements Receiver<External> {
+class WebWorkerTransport
+  extends WorkerTransport.Worker<Worker>
+  implements Receiver<Main> {
   @respond
-  help({ request, callback }: Respond<External['help']>) {
+  help({ request, callback }: Respond<Main['help']>) {
     callback({
       text: 'COPY!!!',
     });
@@ -17,6 +17,4 @@ class InternalTransport
   }
 }
 
-const internalTransport = new InternalTransport();
-
-(self as any).internalTransport = internalTransport;
+(self as any).webWorkerTransport = new WebWorkerTransport();

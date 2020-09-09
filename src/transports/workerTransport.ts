@@ -1,5 +1,4 @@
 import {
-  ListenOptions,
   TransferableWorkerData,
   TransportDataMap,
   TransportOptions,
@@ -7,7 +6,7 @@ import {
 } from '../interface';
 import { Transport } from '../transport';
 
-export interface WebWorkerExternalTransportOptions
+export interface WebWorkerMainTransportOptions
   extends Partial<TransportOptions> {
   /**
    * Pass web worker using data transport.
@@ -15,7 +14,7 @@ export interface WebWorkerExternalTransportOptions
   worker: Worker;
 }
 
-abstract class WorkerExternalTransport<
+abstract class WorkerMainTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
@@ -30,7 +29,7 @@ abstract class WorkerExternalTransport<
         message,
         (message as TransferableWorkerData)?.transfer || []
       ),
-  }: WebWorkerExternalTransportOptions) {
+  }: WebWorkerMainTransportOptions) {
     super({
       listen,
       send,
@@ -63,6 +62,6 @@ abstract class WorkerInternalTransport<
 }
 
 export const WorkerTransport = {
-  External: WorkerExternalTransport,
-  Internal: WorkerInternalTransport,
+  Main: WorkerMainTransport,
+  Worker: WorkerInternalTransport,
 };
