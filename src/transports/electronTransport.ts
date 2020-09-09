@@ -23,7 +23,7 @@ export interface ElectronMainTransportOptions extends ElectronTransportOptions {
    */
   browserWindow: BrowserWindow;
   /**
-   * IpcMain
+   * Communicate asynchronously from the main process to renderer processes.
    */
   ipcMain: IpcMain;
 }
@@ -31,7 +31,7 @@ export interface ElectronMainTransportOptions extends ElectronTransportOptions {
 export interface ElectronRendererTransportOptions
   extends ElectronTransportOptions {
   /**
-   * IpcMain
+   * Communicate asynchronously from a renderer process to the main process.
    */
   ipcRenderer: IpcRenderer;
 }
