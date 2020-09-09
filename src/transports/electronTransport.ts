@@ -1,4 +1,10 @@
-import { BrowserWindow, IpcRendererEvent, IpcMainEvent } from 'electron';
+import {
+  BrowserWindow,
+  IpcRendererEvent,
+  IpcMainEvent,
+  IpcMain,
+  IpcRenderer,
+} from 'electron';
 import { TransportDataMap, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
@@ -16,16 +22,29 @@ export interface ElectronMainTransportOptions extends ElectronTransportOptions {
    * Specify a browser windows created by the Electron main process.
    */
   browserWindow: BrowserWindow;
+  /**
+   * IpcMain
+   */
+  ipcMain: IpcMain;
+}
+
+export interface ElectronRendererTransportOptions
+  extends ElectronTransportOptions {
+  /**
+   * IpcMain
+   */
+  ipcRenderer: IpcRenderer;
 }
 
 abstract class ElectronMainTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
+    ipcMain,
     browserWindow,
     channel = defaultChannel,
     listen = (callback) => {
-      require('electron').ipcMain.on(channel, (e: IpcMainEvent, data: any) => {
+      ipcMain.on(channel, (e: IpcMainEvent, data: any) => {
         callback(data);
       });
     },
@@ -42,17 +61,15 @@ abstract class ElectronRendererTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
+    ipcRenderer,
     channel = defaultChannel,
     listen = (callback) => {
-      require('electron').ipcRenderer.on(
-        channel,
-        (_: IpcRendererEvent, data: any) => {
-          callback(data);
-        }
-      );
+      ipcRenderer.on(channel, (_: IpcRendererEvent, data: any) => {
+        callback(data);
+      });
     },
-    send = (message) => require('electron').ipcRenderer.send(channel, message),
-  }: ElectronTransportOptions = {}) {
+    send = (message) => ipcRenderer.send(channel, message),
+  }: ElectronRendererTransportOptions) {
     super({
       listen,
       send,

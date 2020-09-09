@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { ElectronTransport, Receiver, Respond, respond } from 'data-transport';
 import { Renderer, Main } from './interface';
@@ -36,6 +36,7 @@ function createWindow() {
   browserWindow.webContents.openDevTools();
   browserWindow.webContents.on('dom-ready', () => {
     (global as any).mainTransport = new MainTransport({
+      ipcMain,
       browserWindow,
     });
   });

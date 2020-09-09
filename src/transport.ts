@@ -7,6 +7,7 @@ import {
   sendKey,
   timeoutKey,
   transportKey,
+  prefixKey,
 } from './constant';
 import {
   EmitOptions,
@@ -22,11 +23,13 @@ import {
 } from './interface';
 
 const defaultTimeout = 60 * 1000;
+const defaultPrefix = 'DataTransport-';
 
 export abstract class Transport<T extends TransportDataMap = any> {
   private [listenKey]: TransportOptions['listen'];
   private [sendKey]: TransportOptions['send'];
   private [timeoutKey]: TransportOptions['timeout'];
+  private [prefixKey]: TransportOptions['prefix'];
   private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
   private [respondsMapKey]!: RespondsMap;
   private [originalRespondsMapKey]!: Record<
@@ -39,15 +42,18 @@ export abstract class Transport<T extends TransportDataMap = any> {
     send,
     timeout = defaultTimeout,
     verbose = false,
+    prefix = defaultPrefix,
   }: TransportOptions) {
     this[respondsMapKey] ??= {};
     this[originalRespondsMapKey] ??= {};
     this[listenKey] = listen;
     this[sendKey] = send;
     this[timeoutKey] = timeout;
+    this[prefixKey] = prefix;
 
-    Object.entries(this[originalRespondsMapKey]).forEach(([key, fn]) => {
-      this[respondsMapKey][key] = (
+    Object.entries(this[originalRespondsMapKey]).forEach(([name, fn]) => {
+      const type = `${this[prefixKey]}${name}`;
+      this[respondsMapKey][type] = (
         request,
         // `args` for custom fields data from `listenOptions` request
         { hasRespond, transportId, ...args }
@@ -58,14 +64,14 @@ export abstract class Transport<T extends TransportDataMap = any> {
             if (__DEV__) {
               if (!hasRespond) {
                 console.warn(
-                  `The event '${key}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
+                  `The event '${type}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
                 );
                 return;
               }
             }
             this[sendKey]({
               ...args,
-              type: key,
+              type,
               response,
               hasRespond,
               [transportKey]: transportId,
@@ -130,7 +136,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
    * @returns Return a response for the request.
    */
   protected async emit<K extends keyof T>(
-    type: K,
+    name: K,
     request: Request<T[K]>,
     options: EmitOptions = {}
   ): Promise<Response<T[K]>> {
@@ -149,14 +155,16 @@ export abstract class Transport<T extends TransportDataMap = any> {
         return randomNumbers;
       },
     });
+    const type = `${this[prefixKey]}${name}`;
+    const data = {
+      type,
+      request,
+      hasRespond,
+      [transportKey]: transportId,
+    };
     if (!hasRespond) {
       return new Promise((resolve) => {
-        this[sendKey]({
-          type: type as string,
-          request,
-          hasRespond,
-          [transportKey]: transportId,
-        });
+        this[sendKey](data);
         resolve();
       });
     }
@@ -164,12 +172,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
     const promise = Promise.race([
       new Promise((resolve) => {
         this[requestsMapKey].set(transportId, resolve);
-        this[sendKey]({
-          type: type as string,
-          request,
-          hasRespond,
-          [transportKey]: transportId,
-        });
+        this[sendKey](data);
       }),
       new Promise((_, reject) => {
         timeoutId = setTimeout(() => {

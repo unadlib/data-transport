@@ -78,6 +78,11 @@ export interface TransportOptions {
    * Display verbose receive data log
    */
   verbose?: boolean | ((listenOptions: ListenOptions) => void);
+  /**
+   * @description
+   * Specify a prefix for event types.
+   */
+  prefix?: string;
 }
 
 type CallBack<T extends TransportData<any, any>> = (

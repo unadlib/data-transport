@@ -1,4 +1,5 @@
 import { ElectronTransport, Receiver, Respond, respond } from 'data-transport';
+import { ipcRenderer } from 'electron';
 import { Renderer, Main } from './interface';
 
 class RendererTransport
@@ -17,4 +18,4 @@ class RendererTransport
   }
 }
 
-(window as any).rendererTransport = new RendererTransport();
+(window as any).rendererTransport = new RendererTransport({ ipcRenderer });
