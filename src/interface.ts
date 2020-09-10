@@ -1,8 +1,8 @@
 import { transportKey } from './constant';
 
-interface RespondOptions<R, C> {
-  request: R;
-  callback: C;
+interface RespondOptions<T, P> {
+  request: T;
+  respond: P;
 }
 
 export type Receiver<T extends TransportDataMap> = {

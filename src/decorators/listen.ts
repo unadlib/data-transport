@@ -1,7 +1,7 @@
 import { originalRespondsMapKey } from '../constant';
 import { Transport } from '../transport';
 
-export const respond = (
+export const listen = (
   target: Transport,
   key: string,
   descriptor: TypedPropertyDescriptor<(...args: any) => any>
@@ -10,7 +10,7 @@ export const respond = (
   if (__DEV__) {
     if (typeof fn !== 'function') {
       console.warn(
-        `The decorator '@respond' can only decorate methods, '${key}' is NOT a methods.`
+        `The decorator '@listen' can only decorate methods, '${key}' is NOT a methods.`
       );
       return descriptor;
     }

@@ -1,4 +1,4 @@
-import { Transport, respond, Receiver, Respond, TransportData } from '../src';
+import { Transport, listen, Receiver, Respond, TransportData } from '../src';
 
 test('base', async () => {
   type Internal = {
@@ -38,10 +38,10 @@ test('base', async () => {
       });
     }
 
-    @respond
-    hello({ request, callback }: Respond<Internal['hello']>) {
+    @listen
+    hello({ request, respond }: Respond<Internal['hello']>) {
       request.num;
-      callback({
+      respond({
         text: `hello ${request.num}`,
       });
     }
@@ -94,7 +94,7 @@ test('base with `{ hasRespond: false }`', async () => {
       });
     }
 
-    @respond
+    @listen
     hello({ request }: Respond<Internal['hello']>) {
       expect(request.num).toBe(42);
     }
@@ -131,9 +131,9 @@ test('base with two-way', async () => {
       });
     }
 
-    @respond
-    help({ request, callback }: Respond<External['help']>) {
-      callback({
+    @listen
+    help({ request, respond }: Respond<External['help']>) {
+      respond({
         text: String.fromCharCode(request.key),
       });
     }
@@ -162,9 +162,9 @@ test('base with two-way', async () => {
       return this.emit('help', { key: 65 });
     }
 
-    @respond
-    hello({ request, callback }: Respond<Internal['hello']>) {
-      callback({
+    @listen
+    hello({ request, respond }: Respond<Internal['hello']>) {
+      respond({
         text: `hello ${request.num}`,
       });
     }
@@ -177,7 +177,7 @@ test('base with two-way', async () => {
   expect(() => {
     external.hello({
       request: { num: 1 },
-      callback: () => {},
+      respond: () => {},
     });
   }).toThrowError(
     "The method 'hello' is a listener function that can NOT be actively called."
@@ -185,7 +185,7 @@ test('base with two-way', async () => {
   expect(() => {
     internal.help({
       request: { key: 1 },
-      callback: () => {},
+      respond: () => {},
     });
   }).toThrowError(
     "The method 'help' is a listener function that can NOT be actively called."

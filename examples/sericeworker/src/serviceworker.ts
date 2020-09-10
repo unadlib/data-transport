@@ -2,16 +2,16 @@ import {
   ServiceWorkerTransport,
   Receiver,
   Respond,
-  respond,
+  listen,
 } from 'data-transport';
 import { Service, Client } from './interface';
 
 class ServiceTransport
   extends ServiceWorkerTransport.Service<Service>
   implements Receiver<Client> {
-  @respond
-  help({ request, callback }: Respond<Client['help']>) {
-    callback({
+  @listen
+  help({ request, respond }: Respond<Client['help']>) {
+    respond({
       text: 'COPY!!!',
     });
   }

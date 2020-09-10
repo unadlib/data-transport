@@ -1,7 +1,7 @@
 import {
   Receiver,
   BrowserExtensionsTransport,
-  respond,
+  listen,
   Respond,
 } from 'data-transport';
 import { ClientToBackground, BackgroundToClient } from '../../interface';
@@ -19,14 +19,14 @@ class ClientTransport
     this.render();
   }
 
-  @respond
+  @listen
   changeTextDisplay({
     request,
-    callback,
+    respond,
   }: Respond<BackgroundToClient['changeTextDisplay']>) {
     this.hasDisplay = request.status;
     this.render();
-    callback({
+    respond({
       status: request.status,
     });
   }

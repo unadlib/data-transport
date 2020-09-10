@@ -1,4 +1,4 @@
-import { WebRTCTransport, Receiver, Respond, respond } from 'data-transport';
+import { WebRTCTransport, Receiver, Respond, listen } from 'data-transport';
 import SimplePeer from 'simple-peer';
 import { Other, Main } from './interface';
 
@@ -8,10 +8,10 @@ class MainTransport extends WebRTCTransport<Main> implements Receiver<Other> {
     return response;
   }
 
-  @respond
-  hello({ request, callback }: Respond<Other['hello']>) {
+  @listen
+  hello({ request, respond }: Respond<Other['hello']>) {
     const input = document.getElementById('input') as HTMLInputElement;
-    callback({
+    respond({
       text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
     });
   }

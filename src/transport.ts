@@ -62,7 +62,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
       ) => {
         fn?.call(this, {
           request,
-          callback: (response: any) => {
+          respond: (response) => {
             if (__DEV__) {
               if (!hasRespond) {
                 console.warn(
@@ -117,7 +117,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
           } else if (hasListener) {
             if (__DEV__) {
               console.error(
-                `In '${this.constructor.name}' class, the listener method '${listenOptions.type}' is NOT decorated by decorator '@respond'.`
+                `In '${this.constructor.name}' class, the listener method '${listenOptions.type}' is NOT decorated by decorator '@listen'.`
               );
             }
           }

@@ -42,9 +42,9 @@ class InternalTransport extends IFrameTransport.IFrame<IFrame> {
 }
 
 class ExternalTransport extends IFrameTransport.Main implements Receiver<IFrame> {
-  @respond
-  hello({ request, callback }: Respond<IFrame['hello']>) {
-    callback({
+  @listen
+  hello({ request, respond }: Respond<IFrame['hello']>) {
+    respond({
       text: `hello ${request.num}`,
     });
   }

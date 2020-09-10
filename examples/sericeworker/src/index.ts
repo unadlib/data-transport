@@ -2,7 +2,7 @@ import {
   ServiceWorkerTransport,
   Receiver,
   Respond,
-  respond,
+  listen,
 } from 'data-transport';
 import { Service, Client } from './interface';
 
@@ -14,10 +14,10 @@ class ClientTransport
     return response;
   }
 
-  @respond
-  hello({ request, callback }: Respond<Service['hello']>) {
+  @listen
+  hello({ request, respond }: Respond<Service['hello']>) {
     const input = document.getElementById('input') as HTMLInputElement;
-    callback({
+    respond({
       text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
     });
   }

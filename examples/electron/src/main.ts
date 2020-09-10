@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
-import { ElectronTransport, Receiver, Respond, respond } from 'data-transport';
+import { ElectronTransport, Receiver, Respond, listen } from 'data-transport';
 import { Renderer, Main } from './interface';
 
 class MainTransport
@@ -11,9 +11,9 @@ class MainTransport
     return response;
   }
 
-  @respond
-  hello({ request, callback }: Respond<Renderer['hello']>) {
-    callback({
+  @listen
+  hello({ request, respond }: Respond<Renderer['hello']>) {
+    respond({
       text: `hello, ${request.num}`,
     });
   }

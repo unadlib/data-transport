@@ -1,6 +1,6 @@
 import {
   BrowserExtensionsTransport,
-  respond,
+  listen,
   Receiver,
   Respond,
 } from 'data-transport';
@@ -17,14 +17,14 @@ class BackgroundTransport
     return this.emit('changeTextDisplay', { status: true });
   }
 
-  @respond
-  toggleText({ request, callback }: Respond<ClientToBackground['toggleText']>) {
-    callback({
+  @listen
+  toggleText({ request, respond }: Respond<ClientToBackground['toggleText']>) {
+    respond({
       status: !request.status,
     });
   }
 
-  @respond
+  @listen
   openClient({ request }: Respond<PopupToBackground['openClient']>) {
     window.open(request.path, '', request.features);
   }
