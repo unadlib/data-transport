@@ -1,7 +1,7 @@
 {
   "name": "data-transport",
-  "version": "0.1.0",
-  "description": "A common transporter",
+  "version": "0.1.1",
+  "description": "A generic communication transporter",
   "main": "lib/index.js",
   "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
@@ -23,6 +23,17 @@
     "url": "https://github.com/unadlib/data-transport/issues"
   },
   "homepage": "https://github.com/unadlib/data-transport#readme",
+  "keywords": [
+    "data-transport",
+    "communication",
+    "iframe",
+    "Broadcast",
+    "Web Worker",
+    "Service Worker",
+    "Browser Extension",
+    "WebRTC",
+    "Electron"
+  ],
   "devDependencies": {
     "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
