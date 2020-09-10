@@ -25,7 +25,7 @@ const init = () => {
   window.addEventListener('load', () => {
     const mainTransport = useMainTransport();
     const button = document.createElement('button');
-    button.textContent = 'sayHello';
+    button.textContent = 'help';
     button.onclick = async () => {
       const data = await mainTransport.help();
       const div = document.createElement('div');
