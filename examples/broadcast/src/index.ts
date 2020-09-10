@@ -1,4 +1,4 @@
-import { BroadcastTransport, Receiver, listen, Respond } from 'data-transport';
+import { BroadcastTransport, Receiver, listen, Listen } from 'data-transport';
 import { Other, Main } from './interface';
 
 class MainTransport
@@ -10,7 +10,7 @@ class MainTransport
   }
 
   @listen
-  hello({ request, respond }: Respond<Other['hello']>) {
+  hello({ request, respond }: Listen<Other['hello']>) {
     const input = document.getElementById('input') as HTMLInputElement;
     respond({
       text: `hello ${input?.value || 'anonymous'}, ${request.num}`,

@@ -1,13 +1,13 @@
 import { transportKey } from './constant';
 
-interface RespondOptions<T, P> {
+interface ListenOptions<T, P> {
   request: T;
   respond: P;
 }
 
 export type Receiver<T extends TransportDataMap> = {
   [P in keyof T]: (
-    options: RespondOptions<Request<T[P]>, (response: Response<T[P]>) => void>
+    options: ListenOptions<Request<T[P]>, (response: Response<T[P]>) => void>
   ) => void;
 };
 
@@ -55,7 +55,7 @@ export interface IResponse extends Options {
   response: Response<any>;
 }
 
-export type ListenOptions = IRequest | IResponse;
+export type ListenerOptions = IRequest | IResponse;
 
 export interface TransportOptions {
   /**
@@ -67,7 +67,7 @@ export interface TransportOptions {
    * @description
    * Listen method attaches an event handler to the specified transport.
    */
-  listener: (callback: (options: ListenOptions) => void) => void;
+  listener: (callback: (options: ListenerOptions) => void) => void;
   /**
    * @description
    * Timeout milliseconds for sending a request.
@@ -77,7 +77,7 @@ export interface TransportOptions {
    * @description
    * Display verbose receive data log
    */
-  verbose?: boolean | ((listenOptions: ListenOptions) => void);
+  verbose?: boolean | ((listenOptions: ListenerOptions) => void);
   /**
    * @description
    * Specify a prefix for event types.
@@ -85,15 +85,15 @@ export interface TransportOptions {
   prefix?: string;
 }
 
-type CallBack<T extends TransportData<any, any>> = (
+type Respond<T extends TransportData<any, any>> = (
   response: Response<T>
 ) => void;
 
-export type Respond<
+export type Listen<
   T extends TransportData<any, any> = TransportData<any, any>
-> = RespondOptions<Request<T>, CallBack<T>>;
+> = ListenOptions<Request<T>, Respond<T>>;
 
-export type RespondsMap = Record<
+export type ListensMap = Record<
   string,
   (
     request: Request<any>,

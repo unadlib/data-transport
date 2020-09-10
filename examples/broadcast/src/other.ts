@@ -1,11 +1,11 @@
-import { BroadcastTransport, Receiver, listen, Respond } from 'data-transport';
+import { BroadcastTransport, Receiver, listen, Listen } from 'data-transport';
 import { Other, Main } from './interface';
 
 class OtherTransport
   extends BroadcastTransport<Other>
   implements Receiver<Main> {
   @listen
-  help({ request, respond }: Respond<Main['help']>) {
+  help({ request, respond }: Listen<Main['help']>) {
     respond({
       text: 'COPY!!!',
     });

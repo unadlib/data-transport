@@ -1,4 +1,4 @@
-import { originalRespondsMapKey } from '../constant';
+import { originalListensMapKey } from '../constant';
 import { Transport } from '../transport';
 
 export const listen = (
@@ -15,8 +15,8 @@ export const listen = (
       return descriptor;
     }
   }
-  target[originalRespondsMapKey] ??= {};
-  target[originalRespondsMapKey][key] = fn!;
+  target[originalListensMapKey] ??= {};
+  target[originalListensMapKey][key] = fn!;
   return {
     ...descriptor,
     value(this: Transport) {

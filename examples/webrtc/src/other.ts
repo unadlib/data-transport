@@ -1,10 +1,10 @@
-import { WebRTCTransport, Receiver, Respond, listen } from 'data-transport';
+import { WebRTCTransport, Receiver, Listen, listen } from 'data-transport';
 import SimplePeer from 'simple-peer';
 import { Other, Main } from './interface';
 
 class OtherTransport extends WebRTCTransport<Other> implements Receiver<Main> {
   @listen
-  help({ request, respond }: Respond<Main['help']>) {
+  help({ request, respond }: Listen<Main['help']>) {
     respond({
       text: 'COPY!!!',
     });

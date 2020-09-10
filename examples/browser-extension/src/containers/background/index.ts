@@ -2,7 +2,7 @@ import {
   BrowserExtensionsTransport,
   listen,
   Receiver,
-  Respond,
+  Listen,
 } from 'data-transport';
 import {
   BackgroundToClient,
@@ -18,14 +18,14 @@ class BackgroundTransport
   }
 
   @listen
-  toggleText({ request, respond }: Respond<ClientToBackground['toggleText']>) {
+  toggleText({ request, respond }: Listen<ClientToBackground['toggleText']>) {
     respond({
       status: !request.status,
     });
   }
 
   @listen
-  openClient({ request }: Respond<PopupToBackground['openClient']>) {
+  openClient({ request }: Listen<PopupToBackground['openClient']>) {
     window.open(request.path, '', request.features);
   }
 }

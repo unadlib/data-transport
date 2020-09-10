@@ -43,7 +43,7 @@ class InternalTransport extends IFrameTransport.IFrame<IFrame> {
 
 class ExternalTransport extends IFrameTransport.Main implements Receiver<IFrame> {
   @listen
-  hello({ request, respond }: Respond<IFrame['hello']>) {
+  hello({ request, respond }: Listen<IFrame['hello']>) {
     respond({
       text: `hello ${request.num}`,
     });

@@ -2,7 +2,7 @@ import {
   Receiver,
   BrowserExtensionsTransport,
   listen,
-  Respond,
+  Listen,
 } from 'data-transport';
 import { ClientToBackground, BackgroundToClient } from '../../interface';
 
@@ -23,7 +23,7 @@ class ClientTransport
   changeTextDisplay({
     request,
     respond,
-  }: Respond<BackgroundToClient['changeTextDisplay']>) {
+  }: Listen<BackgroundToClient['changeTextDisplay']>) {
     this.hasDisplay = request.status;
     this.render();
     respond({

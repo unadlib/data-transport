@@ -1,4 +1,4 @@
-import { ElectronTransport, Receiver, Respond, listen } from 'data-transport';
+import { ElectronTransport, Receiver, Listen, listen } from 'data-transport';
 import { ipcRenderer } from 'electron';
 import { Renderer, Main } from './interface';
 
@@ -6,7 +6,7 @@ class RendererTransport
   extends ElectronTransport.Renderer<Renderer>
   implements Receiver<Main> {
   @listen
-  help({ request, respond }: Respond<Main['help']>) {
+  help({ request, respond }: Listen<Main['help']>) {
     respond({
       text: 'COPY!!!',
     });

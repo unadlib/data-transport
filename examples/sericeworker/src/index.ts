@@ -1,7 +1,7 @@
 import {
   ServiceWorkerTransport,
   Receiver,
-  Respond,
+  Listen,
   listen,
 } from 'data-transport';
 import { Service, Client } from './interface';
@@ -15,7 +15,7 @@ class ClientTransport
   }
 
   @listen
-  hello({ request, respond }: Respond<Service['hello']>) {
+  hello({ request, respond }: Listen<Service['hello']>) {
     const input = document.getElementById('input') as HTMLInputElement;
     respond({
       text: `hello ${input?.value || 'anonymous'}, ${request.num}`,

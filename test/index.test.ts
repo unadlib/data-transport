@@ -1,4 +1,4 @@
-import { Transport, listen, Receiver, Respond, TransportData } from '../src';
+import { Transport, listen, Receiver, Listen, TransportData } from '../src';
 
 test('base', async () => {
   type Internal = {
@@ -39,7 +39,7 @@ test('base', async () => {
     }
 
     @listen
-    hello({ request, respond }: Respond<Internal['hello']>) {
+    hello({ request, respond }: Listen<Internal['hello']>) {
       request.num;
       respond({
         text: `hello ${request.num}`,
@@ -95,7 +95,7 @@ test('base with `{ hasRespond: false }`', async () => {
     }
 
     @listen
-    hello({ request }: Respond<Internal['hello']>) {
+    hello({ request }: Listen<Internal['hello']>) {
       expect(request.num).toBe(42);
     }
   }
@@ -132,7 +132,7 @@ test('base with two-way', async () => {
     }
 
     @listen
-    help({ request, respond }: Respond<External['help']>) {
+    help({ request, respond }: Listen<External['help']>) {
       respond({
         text: String.fromCharCode(request.key),
       });
@@ -163,7 +163,7 @@ test('base with two-way', async () => {
     }
 
     @listen
-    hello({ request, respond }: Respond<Internal['hello']>) {
+    hello({ request, respond }: Listen<Internal['hello']>) {
       respond({
         text: `hello ${request.num}`,
       });

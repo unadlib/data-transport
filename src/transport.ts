@@ -1,9 +1,9 @@
 import { v4 } from 'uuid';
 import {
   listenerKey,
-  originalRespondsMapKey,
+  originalListensMapKey,
   requestsMapKey,
-  respondsMapKey,
+  listensMapKey,
   senderKey,
   timeoutKey,
   transportKey,
@@ -13,10 +13,10 @@ import {
   EmitOptions,
   IRequest,
   IResponse,
-  ListenOptions,
+  ListenerOptions,
   Request,
-  Respond,
-  RespondsMap,
+  Listen,
+  ListensMap,
   Response,
   TransportDataMap,
   TransportOptions,
@@ -32,10 +32,10 @@ export abstract class Transport<T extends TransportDataMap = any> {
   private [timeoutKey]: TransportOptions['timeout'];
   private [prefixKey]: TransportOptions['prefix'];
   private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
-  private [respondsMapKey]!: RespondsMap;
-  private [originalRespondsMapKey]!: Record<
+  private [listensMapKey]!: ListensMap;
+  private [originalListensMapKey]!: Record<
     string,
-    (options: Respond) => void | Promise<void>
+    (options: Listen) => void | Promise<void>
   >;
 
   constructor({
@@ -45,17 +45,17 @@ export abstract class Transport<T extends TransportDataMap = any> {
     verbose = false,
     prefix = defaultPrefix,
   }: TransportOptions) {
-    this[respondsMapKey] ??= {};
-    this[originalRespondsMapKey] ??= {};
+    this[listensMapKey] ??= {};
+    this[originalListensMapKey] ??= {};
     this[listenerKey] = listener;
     this[senderKey] = sender;
     this[timeoutKey] = timeout;
     this[prefixKey] = prefix;
 
-    Object.entries(this[originalRespondsMapKey]).forEach(([name, fn]) => {
+    Object.entries(this[originalListensMapKey]).forEach(([name, fn]) => {
       // https://github.com/microsoft/TypeScript/issues/40465
       const type = getType(this[prefixKey]!, name);
-      this[respondsMapKey][type] = (
+      this[listensMapKey][type] = (
         request,
         // `args` for custom fields data from `listenOptions` request
         { hasRespond, transportId, ...args }
@@ -83,41 +83,40 @@ export abstract class Transport<T extends TransportDataMap = any> {
       };
     });
 
-    this[listenerKey]((listenOptions: ListenOptions) => {
+    this[listenerKey]((options: ListenerOptions) => {
       if (verbose) {
         if (typeof verbose === 'function') {
-          verbose(listenOptions);
+          verbose(options);
         } else {
-          console.info('DataTransport Receive: ', listenOptions);
+          console.info('DataTransport Receive: ', options);
         }
       }
-      if (listenOptions[transportKey]) {
-        const hasListener =
-          typeof (this as any)[listenOptions.type] === 'function';
-        if ((listenOptions as IResponse).response) {
-          const resolve = this[requestsMapKey].get(listenOptions[transportKey]);
+      if (options[transportKey]) {
+        const hasListener = typeof (this as any)[options.type] === 'function';
+        if ((options as IResponse).response) {
+          const resolve = this[requestsMapKey].get(options[transportKey]);
           if (resolve) {
-            resolve((listenOptions as IResponse).response);
+            resolve((options as IResponse).response);
           } else if (hasListener) {
             if (__DEV__) {
               console.warn(
-                `The type '${listenOptions.type}' event '${listenOptions[transportKey]}' has been resolved. Please check for a duplicate response.`
+                `The type '${options.type}' event '${options[transportKey]}' has been resolved. Please check for a duplicate response.`
               );
             }
           }
-        } else if ((listenOptions as IRequest).request) {
-          const respond = this[respondsMapKey][listenOptions.type];
+        } else if ((options as IRequest).request) {
+          const respond = this[listensMapKey][options.type];
           if (typeof respond === 'function') {
-            respond((listenOptions as IRequest).request, {
+            respond((options as IRequest).request, {
               // `listenOptions` custom fields data from request
-              ...listenOptions,
-              transportId: listenOptions[transportKey],
-              hasRespond: (listenOptions as IRequest).hasRespond,
+              ...options,
+              transportId: options[transportKey],
+              hasRespond: (options as IRequest).hasRespond,
             });
           } else if (hasListener) {
             if (__DEV__) {
               console.error(
-                `In '${this.constructor.name}' class, the listener method '${listenOptions.type}' is NOT decorated by decorator '@listen'.`
+                `In '${this.constructor.name}' class, the listener method '${options.type}' is NOT decorated by decorator '@listen'.`
               );
             }
           }

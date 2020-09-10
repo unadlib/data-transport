@@ -1,4 +1,4 @@
-import { IFrameTransport, Receiver, Respond, listen } from 'data-transport';
+import { IFrameTransport, Receiver, Listen, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
 class MainTransport
@@ -10,7 +10,7 @@ class MainTransport
   }
 
   @listen
-  hello({ request, respond }: Respond<IFrame['hello']>) {
+  hello({ request, respond }: Listen<IFrame['hello']>) {
     const input = document.getElementById('input') as HTMLInputElement;
     respond({
       text: `hello ${input?.value || 'anonymous'}, ${request.num}`,

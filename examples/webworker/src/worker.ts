@@ -1,11 +1,11 @@
-import { WorkerTransport, Receiver, Respond, listen } from 'data-transport';
+import { WorkerTransport, Receiver, Listen, listen } from 'data-transport';
 import { Main, Worker } from './interface';
 
 class WebWorkerTransport
   extends WorkerTransport.Worker<Worker>
   implements Receiver<Main> {
   @listen
-  help({ request, respond }: Respond<Main['help']>) {
+  help({ request, respond }: Listen<Main['help']>) {
     respond({
       text: 'COPY!!!',
     });

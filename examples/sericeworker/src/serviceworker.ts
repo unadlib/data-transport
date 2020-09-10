@@ -1,7 +1,7 @@
 import {
   ServiceWorkerTransport,
   Receiver,
-  Respond,
+  Listen,
   listen,
 } from 'data-transport';
 import { Service, Client } from './interface';
@@ -10,7 +10,7 @@ class ServiceTransport
   extends ServiceWorkerTransport.Service<Service>
   implements Receiver<Client> {
   @listen
-  help({ request, respond }: Respond<Client['help']>) {
+  help({ request, respond }: Listen<Client['help']>) {
     respond({
       text: 'COPY!!!',
     });
