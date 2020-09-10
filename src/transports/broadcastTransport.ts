@@ -26,7 +26,7 @@ abstract class BroadcastTransport<
       };
     },
     sender = (message) => broadcastChannel.postMessage(message),
-  }: BroadcastTransportOptions) {
+  }: BroadcastTransportOptions = {}) {
     super({
       listener,
       sender,

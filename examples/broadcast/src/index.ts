@@ -19,9 +19,7 @@ class MainTransport
 }
 
 const useMainTransport = () =>
-  new MainTransport({
-    broadcastChannel: new BroadcastChannel('test'),
-  });
+  new MainTransport();
 
 const init = () => {
   window.addEventListener('load', () => {

@@ -18,9 +18,7 @@ class OtherTransport
 }
 
 const useOtherTransport = () =>
-  new OtherTransport({
-    broadcastChannel: new BroadcastChannel('test'),
-  });
+  new OtherTransport();
 
 const init = () => {
   window.addEventListener('load', () => {
