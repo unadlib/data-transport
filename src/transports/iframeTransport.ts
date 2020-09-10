@@ -1,11 +1,8 @@
-import {
-  ListenOptions,
-  TransportDataMap,
-  TransportOptions,
-} from '../interface';
+import { TransportDataMap, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
-export interface IFrameTransportInternalOptions extends Partial<TransportOptions> {
+export interface IFrameTransportInternalOptions
+  extends Partial<TransportOptions> {
   /**
    * Specify what the origin of targetWindow must be for the event to be dispatched,
    * by default, it's the literal string "*" (indicating no preference).
@@ -31,12 +28,12 @@ abstract class IFrameMainTransport<
   constructor({
     iframe = undefined,
     targetOrigin = '*',
-    listen = (callback) => {
+    listener = (callback) => {
       window.addEventListener('message', ({ data }: MessageEvent<any>) =>
         callback(data)
       );
     },
-    send = (message) => {
+    sender = (message) => {
       if (iframe) {
         iframe.contentWindow!.postMessage(message, targetOrigin);
       } else if (window.frames[0]) {
@@ -47,8 +44,8 @@ abstract class IFrameMainTransport<
     },
   }: IFrameMainTransportOptions) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }
@@ -58,16 +55,16 @@ abstract class IFrameInternalTransport<
 > extends Transport<T> {
   constructor({
     targetOrigin = '*',
-    listen = (callback) => {
+    listener = (callback) => {
       window.addEventListener('message', ({ data }: MessageEvent<any>) =>
         callback(data)
       );
     },
-    send = (message: any) => window.parent.postMessage(message, targetOrigin),
+    sender = (message: any) => window.parent.postMessage(message, targetOrigin),
   }: IFrameTransportInternalOptions = {}) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }

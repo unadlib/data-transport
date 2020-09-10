@@ -6,7 +6,7 @@ import {
 } from '../interface';
 import { Transport } from '../transport';
 
-export interface WebWorkerMainTransportOptions
+export interface WorkerMainTransportOptions
   extends Partial<TransportOptions> {
   /**
    * Pass web worker using data transport.
@@ -14,7 +14,7 @@ export interface WebWorkerMainTransportOptions
   worker: Worker;
 }
 
-export interface WebWorkerInternalTransportOptions
+export interface WorkerInternalTransportOptions
   extends Partial<TransportOptions> {}
 
 abstract class WorkerMainTransport<
@@ -22,20 +22,20 @@ abstract class WorkerMainTransport<
 > extends Transport<T> {
   constructor({
     worker,
-    listen = (callback) => {
+    listener = (callback) => {
       worker.onmessage = ({ data }: MessageEvent<any>) => {
         callback(data);
       };
     },
-    send = (message: WorkerData) =>
+    sender = (message: WorkerData) =>
       worker.postMessage(
         message,
         (message as TransferableWorkerData)?.transfer || []
       ),
-  }: WebWorkerMainTransportOptions) {
+  }: WorkerMainTransportOptions) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }
@@ -44,22 +44,22 @@ abstract class WorkerInternalTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
-    listen = (callback) => {
+    listener = (callback) => {
       onmessage = ({ data }: MessageEvent<any>) => {
         callback(data);
       };
     },
     // TODO: fix - https://github.com/microsoft/TypeScript/issues/12657
     // TODO: fix type
-    send = (message: WorkerData) =>
+    sender = (message: WorkerData) =>
       (postMessage as any)(
         message,
         (message as TransferableWorkerData)?.transfer || []
       ),
   }: WorkerInternalTransportOptions = {}) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }

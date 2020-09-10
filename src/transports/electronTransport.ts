@@ -43,16 +43,16 @@ abstract class ElectronMainTransport<
     ipcMain,
     browserWindow,
     channel = defaultChannel,
-    listen = (callback) => {
+    listener = (callback) => {
       ipcMain.on(channel, (e: IpcMainEvent, data: any) => {
         callback(data);
       });
     },
-    send = (message) => browserWindow.webContents.send(channel, message),
+    sender = (message) => browserWindow.webContents.send(channel, message),
   }: ElectronMainTransportOptions) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }
@@ -63,16 +63,16 @@ abstract class ElectronRendererTransport<
   constructor({
     ipcRenderer,
     channel = defaultChannel,
-    listen = (callback) => {
+    listener = (callback) => {
       ipcRenderer.on(channel, (_: IpcRendererEvent, data: any) => {
         callback(data);
       });
     },
-    send = (message) => ipcRenderer.send(channel, message),
+    sender = (message) => ipcRenderer.send(channel, message),
   }: ElectronRendererTransportOptions) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }

@@ -1,10 +1,10 @@
 import { v4 } from 'uuid';
 import {
-  listenKey,
+  listenerKey,
   originalRespondsMapKey,
   requestsMapKey,
   respondsMapKey,
-  sendKey,
+  senderKey,
   timeoutKey,
   transportKey,
   prefixKey,
@@ -27,8 +27,8 @@ const defaultPrefix = 'DataTransport-';
 const getType = (prefix: string, name: string) => `${prefix}${name}`;
 
 export abstract class Transport<T extends TransportDataMap = any> {
-  private [listenKey]: TransportOptions['listen'];
-  private [sendKey]: TransportOptions['send'];
+  private [listenerKey]: TransportOptions['listener'];
+  private [senderKey]: TransportOptions['sender'];
   private [timeoutKey]: TransportOptions['timeout'];
   private [prefixKey]: TransportOptions['prefix'];
   private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
@@ -39,16 +39,16 @@ export abstract class Transport<T extends TransportDataMap = any> {
   >;
 
   constructor({
-    listen,
-    send,
+    listener,
+    sender,
     timeout = defaultTimeout,
     verbose = false,
     prefix = defaultPrefix,
   }: TransportOptions) {
     this[respondsMapKey] ??= {};
     this[originalRespondsMapKey] ??= {};
-    this[listenKey] = listen;
-    this[sendKey] = send;
+    this[listenerKey] = listener;
+    this[senderKey] = sender;
     this[timeoutKey] = timeout;
     this[prefixKey] = prefix;
 
@@ -71,7 +71,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
                 return;
               }
             }
-            this[sendKey]({
+            this[senderKey]({
               ...args,
               type,
               response,
@@ -83,7 +83,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
       };
     });
 
-    this[listenKey]((listenOptions: ListenOptions) => {
+    this[listenerKey]((listenOptions: ListenOptions) => {
       if (verbose) {
         if (typeof verbose === 'function') {
           verbose(listenOptions);
@@ -166,7 +166,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
     };
     if (!hasRespond) {
       return new Promise((resolve) => {
-        this[sendKey](data);
+        this[senderKey](data);
         resolve();
       });
     }
@@ -174,7 +174,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
     const promise = Promise.race([
       new Promise((resolve) => {
         this[requestsMapKey].set(transportId, resolve);
-        this[sendKey](data);
+        this[senderKey](data);
       }),
       new Promise((_, reject) => {
         timeoutId = setTimeout(() => {

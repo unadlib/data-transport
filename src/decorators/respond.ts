@@ -1,5 +1,4 @@
 import { originalRespondsMapKey } from '../constant';
-import { Respond } from '../interface';
 import { Transport } from '../transport';
 
 export const respond = (

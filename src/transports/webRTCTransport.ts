@@ -11,18 +11,18 @@ abstract class WebRTCTransport<
 > extends Transport<T> {
   constructor({
     peer,
-    listen = (callback) => {
+    listener = (callback) => {
       peer.on('data', (data) => {
         callback(JSON.parse(data));
       });
     },
-    send = (message) => {
+    sender = (message) => {
       peer.send(JSON.stringify(message));
     },
   }: WebRTCTransportOptions) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }

@@ -22,20 +22,20 @@ abstract class ServiceWorkerClientTransport<
 > extends Transport<T> {
   constructor({
     serviceWorker,
-    listen = (callback) => {
+    listener = (callback) => {
       navigator.serviceWorker.addEventListener('message', ({ data }) => {
         callback(data);
       });
     },
-    send = (message: WorkerData) =>
+    sender = (message: WorkerData) =>
       serviceWorker.postMessage(
         message,
         (message as TransferableWorkerData)?.transfer || []
       ),
   }: ServiceWorkerClientTransportOptions) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }
@@ -44,12 +44,12 @@ abstract class ServiceWorkerServiceTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
   constructor({
-    listen = (callback) => {
+    listener = (callback) => {
       addEventListener('message', ({ data }) => {
         callback(data);
       });
     },
-    send = (message: WorkerData) => {
+    sender = (message: WorkerData) => {
       // TODO: fix https://github.com/microsoft/TypeScript/issues/14877
       (self as any).clients
         .matchAll()
@@ -64,8 +64,8 @@ abstract class ServiceWorkerServiceTransport<
     },
   }: ServiceWorkerServiceTransportOptions = {}) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }

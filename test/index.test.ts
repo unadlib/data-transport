@@ -11,10 +11,10 @@ test('base', async () => {
   class InternalTransport extends Transport<Internal> {
     constructor() {
       super({
-        listen: (callback) => {
+        listener: (callback) => {
           mockExternalSend = callback;
         },
-        send: (message) => {
+        sender: (message) => {
           mockInternalSend(JSON.parse(JSON.stringify(message)));
         },
       });
@@ -29,10 +29,10 @@ test('base', async () => {
   class ExternalTransport extends Transport implements Receiver<Internal> {
     constructor() {
       super({
-        listen: (callback) => {
+        listener: (callback) => {
           mockInternalSend = callback;
         },
-        send: (message) => {
+        sender: (message) => {
           mockExternalSend(JSON.parse(JSON.stringify(message)));
         },
       });
@@ -63,10 +63,10 @@ test('base with `{ hasRespond: false }`', async () => {
   class InternalTransport extends Transport<Internal> {
     constructor() {
       super({
-        listen: (callback) => {
+        listener: (callback) => {
           mockExternalSend = callback;
         },
-        send: (message) => {
+        sender: (message) => {
           mockInternalSend(JSON.parse(JSON.stringify(message)));
         },
       });
@@ -85,10 +85,10 @@ test('base with `{ hasRespond: false }`', async () => {
   class ExternalTransport extends Transport implements Receiver<Internal> {
     constructor() {
       super({
-        listen: (callback) => {
+        listener: (callback) => {
           mockInternalSend = callback;
         },
-        send: (message) => {
+        sender: (message) => {
           mockExternalSend(JSON.parse(JSON.stringify(message)));
         },
       });
@@ -122,10 +122,10 @@ test('base with two-way', async () => {
     implements Receiver<External> {
     constructor() {
       super({
-        listen: (callback) => {
+        listener: (callback) => {
           mockExternalSend = callback;
         },
-        send: (message) => {
+        sender: (message) => {
           mockInternalSend(JSON.parse(JSON.stringify(message)));
         },
       });
@@ -149,10 +149,10 @@ test('base with two-way', async () => {
     implements Receiver<Internal> {
     constructor() {
       super({
-        listen: (callback) => {
+        listener: (callback) => {
           mockInternalSend = callback;
         },
-        send: (message) => {
+        sender: (message) => {
           mockExternalSend(JSON.parse(JSON.stringify(message)));
         },
       });

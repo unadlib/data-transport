@@ -1,5 +1,5 @@
-export const listenKey: unique symbol = Symbol('listen');
-export const sendKey: unique symbol = Symbol('send');
+export const listenerKey: unique symbol = Symbol('listener');
+export const senderKey: unique symbol = Symbol('sender');
 export const requestsMapKey: unique symbol = Symbol('requestsMap');
 export const respondsMapKey: unique symbol = Symbol('respondsMap');
 export const originalRespondsMapKey: unique symbol = Symbol(

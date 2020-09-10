@@ -62,12 +62,12 @@ export interface TransportOptions {
    * @description
    * Send method defines an sender to the specified transport.
    */
-  send: (options: SendOptions) => void;
+  sender: (options: SendOptions) => void;
   /**
    * @description
    * Listen method attaches an event handler to the specified transport.
    */
-  listen: (callback: (options: ListenOptions) => void) => void;
+  listener: (callback: (options: ListenOptions) => void) => void;
   /**
    * @description
    * Timeout milliseconds for sending a request.

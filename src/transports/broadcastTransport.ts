@@ -10,16 +10,16 @@ abstract class BroadcastTransport<
 > extends Transport<T> {
   constructor({
     broadcastChannel,
-    listen = (callback) => {
+    listener = (callback) => {
       broadcastChannel.onmessage = ({ data }) => {
         callback(data);
       };
     },
-    send = (message) => broadcastChannel.postMessage(message),
+    sender = (message) => broadcastChannel.postMessage(message),
   }: BroadcastTransportOptions) {
     super({
-      listen,
-      send,
+      listener,
+      sender,
     });
   }
 }
