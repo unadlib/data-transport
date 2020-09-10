@@ -24,6 +24,7 @@ import {
 
 const defaultTimeout = 60 * 1000;
 const defaultPrefix = 'DataTransport-';
+const getType = (prefix: string, name: string) => `${prefix}${name}`;
 
 export abstract class Transport<T extends TransportDataMap = any> {
   private [listenKey]: TransportOptions['listen'];
@@ -52,7 +53,8 @@ export abstract class Transport<T extends TransportDataMap = any> {
     this[prefixKey] = prefix;
 
     Object.entries(this[originalRespondsMapKey]).forEach(([name, fn]) => {
-      const type = `${this[prefixKey]}${name}`;
+      // https://github.com/microsoft/TypeScript/issues/40465
+      const type = getType(this[prefixKey]!, name);
       this[respondsMapKey][type] = (
         request,
         // `args` for custom fields data from `listenOptions` request
@@ -155,7 +157,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
         return randomNumbers;
       },
     });
-    const type = `${this[prefixKey]}${name}`;
+    const type = getType(this[prefixKey]!, name as string);
     const data = {
       type,
       request,

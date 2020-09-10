@@ -3,7 +3,7 @@
 ![Node CI](https://github.com/unadlib/data-transport/workflows/Node%20CI/badge.svg)
 [![npm version](https://badge.fury.io/js/data-transport.svg)](http://badge.fury.io/js/data-transport)
 
-A common transporter
+A generic communication transporter
 
 ## Support Transport
 
@@ -26,7 +26,7 @@ yarn add data-transport
 - Define type
 
 ```ts
-type Internal = {
+type IFrame = {
   hello: TransportData<{ num: number }, { text: string }>;
 };
 ```
@@ -34,16 +34,16 @@ type Internal = {
 - Implement class
 
 ```ts
-class InternalTransport extends IFrameTransport.Internal<Internal> {
+class InternalTransport extends IFrameTransport.IFrame<IFrame> {
   async sayHello() {
     const response = await this.emit('hello', { num: 42 });
     return response;
   }
 }
 
-class ExternalTransport extends IFrameTransport.External implements Receiver<Internal> {
+class ExternalTransport extends IFrameTransport.Main implements Receiver<IFrame> {
   @respond
-  hello({ request, callback }: Respond<Internal['hello']>) {
+  hello({ request, callback }: Respond<IFrame['hello']>) {
     callback({
       text: `hello ${request.num}`,
     });
@@ -51,9 +51,7 @@ class ExternalTransport extends IFrameTransport.External implements Receiver<Int
 }
 
 const internal = new InternalTransport();
-const external = new ExternalTransport({
-  iframe: document.getElementsByTagName('iframe')[0],
-});
+const external = new ExternalTransport();
 
 expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 ```
