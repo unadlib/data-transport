@@ -5,7 +5,7 @@ import {
 } from '../interface';
 import { Transport } from '../transport';
 
-export interface IFrameTransportOptions extends Partial<TransportOptions> {
+export interface IFrameTransportInternalOptions extends Partial<TransportOptions> {
   /**
    * Specify what the origin of targetWindow must be for the event to be dispatched,
    * by default, it's the literal string "*" (indicating no preference).
@@ -13,11 +13,16 @@ export interface IFrameTransportOptions extends Partial<TransportOptions> {
   targetOrigin?: string;
 }
 
-export interface IFrameMainTransportOptions extends IFrameTransportOptions {
+export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
   /**
    * Pass an iframe for using data transport.
    */
   iframe?: HTMLIFrameElement;
+  /**
+   * Specify what the origin of targetWindow must be for the event to be dispatched,
+   * by default, it's the literal string "*" (indicating no preference).
+   */
+  targetOrigin?: string;
 }
 
 abstract class IFrameMainTransport<
@@ -59,7 +64,7 @@ abstract class IFrameInternalTransport<
       );
     },
     send = (message: any) => window.parent.postMessage(message, targetOrigin),
-  }: IFrameTransportOptions = {}) {
+  }: IFrameTransportInternalOptions = {}) {
     super({
       listen,
       send,

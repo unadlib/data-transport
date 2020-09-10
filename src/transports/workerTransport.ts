@@ -14,6 +14,9 @@ export interface WebWorkerMainTransportOptions
   worker: Worker;
 }
 
+export interface WebWorkerInternalTransportOptions
+  extends Partial<TransportOptions> {}
+
 abstract class WorkerMainTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
@@ -53,7 +56,7 @@ abstract class WorkerInternalTransport<
         message,
         (message as TransferableWorkerData)?.transfer || []
       ),
-  }: Partial<TransportOptions> = {}) {
+  }: WorkerInternalTransportOptions = {}) {
     super({
       listen,
       send,

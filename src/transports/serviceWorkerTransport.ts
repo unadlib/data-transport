@@ -14,6 +14,9 @@ export interface ServiceWorkerClientTransportOptions
   serviceWorker: ServiceWorker;
 }
 
+export interface ServiceWorkerServiceTransportOptions
+  extends Partial<TransportOptions> {}
+
 abstract class ServiceWorkerClientTransport<
   T extends TransportDataMap = any
 > extends Transport<T> {
@@ -59,7 +62,7 @@ abstract class ServiceWorkerServiceTransport<
           )
         );
     },
-  }: Partial<TransportOptions> = {}) {
+  }: ServiceWorkerServiceTransportOptions = {}) {
     super({
       listen,
       send,

@@ -10,7 +10,7 @@ import { Transport } from '../transport';
 
 const defaultChannel = '$$Electron_Transport$$';
 
-export interface ElectronTransportOptions extends Partial<TransportOptions> {
+interface ElectronTransportOptions extends Partial<TransportOptions> {
   /**
    * Specify a Electron channel name.
    */
