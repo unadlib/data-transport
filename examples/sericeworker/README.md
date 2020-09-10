@@ -2,7 +2,7 @@
 
 ```sh
 yarn install
-yarn webpack-dev-server
+yarn start
 ```
 
 open `https://localhost:8080/`.
