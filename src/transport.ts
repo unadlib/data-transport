@@ -25,6 +25,8 @@ import {
 const defaultTimeout = 60 * 1000;
 const defaultPrefix = 'DataTransport-';
 const getType = (prefix: string, name: string) => `${prefix}${name}`;
+const getListenerName = (prefix: string, type: string) =>
+  type.replace(new RegExp(`^${prefix}`), '');
 
 export abstract class Transport<T extends TransportDataMap = any> {
   private [listenerKey]: TransportOptions['listener'];
@@ -92,7 +94,8 @@ export abstract class Transport<T extends TransportDataMap = any> {
         }
       }
       if (options[transportKey]) {
-        const hasListener = typeof (this as any)[options.type] === 'function';
+        const listenerName = getListenerName(this[prefixKey]!, options.type);
+        const hasListener = typeof (this as any)[listenerName] === 'function';
         if ((options as IResponse).response) {
           const resolve = this[requestsMapKey].get(options[transportKey]);
           if (resolve) {
@@ -116,7 +119,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
           } else if (hasListener) {
             if (__DEV__) {
               console.error(
-                `In '${this.constructor.name}' class, the listener method '${options.type}' is NOT decorated by decorator '@listen'.`
+                `In '${this.constructor.name}' class, the listener method '${listenerName}' is NOT decorated by decorator '@listen'.`
               );
             }
           }
