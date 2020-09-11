@@ -1,6 +1,6 @@
 {
   "name": "data-transport",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A generic communication transporter",
   "main": "lib/index.js",
   "unpkg": "dist/index.umd.js",
