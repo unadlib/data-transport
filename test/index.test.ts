@@ -191,3 +191,56 @@ test('base with two-way', async () => {
     "The method 'help' is a listener function that can NOT be actively called."
   );
 });
+
+test('base with non-decorator', async () => {
+  type Internal = {
+    hello: TransportData<{ num: number }, { text: string }>;
+  };
+
+  let mockExternalSend: (...args: any) => void;
+  let mockInternalSend: (...args: any) => void;
+
+  class InternalTransport extends Transport<Internal> {
+    constructor() {
+      super({
+        listener: (callback) => {
+          mockExternalSend = callback;
+        },
+        sender: (message) => {
+          mockInternalSend(JSON.parse(JSON.stringify(message)));
+        },
+      });
+    }
+
+    async sayHello() {
+      const response = await this.emit('hello', { num: 42 });
+      return response;
+    }
+  }
+
+  class ExternalTransport extends Transport implements Receiver<Internal> {
+    constructor() {
+      super({
+        listener: (callback) => {
+          mockInternalSend = callback;
+        },
+        sender: (message) => {
+          mockExternalSend(JSON.parse(JSON.stringify(message)));
+        },
+        listenKeys: ['hello'],
+      });
+    }
+
+    hello({ request, respond }: Listen<Internal['hello']>) {
+      request.num;
+      respond({
+        text: `hello ${request.num}`,
+      });
+    }
+  }
+
+  const internal = new InternalTransport();
+  const external = new ExternalTransport();
+  expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
+});
+

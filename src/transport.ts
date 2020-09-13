@@ -46,6 +46,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
     timeout = defaultTimeout,
     verbose = false,
     prefix = defaultPrefix,
+    listenKeys = [],
   }: TransportOptions) {
     this[listensMapKey] ??= {};
     this[originalListensMapKey] ??= {};
@@ -53,6 +54,10 @@ export abstract class Transport<T extends TransportDataMap = any> {
     this[senderKey] = sender;
     this[timeoutKey] = timeout;
     this[prefixKey] = prefix;
+
+    listenKeys.forEach((key) => {
+      this[originalListensMapKey][key] = (this as any)[key];
+    });
 
     Object.entries(this[originalListensMapKey]).forEach(([name, fn]) => {
       // https://github.com/microsoft/TypeScript/issues/40465

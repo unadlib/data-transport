@@ -83,6 +83,11 @@ export interface TransportOptions {
    * Specify a prefix for event types.
    */
   prefix?: string;
+  /**
+   * @description
+   * Specify the method name list of the class to listen.
+   */
+  listenKeys?: string[];
 }
 
 type Respond<T extends TransportData<any, any>> = (

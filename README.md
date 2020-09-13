@@ -58,7 +58,6 @@ expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 
 ## TODO
 
-- [ ] support without decorator
 - [ ] support retry
 - [ ] support Network Request
 
