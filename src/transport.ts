@@ -25,7 +25,7 @@ import {
 const defaultTimeout = 60 * 1000;
 const defaultPrefix = 'DataTransport-';
 const getType = (prefix: string, name: string) => `${prefix}${name}`;
-const getListenerName = (prefix: string, type: string) =>
+const getListenName = (prefix: string, type: string) =>
   type.replace(new RegExp(`^${prefix}`), '');
 
 export abstract class Transport<T extends TransportDataMap = any> {
@@ -116,13 +116,13 @@ export abstract class Transport<T extends TransportDataMap = any> {
         }
       }
       if (options[transportKey]) {
-        const listenerName = getListenerName(this[prefixKey]!, options.type);
-        const hasListener = typeof (this as any)[listenerName] === 'function';
+        const listenName = getListenName(this[prefixKey]!, options.type);
+        const hasListen = typeof (this as any)[listenName] === 'function';
         if ((options as IResponse).response) {
           const resolve = this[requestsMapKey].get(options[transportKey]);
           if (resolve) {
             resolve((options as IResponse).response);
-          } else if (hasListener) {
+          } else if (hasListen) {
             if (__DEV__) {
               console.warn(
                 `The type '${options.type}' event '${options[transportKey]}' has been resolved. Please check for a duplicate response.`
@@ -138,10 +138,10 @@ export abstract class Transport<T extends TransportDataMap = any> {
               transportId: options[transportKey],
               hasRespond: (options as IRequest).hasRespond,
             });
-          } else if (hasListener) {
+          } else if (hasListen) {
             if (__DEV__) {
               console.error(
-                `In '${this.constructor.name}' class, the listen method '${listenerName}' is NOT decorated by decorator '@listen' or be added 'listenKeys' list.`
+                `In '${this.constructor.name}' class, the listen method '${listenName}' is NOT decorated by decorator '@listen' or be added 'listenKeys' list.`
               );
             }
           }

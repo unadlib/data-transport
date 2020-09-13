@@ -180,7 +180,7 @@ test('base with two-way', async () => {
       respond: () => {},
     });
   }).toThrowError(
-    "The method 'hello' is a listener function that can NOT be actively called."
+    "The method 'hello' is a listen function that can NOT be actively called."
   );
   expect(() => {
     internal.help({
@@ -188,7 +188,7 @@ test('base with two-way', async () => {
       respond: () => {},
     });
   }).toThrowError(
-    "The method 'help' is a listener function that can NOT be actively called."
+    "The method 'help' is a listen function that can NOT be actively called."
   );
 });
 
