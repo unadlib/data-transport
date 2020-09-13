@@ -22,7 +22,7 @@ export const listen = (
     value(this: Transport) {
       if (__DEV__) {
         throw new Error(
-          `The method '${key}' is a listener function that can NOT be actively called.`
+          `The method '${key}' is a listen function that can NOT be actively called.`
         );
       }
     },

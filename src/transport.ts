@@ -56,7 +56,24 @@ export abstract class Transport<T extends TransportDataMap = any> {
     this[prefixKey] = prefix;
 
     listenKeys.forEach((key) => {
-      this[originalListensMapKey][key] = (this as any)[key];
+      const fn = (this as any)[key];
+      if (__DEV__) {
+        if (typeof fn !== 'function') {
+          console.warn(
+            `In '${this.constructor.name}' class, '${key}' is NOT a methods.`
+          );
+        }
+      }
+      this[originalListensMapKey][key] = fn;
+      Object.assign(this, {
+        [key]() {
+          if (__DEV__) {
+            throw new Error(
+              `The method '${key}' is a listen function that can NOT be actively called.`
+            );
+          }
+        }
+      })
     });
 
     Object.entries(this[originalListensMapKey]).forEach(([name, fn]) => {
@@ -124,7 +141,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
           } else if (hasListener) {
             if (__DEV__) {
               console.error(
-                `In '${this.constructor.name}' class, the listener method '${listenerName}' is NOT decorated by decorator '@listen'.`
+                `In '${this.constructor.name}' class, the listen method '${listenerName}' is NOT decorated by decorator '@listen' or be added 'listenKeys' list.`
               );
             }
           }
