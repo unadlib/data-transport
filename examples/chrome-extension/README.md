@@ -1,4 +1,4 @@
-# browser-extension
+# chrome-extension
 
 ```sh
 yarn install

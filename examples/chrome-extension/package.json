@@ -1,7 +1,7 @@
 {
-  "name": "browser-extension",
+  "name": "chrome-extension",
   "version": "1.0.0",
-  "description": "browser-extension with DataTransport",
+  "description": "chrome extension with DataTransport",
   "main": "index.js",
   "scripts": {
     "start": "node scripts/webserver.js"

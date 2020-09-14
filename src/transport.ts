@@ -23,10 +23,10 @@ import {
 } from './interface';
 
 const defaultTimeout = 60 * 1000;
-const defaultPrefix = 'DataTransport-';
-const getType = (prefix: string, name: string) => `${prefix}${name}`;
+const defaultPrefix = 'DataTransport';
+const getType = (prefix: string, name: string) => `${prefix}-${name}`;
 const getListenName = (prefix: string, type: string) =>
-  type.replace(new RegExp(`^${prefix}`), '');
+  type.replace(new RegExp(`^${prefix}-`), '');
 
 export abstract class Transport<T extends TransportDataMap = any> {
   private [listenerKey]: TransportOptions['listener'];
