@@ -60,7 +60,7 @@ abstract class IFrameInternalTransport<
         callback(data)
       );
     },
-    sender = (message: any) => window.parent.postMessage(message, targetOrigin),
+    sender = (message) => window.parent.postMessage(message, targetOrigin),
   }: IFrameTransportInternalOptions = {}) {
     super({
       listener,

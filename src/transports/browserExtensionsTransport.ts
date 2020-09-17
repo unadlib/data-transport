@@ -18,12 +18,12 @@ abstract class BrowserExtensionsTransport<
 > extends Transport<T> {
   constructor({
     browser = (window as any).browser ?? (window as any).chrome,
-    listener = (callback: any) => {
+    listener = (callback) => {
       browser.runtime.onMessage.addListener((data: any) => {
         callback(data);
       });
     },
-    sender = (message: any) => {
+    sender = (message) => {
       // TODO: fix about `sendResponse` for a single point of emission
       browser.runtime.sendMessage(message);
     },
@@ -40,12 +40,12 @@ abstract class BrowserExtensionsPortTransport<
 > extends Transport<T> {
   constructor({
     port,
-    listener = (callback: any) => {
+    listener = (callback) => {
       port.onMessage.addListener((data: any) => {
         callback(data);
       });
     },
-    sender = (message: any) => {
+    sender = (message) => {
       port.postMessage(message);
     },
   }: BrowserExtensionsPortTransportOptions) {
