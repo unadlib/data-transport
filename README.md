@@ -58,6 +58,8 @@ expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 
 ## TODO
 
+- [ ] support SharedWorker
+- [ ] refactor extension transport
 - [ ] support retry
 - [ ] support Network Request
 
