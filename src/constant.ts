@@ -8,3 +8,7 @@ export const originalListensMapKey: unique symbol = Symbol(
 export const timeoutKey: unique symbol = Symbol('timeout');
 export const prefixKey: unique symbol = Symbol('prefix');
 export const transportKey = '__DATA_TRANSPORT_UUID__';
+export const transportType = {
+  request: 'request',
+  response: 'response',
+} as const;

@@ -8,6 +8,7 @@ import {
   timeoutKey,
   transportKey,
   prefixKey,
+  transportType,
 } from './constant';
 import {
   EmitOptions,
@@ -24,9 +25,9 @@ import {
 
 const defaultTimeout = 60 * 1000;
 const defaultPrefix = 'DataTransport';
-const getType = (prefix: string, name: string) => `${prefix}-${name}`;
-const getListenName = (prefix: string, type: string) =>
-  type.replace(new RegExp(`^${prefix}-`), '');
+const getAction = (prefix: string, name: string) => `${prefix}-${name}`;
+const getListenName = (prefix: string, action: string) =>
+  action.replace(new RegExp(`^${prefix}-`), '');
 
 export abstract class Transport<T extends TransportDataMap = any> {
   private [listenerKey]: TransportOptions['listener'];
@@ -72,14 +73,14 @@ export abstract class Transport<T extends TransportDataMap = any> {
               `The method '${key}' is a listen function that can NOT be actively called.`
             );
           }
-        }
-      })
+        },
+      });
     });
 
     Object.entries(this[originalListensMapKey]).forEach(([name, fn]) => {
       // https://github.com/microsoft/TypeScript/issues/40465
-      const type = getType(this[prefixKey]!, name);
-      this[listensMapKey][type] = (
+      const action = getAction(this[prefixKey]!, name);
+      this[listensMapKey][action] = (
         request,
         // `args` for custom fields data from `listenOptions` request
         { hasRespond, transportId, ...args }
@@ -90,17 +91,18 @@ export abstract class Transport<T extends TransportDataMap = any> {
             if (__DEV__) {
               if (!hasRespond) {
                 console.warn(
-                  `The event '${type}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
+                  `The event '${action}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
                 );
                 return;
               }
             }
             this[senderKey]({
               ...args,
-              type,
+              action,
               response,
               hasRespond,
               [transportKey]: transportId,
+              type: transportType.response,
             });
           },
         });
@@ -116,21 +118,21 @@ export abstract class Transport<T extends TransportDataMap = any> {
         }
       }
       if (options[transportKey]) {
-        const listenName = getListenName(this[prefixKey]!, options.type);
+        const listenName = getListenName(this[prefixKey]!, options.action);
         const hasListen = typeof (this as any)[listenName] === 'function';
-        if ((options as IResponse).response) {
+        if ((options as IResponse).type === transportType.response) {
           const resolve = this[requestsMapKey].get(options[transportKey]);
           if (resolve) {
             resolve((options as IResponse).response);
           } else if (hasListen) {
             if (__DEV__) {
               console.warn(
-                `The type '${options.type}' event '${options[transportKey]}' has been resolved. Please check for a duplicate response.`
+                `The type '${options.action}' event '${options[transportKey]}' has been resolved. Please check for a duplicate response.`
               );
             }
           }
-        } else if ((options as IRequest).request) {
-          const respond = this[listensMapKey][options.type];
+        } else if ((options as IRequest).type === transportType.request) {
+          const respond = this[listensMapKey][options.action];
           if (typeof respond === 'function') {
             respond((options as IRequest).request, {
               // `listenOptions` custom fields data from request
@@ -153,7 +155,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
   /**
    * Emit an event that transport data.
    *
-   * @param type A transport type as post message data type
+   * @param action A transport action as post message data action type
    * @param request A request data
    * @param options A option for the transport data
    * * `respond`: (optional) A boolean for defined need to be respond.
@@ -181,9 +183,10 @@ export abstract class Transport<T extends TransportDataMap = any> {
         return randomNumbers;
       },
     });
-    const type = getType(this[prefixKey]!, name as string);
+    const action = getAction(this[prefixKey]!, name as string);
     const data = {
-      type,
+      type: transportType.request,
+      action,
       request,
       hasRespond,
       [transportKey]: transportId,
@@ -210,7 +213,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
       .catch((error) => {
         if (typeof error === 'number') {
           console.warn(
-            `The event '${type}' timed out for ${timeout} seconds...`
+            `The event '${action}' timed out for ${timeout} seconds...`
           );
         } else {
           if (__DEV__) {

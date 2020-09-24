@@ -1,4 +1,4 @@
-import { transportKey } from './constant';
+import { transportKey, transportType } from './constant';
 
 interface ListenOptions<T, P> {
   request: T;
@@ -36,8 +36,11 @@ export interface EmitOptions {
   timeout?: number;
 }
 
+type TransportType = typeof transportType;
+
 interface Options {
-  type: string;
+  action: string;
+  type: TransportType[keyof TransportType];
   [transportKey]: string;
   hasRespond: boolean;
 }
