@@ -11,6 +11,7 @@ A generic and responsible communication transporter
 - Broadcast
 - Web Worker
 - Service Worker
+- Shared Worker
 - Browser Extension
 - WebRTC
 - Electron
@@ -58,7 +59,6 @@ expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 
 ## TODO
 
-- [ ] support SharedWorker
 - [ ] refactor extension transport
 - [ ] support retry
 - [ ] support Network Request
