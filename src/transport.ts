@@ -109,7 +109,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
       };
     });
 
-    this[listenerKey]((options: ListenerOptions) => {
+    this[listenerKey].call(this, (options: ListenerOptions) => {
       if (verbose) {
         if (typeof verbose === 'function') {
           verbose(options);
