@@ -1,4 +1,3 @@
-import { type } from 'os';
 import { listen } from '../decorators';
 import {
   Receiver,
