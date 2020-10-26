@@ -5,6 +5,7 @@ interface ListenOptions<T, P> {
   respond: P;
 }
 
+// https://github.com/microsoft/TypeScript/issues/15300
 export type Receiver<T extends TransportDataMap> = {
   [P in keyof T]: (
     options: ListenOptions<Request<T[P]>, (response: Response<T[P]>) => void>
