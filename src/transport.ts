@@ -164,6 +164,12 @@ export abstract class Transport<
     };
   }
 
+  /**
+   * Listen an event that transport data.
+   *
+   * @param name A transport action as listen message data action type
+   * @param fn A transport listener
+   */
   listen<K extends keyof P>(
     name: K,
     fn: (options: Listen<P[K]>) => void | Promise<void>

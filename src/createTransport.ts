@@ -58,6 +58,14 @@ const TransportMap = {
   SharedWorkerInternal: SharedWorkerTransport.Worker,
 };
 
+/**
+ * Create a transport instance.
+ *
+ * @param name transport type name
+ * @param options transport options
+ *
+ * @returns Return a transport instance.
+ */
 export const createTransport = <T extends keyof TransportOptionsMap>(
   name: T,
   options: TransportOptionsMap[T]
