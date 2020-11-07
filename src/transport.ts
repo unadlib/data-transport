@@ -9,6 +9,7 @@ import {
   transportKey,
   prefixKey,
   transportType,
+  produceKey,
 } from './constant';
 import {
   EmitOptions,
@@ -21,6 +22,7 @@ import {
   Response,
   TransportDataMap,
   TransportOptions,
+  TransportData,
 } from './interface';
 
 const defaultTimeout = 60 * 1000;
@@ -29,7 +31,10 @@ const getAction = (prefix: string, name: string) => `${prefix}-${name}`;
 const getListenName = (prefix: string, action: string) =>
   action.replace(new RegExp(`^${prefix}-`), '');
 
-export abstract class Transport<T extends TransportDataMap = any> {
+export abstract class Transport<
+  T extends TransportDataMap = any,
+  P extends TransportDataMap = any
+> {
   private [listenerKey]: TransportOptions['listener'];
   private [senderKey]: TransportOptions['sender'];
   private [timeoutKey]: TransportOptions['timeout'];
@@ -78,35 +83,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
     });
 
     Object.entries(this[originalListensMapKey]).forEach(([name, fn]) => {
-      // https://github.com/microsoft/TypeScript/issues/40465
-      const action = getAction(this[prefixKey]!, name);
-      this[listensMapKey][action] = (
-        request,
-        // `args` for custom fields data from `listenOptions` request
-        { hasRespond, transportId, ...args }
-      ) => {
-        fn?.call(this, {
-          request,
-          respond: (response) => {
-            if (__DEV__) {
-              if (!hasRespond) {
-                console.warn(
-                  `The event '${action}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
-                );
-                return;
-              }
-            }
-            this[senderKey]({
-              ...args,
-              action,
-              response,
-              hasRespond,
-              [transportKey]: transportId,
-              type: transportType.response,
-            });
-          },
-        });
-      };
+      this[produceKey](name, fn);
     });
 
     this[listenerKey].call(this, (options: ListenerOptions) => {
@@ -152,6 +129,49 @@ export abstract class Transport<T extends TransportDataMap = any> {
     });
   }
 
+  private [produceKey](
+    name: string,
+    fn: (options: Listen<TransportData<any, any>>) => void | Promise<void>
+  ) {
+    // https://github.com/microsoft/TypeScript/issues/40465
+    const action = getAction(this[prefixKey]!, name);
+    this[listensMapKey][action] = (
+      request,
+      // `args` for custom fields data from `listenOptions` request
+      { hasRespond, transportId, ...args }
+    ) => {
+      fn.call(this, {
+        request,
+        respond: (response) => {
+          if (__DEV__) {
+            if (!hasRespond) {
+              console.warn(
+                `The event '${action}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
+              );
+              return;
+            }
+          }
+          this[senderKey]({
+            ...args,
+            action,
+            response,
+            hasRespond,
+            [transportKey]: transportId,
+            type: transportType.response,
+          });
+        },
+      });
+    };
+  }
+
+  listen<K extends keyof P>(
+    name: K,
+    fn: (options: Listen<P[K]>) => void | Promise<void>
+  ) {
+    this[originalListensMapKey][name as string] = fn;
+    this[produceKey](name as string, fn);
+  }
+
   /**
    * Emit an event that transport data.
    *
@@ -163,7 +183,7 @@ export abstract class Transport<T extends TransportDataMap = any> {
    *
    * @returns Return a response for the request.
    */
-  protected async emit<K extends keyof T>(
+  async emit<K extends keyof T>(
     name: K,
     request: Request<T[K]>,
     options: EmitOptions = {}

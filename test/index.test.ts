@@ -1,4 +1,12 @@
-import { Transport, listen, Receiver, Listen, TransportData } from '../src';
+import { create } from 'domain';
+import {
+  Transport,
+  listen,
+  Receiver,
+  Listen,
+  TransportData,
+  createTransport,
+} from '../src';
 
 test('base', async () => {
   type Internal = {
@@ -291,4 +299,38 @@ test('base with `undefined`', async () => {
   const internal = new InternalTransport();
   const external = new ExternalTransport();
   expect(await internal.sayHello()).toBeUndefined();
+});
+
+test('base with createTransport', async () => {
+  type Internal = {
+    hello: TransportData<{ num: number }, { text: string }>;
+  };
+
+  let mockExternalSend: (...args: any) => void;
+  let mockInternalSend: (...args: any) => void;
+
+  const internal: Transport<Internal> = createTransport('Base', {
+    listener: (callback) => {
+      mockExternalSend = callback;
+    },
+    sender: (message) => {
+      mockInternalSend(JSON.parse(JSON.stringify(message)));
+    },
+  });
+  const external: Transport<any, Internal> = createTransport('Base', {
+    listener: (callback) => {
+      mockInternalSend = callback;
+    },
+    sender: (message) => {
+      mockExternalSend(JSON.parse(JSON.stringify(message)));
+    },
+  });
+  external.listen('hello', ({ request, respond }) => {
+    respond({
+      text: `hello ${request.num}`,
+    });
+  });
+  expect(await internal.emit('hello', { num: 42 })).toEqual({
+    text: 'hello 42',
+  });
 });

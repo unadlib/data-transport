@@ -57,6 +57,21 @@ const external = new ExternalTransport();
 expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 ```
 
+or 
+
+```ts
+const internal: Transport<IFrame> = createTransport('IFrameInternal');
+const external: Transport<any, IFrame> = createTransport('IFrameMain');
+
+external.listen('hello', ({ request, respond }) => {
+  respond({
+    text: `hello ${request.num}`,
+  });
+});
+
+expect(await internal.emit('hello', { num: 42 }).toEqual({ text: 'hello 42' });
+```
+
 ## TODO
 
 - [ ] refactor extension transport
