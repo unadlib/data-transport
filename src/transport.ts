@@ -220,7 +220,7 @@ export abstract class Transport<
     if (!hasRespond) {
       return new Promise((resolve) => {
         this[senderKey](data);
-        resolve();
+        resolve(undefined);
       });
     }
     let timeoutId: NodeJS.Timeout | number;
