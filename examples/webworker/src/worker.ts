@@ -1,14 +1,15 @@
-import { WorkerTransport, Receiver, Listen, listen } from 'data-transport';
+import { WorkerTransport, listen } from 'data-transport';
 import { Main, Worker } from './interface';
 
 class WebWorkerTransport
   extends WorkerTransport.Worker<Worker>
-  implements Receiver<Main> {
+  implements Main {
   @listen
-  help({ request, respond }: Listen<Main['help']>) {
-    respond({
+  async help(options: { text: string }) {
+    console.log('receive help', options);
+    return {
       text: 'COPY!!!',
-    });
+    };
   }
 
   async sayHello() {
