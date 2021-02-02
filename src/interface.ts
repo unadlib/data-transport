@@ -1,24 +1,16 @@
 import { transportKey, transportType } from './constant';
 
-interface ListenOptions<T, P> {
-  request: T;
-  respond: P;
-}
-
-// https://github.com/microsoft/TypeScript/issues/15300
-export type Receiver<T> = {
-  [P in keyof T]: (
-    options: ListenOptions<Request<T[P]>, (response: Response<T[P]>) => void>
-  ) => void;
-};
-
-export type Request<T> = T extends (options: infer P) => any ? P : never;
+export type Request<T> = T extends (...args: infer P) => any ? P : never;
 
 export type Response<T> = T extends (...args: any) => Promise<infer P>
   ? P
   : never;
 
-export interface EmitOptions {
+export interface EmitOptions<T> {
+  /**
+   * Emit with the event name.
+   */
+  name: T;
   /**
    * Whether a response is required.
    */
@@ -86,10 +78,6 @@ export interface TransportOptions {
   listenKeys?: string[];
 }
 
-type Respond<T> = (response: Response<T>) => void;
-
-export type Listen<T> = ListenOptions<Request<T>, Respond<T>>;
-
 export type ListensMap = Record<
   string,
   (
@@ -117,5 +105,3 @@ export type WorkerData =
   | boolean
   | null
   | undefined;
-
-export type ListenCallback = (options: Listen<any>) => void | Promise<void>;

@@ -17,16 +17,15 @@ import {
   IResponse,
   ListenerOptions,
   Request,
-  Listen,
   ListensMap,
   Response,
   TransportOptions,
-  ListenCallback,
 } from './interface';
 
 const defaultTimeout = 60 * 1000;
 const defaultPrefix = 'DataTransport';
-const getAction = (prefix: string, name: string) => `${prefix}-${name}`;
+const getAction = (prefix: string, name: string) =>
+  `${prefix}-${name.toString()}`;
 const getListenName = (prefix: string, action: string) =>
   action.replace(new RegExp(`^${prefix}-`), '');
 
@@ -37,10 +36,7 @@ export abstract class Transport<T = {}, P = {}> {
   private [prefixKey]: TransportOptions['prefix'];
   private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
   private [listensMapKey]!: ListensMap;
-  private [originalListensMapKey]!: Record<
-    string,
-    (options: Listen<any>) => void | Promise<void>
-  >;
+  private [originalListensMapKey]!: Record<string, Function>;
 
   constructor({
     listener,
@@ -58,7 +54,7 @@ export abstract class Transport<T = {}, P = {}> {
     this[prefixKey] = prefix;
 
     listenKeys.forEach((key) => {
-      const fn: ListenCallback = (this as any)[key];
+      const fn = ((this as any) as Record<string, Function>)[key];
       if (__DEV__) {
         if (typeof fn !== 'function') {
           console.warn(
@@ -108,7 +104,6 @@ export abstract class Transport<T = {}, P = {}> {
           const respond = this[listensMapKey][options.action];
           if (typeof respond === 'function') {
             respond((options as IRequest).request, {
-              // `listenOptions` custom fields data from request
               ...options,
               transportId: options[transportKey],
               hasRespond: (options as IRequest).hasRespond,
@@ -125,38 +120,37 @@ export abstract class Transport<T = {}, P = {}> {
     });
   }
 
-  private [produceKey](
-    name: string,
-    fn: (options: Listen<any>) => void | Promise<void>
+  private [produceKey]<K extends string, P extends Record<string, Function>>(
+    name: K,
+    fn: P[K]
   ) {
     // https://github.com/microsoft/TypeScript/issues/40465
     const action = getAction(this[prefixKey]!, name);
-    this[listensMapKey][action] = (
+    this[listensMapKey][action] = async (
       request,
-      // `args` for custom fields data from `listenOptions` request
       { hasRespond, transportId, ...args }
     ) => {
-      fn.call(this, {
-        request,
-        respond: (response) => {
-          if (__DEV__) {
-            if (!hasRespond) {
-              console.warn(
-                `The event '${action}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
-              );
-              return;
-            }
+      if (typeof fn === 'function') {
+        const response: Response<P[K]> = await fn.apply(this, request);
+        if (__DEV__) {
+          if (!hasRespond) {
+            console.warn(
+              `The event '${action}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
+            );
+            return;
           }
-          this[senderKey]({
-            ...args,
-            action,
-            response,
-            hasRespond,
-            [transportKey]: transportId,
-            type: transportType.response,
-          });
-        },
-      });
+        }
+        this[senderKey]({
+          ...args,
+          action,
+          response,
+          hasRespond,
+          [transportKey]: transportId,
+          type: transportType.response,
+        });
+      } else {
+        throw new Error(``);
+      }
     };
   }
 
@@ -166,37 +160,53 @@ export abstract class Transport<T = {}, P = {}> {
    * @param name A transport action as listen message data action type
    * @param fn A transport listener
    */
-  listen<K extends keyof P>(
-    name: K,
-    fn: (options: Listen<P[K]>) => void | Promise<void>
-  ) {
-    if (this[originalListensMapKey][name as string]) {
-      if (__DEV__) {
-        console.warn(
-          `Failed to listen to the event "${name}", the event "${name}" is already listened to.`
-        );
+  listen<K extends keyof P>(name: K, fn: P[K]) {
+    if (typeof name === 'string') {
+      if (this[originalListensMapKey][name]) {
+        if (__DEV__) {
+          console.warn(
+            `Failed to listen to the event "${name}", the event "${name}" is already listened to.`
+          );
+        }
+        return;
       }
-      return;
+      if (typeof fn === 'function') {
+        this[originalListensMapKey][name] = fn;
+        this[produceKey](name, fn);
+      } else {
+        throw new Error(``);
+      }
+    } else {
+      throw new Error(``);
     }
-    this[originalListensMapKey][name as string] = fn as ListenCallback;
-    this[produceKey](name as string, fn as ListenCallback);
   }
 
   /**
    * Emit an event that transport data.
    *
-   * @param action A transport action as post message data action type
+   * @param name A transport action as post message data action type.
    * @param request A request data
-   * @param options A option for the transport data
-   * * `respond`: (optional) A boolean for defined need to be respond.
-   * * `timeout`: (optional) A number for defined a timeout for responding.
    *
    * @returns Return a response for the request.
    */
-  async emit<K extends keyof T>(
-    name: K,
-    request: Request<T[K]>,
-    options: EmitOptions = {}
+  emit<K extends keyof T>(name: K, ...request: Request<T[K]>) {
+    return this.send({ name }, ...request);
+  }
+
+  /**
+   * Emit an event that transport data.
+   *
+   * @param emitOptions A option for the transport data
+   * * `name`: A transport action as post message data action type.
+   * * `respond`: (optional) A boolean for defined need to be respond.
+   * * `timeout`: (optional) A number for defined a timeout for responding.
+   * @param request A request data
+   *
+   * @returns Return a response for the request.
+   */
+  async send<K extends keyof T>(
+    { name, ...options }: EmitOptions<K>,
+    ...request: Request<T[K]>
   ): Promise<Response<T[K]>> {
     const hasRespond = options.respond ?? true;
     const timeout = options.timeout ?? this[timeoutKey];

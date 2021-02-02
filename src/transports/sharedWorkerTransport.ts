@@ -1,7 +1,5 @@
-import { connect } from 'http2';
 import { listen } from '../decorators';
 import {
-  Receiver,
   TransferableWorkerData,
   TransportOptions,
   WorkerData,
@@ -28,7 +26,7 @@ export interface SharedWorkerInternalTransportOptions
 
 abstract class SharedWorkerMainTransport<T = {}>
   extends Transport<T>
-  implements Receiver<InternalToMain> {
+  implements InternalToMain {
   protected onConnect?(): void;
 
   constructor({
@@ -51,7 +49,7 @@ abstract class SharedWorkerMainTransport<T = {}>
   }
 
   @listen
-  connect() {
+  async connect() {
     this.onConnect?.();
   }
 }
@@ -83,7 +81,8 @@ abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
         this[callbackKey](data);
       };
       // TODO: fix type
-      this.emit('connect', undefined as any, { respond: false });
+      // @ts-ignore
+      this.send({ name: 'connect', respond: false });
     };
   }
 }

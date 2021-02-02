@@ -38,11 +38,7 @@ interface Internal {
 const internal: Transport<Internal> = createTransport('IFrameInternal');
 const external: Transport<any, Internal> = createTransport('IFrameMain');
 
-external.listen('hello', ({ request, respond }) => {
-  respond({
-    text: `hello ${request.num}`,
-  });
-});
+external.listen('hello', async (options) => ({ text: `hello ${options.num}` }));
 
 expect(await internal.emit('hello', { num: 42 }).toEqual({ text: 'hello 42' });
 ```
@@ -54,31 +50,32 @@ interface Internal {
   hello({ num: number }): Promise<{ text: string }>;
 }
 
-class InternalTransport extends IFrameTransport.IFrame<Internal> {
-  async sayHello() {
-    const response = await this.emit('hello', { num: 42 });
+class InternalTransport extends IFrameTransport.IFrame<Internal> implement Internal {
+  async hello(options: { num: number }) {
+    const response = await this.emit('hello', options);
     return response;
   }
 }
 
-class ExternalTransport extends IFrameTransport.Main implements Receiver<Internal> {
+class ExternalTransport extends IFrameTransport.Main implements Internal {
   @listen
-  hello({ request, respond }: Listen<IFrame['hello']>) {
-    respond({
-      text: `hello ${request.num}`,
-    });
+  async hello(options: { num: number }) {
+    return {
+      text: `hello ${options.num}`,
+    };
   }
 }
 
 const internal = new InternalTransport();
 const external = new ExternalTransport();
 
-expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
+expect(await internal.hello({ num: 42 })).toEqual({ text: 'hello 42' });
 ```
 
 ## TODO
 
 - [ ] refactor extension transport
+
 ## Examples
 
 [Online about Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)

@@ -1,14 +1,14 @@
-import { Transport, listen, Receiver, Listen, createTransport } from '../src';
+import { Transport, listen, createTransport } from '../src';
 
 test('base', async () => {
   interface Internal {
-    hello(options: { num: number }): Promise<{ text: string }>;
+    hello(options: { num: number }, x: string): Promise<{ text: string }>;
   }
 
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
 
-  class InternalTransport extends Transport<Internal> {
+  class InternalTransport extends Transport<Internal> implements Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -20,13 +20,13 @@ test('base', async () => {
       });
     }
 
-    async sayHello() {
-      const response = await this.emit('hello', { num: 42 });
+    async hello(options: { num: number }, word: string) {
+      const response = await this.emit('hello', options, word);
       return response;
     }
   }
 
-  class ExternalTransport extends Transport implements Receiver<Internal> {
+  class ExternalTransport extends Transport implements Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -39,17 +39,18 @@ test('base', async () => {
     }
 
     @listen
-    hello({ request, respond }: Listen<Internal['hello']>) {
-      request.num;
-      respond({
-        text: `hello ${request.num}`,
-      });
+    async hello(options: { num: number }, word: string) {
+      return {
+        text: `hello ${options.num} ${word}`,
+      };
     }
   }
 
   const internal = new InternalTransport();
   const external = new ExternalTransport();
-  expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
+  expect(await internal.hello({ num: 42 }, 'Universe')).toEqual({
+    text: 'hello 42 Universe',
+  });
 });
 
 test('base with `{ hasRespond: false }`', async () => {
@@ -60,7 +61,7 @@ test('base with `{ hasRespond: false }`', async () => {
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
 
-  class InternalTransport extends Transport<Internal> {
+  class InternalTransport extends Transport<Internal> implements Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -72,17 +73,16 @@ test('base with `{ hasRespond: false }`', async () => {
       });
     }
 
-    async sayHello() {
-      const response = await this.emit(
-        'hello',
-        { num: 42 },
-        { respond: false, timeout: 42 }
+    async hello(options: { num: number }) {
+      const response = await this.send(
+        { name: 'hello', respond: false, timeout: 42 },
+        options
       );
       return response;
     }
   }
 
-  class ExternalTransport extends Transport implements Receiver<Internal> {
+  class ExternalTransport extends Transport implements Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -95,14 +95,14 @@ test('base with `{ hasRespond: false }`', async () => {
     }
 
     @listen
-    hello({ request }: Listen<Internal['hello']>) {
-      expect(request.num).toBe(42);
+    async hello(options: { num: number }) {
+      expect(options.num).toBe(42);
     }
   }
 
   const internal = new InternalTransport();
   const external = new ExternalTransport();
-  expect(await internal.sayHello()).toBeUndefined();
+  expect(await internal.hello({ num: 42 })).toBeUndefined();
 });
 
 test('base with two-way', async () => {
@@ -119,7 +119,7 @@ test('base with two-way', async () => {
 
   class InternalTransport
     extends Transport<Internal>
-    implements Receiver<External> {
+    implements External, Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -132,21 +132,21 @@ test('base with two-way', async () => {
     }
 
     @listen
-    help({ request, respond }: Listen<External['help']>) {
-      respond({
-        text: String.fromCharCode(request.key),
-      });
+    async help(options: { key: number }) {
+      return {
+        text: String.fromCharCode(options.key),
+      };
     }
 
-    async sayHello() {
-      const response = await this.emit('hello', { num: 42 });
+    async hello(options: { num: number }) {
+      const response = await this.emit('hello', options);
       return response;
     }
   }
 
   class ExternalTransport
     extends Transport<External>
-    implements Receiver<Internal> {
+    implements External, Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -158,35 +158,29 @@ test('base with two-way', async () => {
       });
     }
 
-    help() {
-      return this.emit('help', { key: 65 });
+    async help(options: { key: number }) {
+      return await this.emit('help', options);
     }
 
     @listen
-    hello({ request, respond }: Listen<Internal['hello']>) {
-      respond({
-        text: `hello ${request.num}`,
-      });
+    async hello(options: { num: number }) {
+      return {
+        text: `hello ${options.num}`,
+      };
     }
   }
 
   const internal = new InternalTransport();
   const external = new ExternalTransport();
-  expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
-  expect(await external.help()).toEqual({ text: 'A' });
+  expect(await internal.hello({ num: 42 })).toEqual({ text: 'hello 42' });
+  expect(await external.help({ key: 65 })).toEqual({ text: 'A' });
   expect(() => {
-    external.hello({
-      request: { num: 1 },
-      respond: () => {},
-    });
+    external.hello({ num: 42 });
   }).toThrowError(
     "The method 'hello' is a listen function that can NOT be actively called."
   );
   expect(() => {
-    internal.help({
-      request: { key: 1 },
-      respond: () => {},
-    });
+    internal.help({ key: 1 });
   }).toThrowError(
     "The method 'help' is a listen function that can NOT be actively called."
   );
@@ -200,7 +194,7 @@ test('base with non-decorator', async () => {
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
 
-  class InternalTransport extends Transport<Internal> {
+  class InternalTransport extends Transport<Internal> implements Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -212,13 +206,13 @@ test('base with non-decorator', async () => {
       });
     }
 
-    async sayHello() {
-      const response = await this.emit('hello', { num: 42 });
+    async hello(options: { num: number }) {
+      const response = await this.emit('hello', options);
       return response;
     }
   }
 
-  class ExternalTransport extends Transport implements Receiver<Internal> {
+  class ExternalTransport extends Transport implements Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -231,17 +225,16 @@ test('base with non-decorator', async () => {
       });
     }
 
-    hello({ request, respond }: Listen<Internal['hello']>) {
-      request.num;
-      respond({
-        text: `hello ${request.num}`,
-      });
+    async hello(options: { num: number }) {
+      return {
+        text: `hello ${options.num}`,
+      };
     }
   }
 
   const internal = new InternalTransport();
   const external = new ExternalTransport();
-  expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
+  expect(await internal.hello({ num: 42 })).toEqual({ text: 'hello 42' });
 });
 
 test('base with `undefined`', async () => {
@@ -252,7 +245,7 @@ test('base with `undefined`', async () => {
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
 
-  class InternalTransport extends Transport<Internal> {
+  class InternalTransport extends Transport<Internal> implements Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -264,13 +257,13 @@ test('base with `undefined`', async () => {
       });
     }
 
-    async sayHello() {
-      const response = await this.emit('hello', undefined);
+    async hello() {
+      const response = await this.emit('hello');
       return response;
     }
   }
 
-  class ExternalTransport extends Transport implements Receiver<Internal> {
+  class ExternalTransport extends Transport implements Internal {
     constructor() {
       super({
         listener: (callback) => {
@@ -283,19 +276,19 @@ test('base with `undefined`', async () => {
     }
 
     @listen
-    hello({ request, respond }: Listen<Internal['hello']>) {
-      respond(undefined);
+    async hello() {
+      //
     }
   }
 
   const internal = new InternalTransport();
   const external = new ExternalTransport();
-  expect(await internal.sayHello()).toBeUndefined();
+  expect(await internal.hello()).toBeUndefined();
 });
 
 test('base with createTransport', async () => {
   interface Internal {
-    hello(options: { num: number }): Promise<{ text: string }>;
+    hello(options: { num: number }, k: string): Promise<{ text: string }>;
   }
 
   let mockExternalSend: (...args: any) => void;
@@ -317,12 +310,10 @@ test('base with createTransport', async () => {
       mockExternalSend(JSON.parse(JSON.stringify(message)));
     },
   });
-  external.listen('hello', ({ request, respond }) => {
-    respond({
-      text: `hello ${request.num}`,
-    });
-  });
-  expect(await internal.emit('hello', { num: 42 })).toEqual({
-    text: 'hello 42',
+  external.listen('hello', async (options, word) => ({
+    text: `hello ${options.num} ${word}`,
+  }));
+  expect(await internal.emit('hello', { num: 42 }, 'Universe')).toEqual({
+    text: 'hello 42 Universe',
   });
 });

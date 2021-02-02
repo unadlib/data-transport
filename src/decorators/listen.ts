@@ -4,7 +4,7 @@ import { Transport } from '../transport';
 export const listen = (
   target: Transport,
   key: string,
-  descriptor: TypedPropertyDescriptor<(...args: any) => any>
+  descriptor: TypedPropertyDescriptor<(...args: any) => Promise<any>>
 ) => {
   const fn = descriptor.value;
   if (__DEV__) {
@@ -25,6 +25,7 @@ export const listen = (
           `The method '${key}' is a listen function that can NOT be actively called.`
         );
       }
+      return Promise.resolve();
     },
   };
 };
