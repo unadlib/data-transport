@@ -1,14 +1,12 @@
-import { BroadcastTransport, Receiver, listen, Listen } from 'data-transport';
+import { BroadcastTransport, listen } from 'data-transport';
 import { Other, Main } from './interface';
 
-class OtherTransport
-  extends BroadcastTransport<Other>
-  implements Receiver<Main> {
+class OtherTransport extends BroadcastTransport<Other> implements Main {
   @listen
-  help({ request, respond }: Listen<Main['help']>) {
-    respond({
+  async help(options: { text: string }) {
+    return {
       text: 'COPY!!!',
-    });
+    };
   }
 
   async sayHello() {
@@ -17,8 +15,7 @@ class OtherTransport
   }
 }
 
-const useOtherTransport = () =>
-  new OtherTransport();
+const useOtherTransport = () => new OtherTransport();
 
 const init = () => {
   window.addEventListener('load', () => {

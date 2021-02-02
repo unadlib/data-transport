@@ -1,25 +1,22 @@
-import { BroadcastTransport, Receiver, listen, Listen } from 'data-transport';
+import { BroadcastTransport, listen } from 'data-transport';
 import { Other, Main } from './interface';
 
-class MainTransport
-  extends BroadcastTransport<Main>
-  implements Receiver<Other> {
+class MainTransport extends BroadcastTransport<Main> implements Other {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;
   }
 
   @listen
-  hello({ request, respond }: Listen<Other['hello']>) {
+  async hello(options: { num: number }) {
     const input = document.getElementById('input') as HTMLInputElement;
-    respond({
-      text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
-    });
+    return {
+      text: `hello ${input?.value || 'anonymous'}, ${options.num}`,
+    };
   }
 }
 
-const useMainTransport = () =>
-  new MainTransport();
+const useMainTransport = () => new MainTransport();
 
 const init = () => {
   window.addEventListener('load', () => {
