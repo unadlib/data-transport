@@ -1,13 +1,13 @@
-import { Transport, Receiver, listen, Listen } from 'data-transport';
+import { Transport, listen } from 'data-transport';
 import { BroadcastChannel } from 'broadcast-channel';
 import { Other, Main } from './interface';
 
-class OtherTransport extends Transport<Other> implements Receiver<Main> {
+class OtherTransport extends Transport<Other> implements Main {
   @listen
-  help({ request, respond }: Listen<Main['help']>) {
-    respond({
+  async help(options: { text: string }) {
+    return {
       text: 'COPY!!!',
-    });
+    };
   }
 
   async sayHello() {

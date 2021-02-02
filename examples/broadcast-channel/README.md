@@ -1,4 +1,4 @@
-# broadcast
+# broadcast-channel
 
 ```sh
 yarn install

@@ -1,21 +1,19 @@
-import { Transport, Receiver, listen, Listen } from 'data-transport';
+import { Transport, listen } from 'data-transport';
 import { BroadcastChannel } from 'broadcast-channel';
 import { Other, Main } from './interface';
 
-class MainTransport
-  extends Transport<Main>
-  implements Receiver<Other> {
+class MainTransport extends Transport<Main> implements Other {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;
   }
 
   @listen
-  hello({ request, respond }: Listen<Other['hello']>) {
+  async hello(options: { num: number }) {
     const input = document.getElementById('input') as HTMLInputElement;
-    respond({
-      text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
-    });
+    return {
+      text: `hello ${input?.value || 'anonymous'}, ${options.num}`,
+    }
   }
 }
 
