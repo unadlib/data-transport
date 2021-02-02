@@ -149,7 +149,7 @@ export abstract class Transport<T = {}, P = {}> {
           type: transportType.response,
         });
       } else {
-        throw new Error(``);
+        throw new Error(`The listener for event ${name} should be a function.`);
       }
     };
   }
@@ -174,10 +174,12 @@ export abstract class Transport<T = {}, P = {}> {
         this[originalListensMapKey][name] = fn;
         this[produceKey](name, fn);
       } else {
-        throw new Error(``);
+        throw new Error(`The listener for event ${name} should be a function.`);
       }
     } else {
-      throw new Error(``);
+      throw new Error(
+        `The event name "${name.toString()}" is not a string, it should be a string.`
+      );
     }
   }
 
