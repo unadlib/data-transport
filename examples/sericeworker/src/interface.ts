@@ -1,9 +1,7 @@
-import { TransportData } from 'data-transport';
+export interface Service {
+  hello(options: { num: number }): Promise<{ text: string }>;
+}
 
-export type Service = {
-  hello: TransportData<{ num: number }, { text: string }>;
-};
-
-export type Client = {
-  help: TransportData<{ text: string }, { text: string }>;
-};
+export interface Client {
+  help(options: { text: string }): Promise<{ text: string }>;
+}

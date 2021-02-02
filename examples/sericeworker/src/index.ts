@@ -1,25 +1,21 @@
-import {
-  ServiceWorkerTransport,
-  Receiver,
-  Listen,
-  listen,
-} from 'data-transport';
+import { ServiceWorkerTransport, listen } from 'data-transport';
 import { Service, Client } from './interface';
 
 class ClientTransport
   extends ServiceWorkerTransport.Client<Client>
-  implements Receiver<Service> {
+  implements Service {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;
   }
 
   @listen
-  hello({ request, respond }: Listen<Service['hello']>) {
+  async hello(options: { num: number }) {
+    console.log('receive hello', options);
     const input = document.getElementById('input') as HTMLInputElement;
-    respond({
-      text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
-    });
+    return {
+      text: `hello ${input?.value || 'anonymous'}, ${options.num}`,
+    };
   }
 }
 
@@ -31,3 +27,10 @@ if (navigator.serviceWorker) {
     });
   });
 }
+
+document.getElementById('btn')?.addEventListener('click', async () => {
+  const response = await (window as any).clientTransport.help();
+  const div = document.createElement('div');
+  div.innerText = `${new Date()}: ${JSON.stringify(response)}`;
+  document.body.appendChild(div);
+})

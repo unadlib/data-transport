@@ -1,19 +1,15 @@
-import {
-  ServiceWorkerTransport,
-  Receiver,
-  Listen,
-  listen,
-} from 'data-transport';
+import { ServiceWorkerTransport, listen } from 'data-transport';
 import { Service, Client } from './interface';
 
 class ServiceTransport
   extends ServiceWorkerTransport.Service<Service>
-  implements Receiver<Client> {
+  implements Client {
   @listen
-  help({ request, respond }: Listen<Client['help']>) {
-    respond({
+  async help(options: { text: string }) {
+    console.log('receive help', options);
+    return {
       text: 'COPY!!!',
-    });
+    };
   }
 
   async sayHello() {
