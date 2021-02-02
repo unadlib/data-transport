@@ -1,21 +1,20 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
-import { ElectronTransport, Receiver, Listen, listen } from 'data-transport';
+import { ElectronTransport, listen } from 'data-transport';
 import { Renderer, Main } from './interface';
 
-class MainTransport
-  extends ElectronTransport.Main<Main>
-  implements Receiver<Renderer> {
+class MainTransport extends ElectronTransport.Main<Main> implements Renderer {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;
   }
 
   @listen
-  hello({ request, respond }: Listen<Renderer['hello']>) {
-    respond({
-      text: `hello, ${request.num}`,
-    });
+  async hello(options: { num: number }) {
+    console.log('receive hello', options);
+    return {
+      text: `hello, ${options.num}`,
+    };
   }
 }
 
