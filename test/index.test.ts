@@ -1,16 +1,9 @@
-import {
-  Transport,
-  listen,
-  Receiver,
-  Listen,
-  TransportData,
-  createTransport,
-} from '../src';
+import { Transport, listen, Receiver, Listen, createTransport } from '../src';
 
 test('base', async () => {
-  type Internal = {
-    hello: TransportData<{ num: number }, { text: string }>;
-  };
+  interface Internal {
+    hello(options: { num: number }): Promise<{ text: string }>;
+  }
 
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
@@ -60,9 +53,9 @@ test('base', async () => {
 });
 
 test('base with `{ hasRespond: false }`', async () => {
-  type Internal = {
-    hello: TransportData<{ num: number }>;
-  };
+  interface Internal {
+    hello(options: { num: number }): Promise<void>;
+  }
 
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
@@ -113,13 +106,13 @@ test('base with `{ hasRespond: false }`', async () => {
 });
 
 test('base with two-way', async () => {
-  type Internal = {
-    hello: TransportData<{ num: number }, { text: string }>;
-  };
+  interface Internal {
+    hello(options: { num: number }): Promise<{ text: string }>;
+  }
 
-  type External = {
-    help: TransportData<{ key: number }, { text: string }>;
-  };
+  interface External {
+    help(options: { key: number }): Promise<{ text: string }>;
+  }
 
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
@@ -201,7 +194,7 @@ test('base with two-way', async () => {
 
 test('base with non-decorator', async () => {
   type Internal = {
-    hello: TransportData<{ num: number }, { text: string }>;
+    hello(options: { num: number }): Promise<{ text: string }>;
   };
 
   let mockExternalSend: (...args: any) => void;
@@ -253,7 +246,7 @@ test('base with non-decorator', async () => {
 
 test('base with `undefined`', async () => {
   type Internal = {
-    hello: TransportData<void>;
+    hello(): Promise<void>;
   };
 
   let mockExternalSend: (...args: any) => void;
@@ -301,9 +294,9 @@ test('base with `undefined`', async () => {
 });
 
 test('base with createTransport', async () => {
-  type Internal = {
-    hello: TransportData<{ num: number }, { text: string }>;
-  };
+  interface Internal {
+    hello(options: { num: number }): Promise<{ text: string }>;
+  }
 
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;

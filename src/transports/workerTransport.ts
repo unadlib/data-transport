@@ -1,13 +1,11 @@
 import {
   TransferableWorkerData,
-  TransportDataMap,
   TransportOptions,
   WorkerData,
 } from '../interface';
 import { Transport } from '../transport';
 
-export interface WorkerMainTransportOptions
-  extends Partial<TransportOptions> {
+export interface WorkerMainTransportOptions extends Partial<TransportOptions> {
   /**
    * Pass web worker using data transport.
    */
@@ -17,9 +15,7 @@ export interface WorkerMainTransportOptions
 export interface WorkerInternalTransportOptions
   extends Partial<TransportOptions> {}
 
-abstract class WorkerMainTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class WorkerMainTransport<T = {}> extends Transport<T> {
   constructor({
     worker,
     listener = (callback) => {
@@ -40,9 +36,7 @@ abstract class WorkerMainTransport<
   }
 }
 
-abstract class WorkerInternalTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class WorkerInternalTransport<T = {}> extends Transport<T> {
   constructor({
     listener = (callback) => {
       onmessage = ({ data }: MessageEvent<any>) => {

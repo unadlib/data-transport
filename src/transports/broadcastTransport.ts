@@ -1,4 +1,4 @@
-import { TransportDataMap, TransportOptions } from '../interface';
+import { TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$BroadcastChannel_Transport$$';
@@ -14,9 +14,7 @@ export interface BroadcastTransportOptions extends Partial<TransportOptions> {
   broadcastChannel?: BroadcastChannel;
 }
 
-abstract class BroadcastTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class BroadcastTransport<T = {}> extends Transport<T> {
   constructor({
     channel = defaultChannel,
     broadcastChannel = new BroadcastChannel(channel),

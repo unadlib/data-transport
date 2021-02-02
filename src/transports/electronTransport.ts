@@ -5,7 +5,7 @@
 //   IpcMain,
 //   IpcRenderer,
 // } from 'electron';
-import { TransportDataMap, TransportOptions } from '../interface';
+import { TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$Electron_Transport$$';
@@ -36,9 +36,7 @@ export interface ElectronRendererTransportOptions
   ipcRenderer: any;
 }
 
-abstract class ElectronMainTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class ElectronMainTransport<T = {}> extends Transport<T> {
   constructor({
     ipcMain,
     browserWindow,
@@ -57,9 +55,7 @@ abstract class ElectronMainTransport<
   }
 }
 
-abstract class ElectronRendererTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class ElectronRendererTransport<T = {}> extends Transport<T> {
   constructor({
     ipcRenderer,
     channel = defaultChannel,

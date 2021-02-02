@@ -1,6 +1,5 @@
 import {
   TransferableWorkerData,
-  TransportDataMap,
   TransportOptions,
   WorkerData,
 } from '../interface';
@@ -17,9 +16,7 @@ export interface ServiceWorkerClientTransportOptions
 export interface ServiceWorkerServiceTransportOptions
   extends Partial<TransportOptions> {}
 
-abstract class ServiceWorkerClientTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
   constructor({
     serviceWorker,
     listener = (callback) => {
@@ -40,9 +37,7 @@ abstract class ServiceWorkerClientTransport<
   }
 }
 
-abstract class ServiceWorkerServiceTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class ServiceWorkerServiceTransport<T = {}> extends Transport<T> {
   constructor({
     listener = (callback) => {
       addEventListener('message', ({ data }) => {

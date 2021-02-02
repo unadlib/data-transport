@@ -1,4 +1,4 @@
-import { TransportDataMap, TransportOptions } from '../interface';
+import { TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface IFrameTransportInternalOptions
@@ -22,9 +22,7 @@ export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
   targetOrigin?: string;
 }
 
-abstract class IFrameMainTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class IFrameMainTransport<T = {}> extends Transport<T> {
   constructor({
     iframe = undefined,
     targetOrigin = '*',
@@ -50,9 +48,7 @@ abstract class IFrameMainTransport<
   }
 }
 
-abstract class IFrameInternalTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class IFrameInternalTransport<T = {}> extends Transport<T> {
   constructor({
     targetOrigin = '*',
     listener = (callback) => {

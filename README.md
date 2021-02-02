@@ -27,16 +27,16 @@ yarn add data-transport
 - Define type
 
 ```ts
-type IFrame = {
-  hello: TransportData<{ num: number }, { text: string }>;
-};
+interface Internal {
+  hello({ num: number }): Promise<{ text: string }>;
+}
 ```
 
 - Create transports
 
 ```ts
-const internal: Transport<IFrame> = createTransport('IFrameInternal');
-const external: Transport<any, IFrame> = createTransport('IFrameMain');
+const internal: Transport<Internal> = createTransport('IFrameInternal');
+const external: Transport<any, Internal> = createTransport('IFrameMain');
 
 external.listen('hello', ({ request, respond }) => {
   respond({
@@ -50,14 +50,18 @@ expect(await internal.emit('hello', { num: 42 }).toEqual({ text: 'hello 42' });
 > Another implementation based on inherited classes.
 
 ```ts
-class InternalTransport extends IFrameTransport.IFrame<IFrame> {
+interface Internal {
+  hello({ num: number }): Promise<{ text: string }>;
+}
+
+class InternalTransport extends IFrameTransport.IFrame<Internal> {
   async sayHello() {
     const response = await this.emit('hello', { num: 42 });
     return response;
   }
 }
 
-class ExternalTransport extends IFrameTransport.Main implements Receiver<IFrame> {
+class ExternalTransport extends IFrameTransport.Main implements Receiver<Internal> {
   @listen
   hello({ request, respond }: Listen<IFrame['hello']>) {
     respond({
@@ -75,9 +79,6 @@ expect(await internal.sayHello()).toEqual({ text: 'hello 42' });
 ## TODO
 
 - [ ] refactor extension transport
-- [ ] support retry
-- [ ] support Network Request
-
 ## Examples
 
 [Online about Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)

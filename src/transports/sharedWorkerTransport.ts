@@ -1,19 +1,18 @@
+import { connect } from 'http2';
 import { listen } from '../decorators';
 import {
   Receiver,
   TransferableWorkerData,
-  TransportDataMap,
   TransportOptions,
   WorkerData,
-  TransportData,
-  ListenerOptions
+  ListenerOptions,
 } from '../interface';
 import { Transport } from '../transport';
 
 export const callbackKey: unique symbol = Symbol('callback');
 
-type InternalToMain = {
-  connect: TransportData<void>;
+interface InternalToMain {
+  connect(): Promise<void>;
 }
 
 export interface SharedWorkerMainTransportOptions
@@ -27,9 +26,9 @@ export interface SharedWorkerMainTransportOptions
 export interface SharedWorkerInternalTransportOptions
   extends Partial<TransportOptions> {}
 
-abstract class SharedWorkerMainTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> implements Receiver<InternalToMain>{
+abstract class SharedWorkerMainTransport<T = {}>
+  extends Transport<T>
+  implements Receiver<InternalToMain> {
   protected onConnect?(): void;
 
   constructor({
@@ -57,14 +56,14 @@ abstract class SharedWorkerMainTransport<
   }
 }
 
-abstract class SharedWorkerInternalTransport<
-  T extends TransportDataMap = any
-> extends Transport<T & InternalToMain> {
+abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
+  T & InternalToMain
+> {
   protected port!: MessagePort;
   private [callbackKey]!: (options: ListenerOptions) => void;
 
   constructor({
-    listener = function(this: SharedWorkerInternalTransport, callback) {
+    listener = function (this: SharedWorkerInternalTransport, callback) {
       this[callbackKey] = callback;
     },
     sender = (message: WorkerData) =>
@@ -83,7 +82,8 @@ abstract class SharedWorkerInternalTransport<
       this.port.onmessage = ({ data }) => {
         this[callbackKey](data);
       };
-      this.emit('connect', undefined, { respond: false });
+      // TODO: fix type
+      this.emit('connect', undefined as any, { respond: false });
     };
   }
 }

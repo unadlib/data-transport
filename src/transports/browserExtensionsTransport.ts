@@ -1,4 +1,4 @@
-import { TransportDataMap, TransportOptions } from '../interface';
+import { TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface BrowserExtensionsTransportOptions
@@ -13,9 +13,7 @@ export interface BrowserExtensionsPortTransportOptions
   port: any;
 }
 
-abstract class BrowserExtensionsTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class BrowserExtensionsTransport<T = {}> extends Transport<T> {
   constructor({
     browser = (window as any).browser ?? (window as any).chrome,
     listener = (callback) => {
@@ -35,9 +33,7 @@ abstract class BrowserExtensionsTransport<
   }
 }
 
-abstract class BrowserExtensionsPortTransport<
-  T extends TransportDataMap = any
-> extends Transport<T> {
+abstract class BrowserExtensionsPortTransport<T = {}> extends Transport<T> {
   constructor({
     port,
     listener = (callback) => {

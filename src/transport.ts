@@ -20,9 +20,8 @@ import {
   Listen,
   ListensMap,
   Response,
-  TransportDataMap,
   TransportOptions,
-  TransportData,
+  ListenCallback,
 } from './interface';
 
 const defaultTimeout = 60 * 1000;
@@ -31,10 +30,7 @@ const getAction = (prefix: string, name: string) => `${prefix}-${name}`;
 const getListenName = (prefix: string, action: string) =>
   action.replace(new RegExp(`^${prefix}-`), '');
 
-export abstract class Transport<
-  T extends TransportDataMap = any,
-  P extends TransportDataMap = any
-> {
+export abstract class Transport<T = {}, P = {}> {
   private [listenerKey]: TransportOptions['listener'];
   private [senderKey]: TransportOptions['sender'];
   private [timeoutKey]: TransportOptions['timeout'];
@@ -43,7 +39,7 @@ export abstract class Transport<
   private [listensMapKey]!: ListensMap;
   private [originalListensMapKey]!: Record<
     string,
-    (options: Listen) => void | Promise<void>
+    (options: Listen<any>) => void | Promise<void>
   >;
 
   constructor({
@@ -62,7 +58,7 @@ export abstract class Transport<
     this[prefixKey] = prefix;
 
     listenKeys.forEach((key) => {
-      const fn = (this as any)[key];
+      const fn: ListenCallback = (this as any)[key];
       if (__DEV__) {
         if (typeof fn !== 'function') {
           console.warn(
@@ -131,7 +127,7 @@ export abstract class Transport<
 
   private [produceKey](
     name: string,
-    fn: (options: Listen<TransportData<any, any>>) => void | Promise<void>
+    fn: (options: Listen<any>) => void | Promise<void>
   ) {
     // https://github.com/microsoft/TypeScript/issues/40465
     const action = getAction(this[prefixKey]!, name);
@@ -174,8 +170,16 @@ export abstract class Transport<
     name: K,
     fn: (options: Listen<P[K]>) => void | Promise<void>
   ) {
-    this[originalListensMapKey][name as string] = fn;
-    this[produceKey](name as string, fn);
+    if (this[originalListensMapKey][name as string]) {
+      if (__DEV__) {
+        console.warn(
+          `Failed to listen to the event "${name}", the event "${name}" is already listened to.`
+        );
+      }
+      return;
+    }
+    this[originalListensMapKey][name as string] = fn as ListenCallback;
+    this[produceKey](name as string, fn as ListenCallback);
   }
 
   /**
@@ -220,11 +224,11 @@ export abstract class Transport<
     if (!hasRespond) {
       return new Promise((resolve) => {
         this[senderKey](data);
-        resolve(undefined);
+        resolve(undefined as Response<T[K]>);
       });
     }
     let timeoutId: NodeJS.Timeout | number;
-    const promise = Promise.race([
+    const promise = Promise.race<any>([
       new Promise((resolve) => {
         this[requestsMapKey].set(transportId, resolve);
         this[senderKey](data);

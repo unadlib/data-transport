@@ -6,25 +6,17 @@ interface ListenOptions<T, P> {
 }
 
 // https://github.com/microsoft/TypeScript/issues/15300
-export type Receiver<T extends TransportDataMap> = {
+export type Receiver<T> = {
   [P in keyof T]: (
     options: ListenOptions<Request<T[P]>, (response: Response<T[P]>) => void>
   ) => void;
 };
 
-export type Request<T extends TransportData<any, any>> = T['request'];
+export type Request<T> = T extends (options: infer P) => any ? P : never;
 
-export type Response<T extends TransportData<any, any>> = T['response'];
-
-export type TransportDataMap = Record<string, TransportData<any, any>>;
-
-/**
- * define request and response interfaces for transport
- */
-export interface TransportData<T, S = void> {
-  request: T;
-  response: S;
-}
+export type Response<T> = T extends (...args: any) => Promise<infer P>
+  ? P
+  : never;
 
 export interface EmitOptions {
   /**
@@ -94,13 +86,9 @@ export interface TransportOptions {
   listenKeys?: string[];
 }
 
-type Respond<T extends TransportData<any, any>> = (
-  response: Response<T>
-) => void;
+type Respond<T> = (response: Response<T>) => void;
 
-export type Listen<
-  T extends TransportData<any, any> = TransportData<any, any>
-> = ListenOptions<Request<T>, Respond<T>>;
+export type Listen<T> = ListenOptions<Request<T>, Respond<T>>;
 
 export type ListensMap = Record<
   string,
@@ -129,3 +117,5 @@ export type WorkerData =
   | boolean
   | null
   | undefined;
+
+export type ListenCallback = (options: Listen<any>) => void | Promise<void>;
