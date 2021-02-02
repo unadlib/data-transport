@@ -1,13 +1,14 @@
-import { WebRTCTransport, Receiver, Listen, listen } from 'data-transport';
+import { WebRTCTransport, listen } from 'data-transport';
 import SimplePeer from 'simple-peer';
 import { Other, Main } from './interface';
 
-class OtherTransport extends WebRTCTransport<Other> implements Receiver<Main> {
+class OtherTransport extends WebRTCTransport<Other> implements Main {
   @listen
-  help({ request, respond }: Listen<Main['help']>) {
-    respond({
+  async help(options: { text: string }) {
+    console.log('receive help', options);
+    return {
       text: 'COPY!!!',
-    });
+    };
   }
 
   async sayHello() {
