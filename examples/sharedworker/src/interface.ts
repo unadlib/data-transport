@@ -1,5 +1,3 @@
-import { TransportData } from 'data-transport';
-
-export type Main = {
-  help: TransportData<{ text: string }, { text: string }>;
-};
+export interface Main {
+  help(options: { text: string }): Promise<{ text: string }>;
+}

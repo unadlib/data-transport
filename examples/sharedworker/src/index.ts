@@ -19,3 +19,7 @@ const worker = new SharedWorker('worker.bundle.js');
 (window as any).mainTransport = new MainTransport({
   worker,
 });
+
+document.getElementById('btn')?.addEventListener('click', () => {
+  (window as any).mainTransport.help();
+});

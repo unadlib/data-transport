@@ -1,19 +1,15 @@
-import {
-  SharedWorkerTransport,
-  Receiver,
-  Listen,
-  listen,
-} from 'data-transport';
+import { SharedWorkerTransport, listen } from 'data-transport';
 import { Main } from './interface';
 
 class SharedWorkerTransportService
   extends SharedWorkerTransport.Worker
-  implements Receiver<Main> {
+  implements Main {
   @listen
-  help({ request, respond }: Listen<Main['help']>) {
-    respond({
+  async help(options: { text: string }) {
+    console.log('receive help', options);
+    return {
       text: 'COPY!!!',
-    });
+    };
   }
 }
 
