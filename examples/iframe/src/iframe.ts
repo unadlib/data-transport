@@ -1,14 +1,14 @@
-import { IFrameTransport, Receiver, Listen, listen } from 'data-transport';
+import { IFrameTransport, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
 class IFrameInternalTransport
   extends IFrameTransport.IFrame<IFrame>
-  implements Receiver<Main> {
+  implements Main {
   @listen
-  help({ request, respond }: Listen<Main['help']>) {
-    respond({
+  async help(options: { text: string }) {
+    return {
       text: 'COPY!!!',
-    });
+    };
   }
 
   async sayHello() {

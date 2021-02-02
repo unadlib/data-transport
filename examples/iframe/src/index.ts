@@ -1,20 +1,18 @@
-import { IFrameTransport, Receiver, Listen, listen } from 'data-transport';
+import { IFrameTransport, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
-class MainTransport
-  extends IFrameTransport.Main<Main>
-  implements Receiver<IFrame> {
+class MainTransport extends IFrameTransport.Main<Main> implements IFrame {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;
   }
 
   @listen
-  hello({ request, respond }: Listen<IFrame['hello']>) {
+  async hello(options: { num: number }) {
     const input = document.getElementById('input') as HTMLInputElement;
-    respond({
-      text: `hello ${input?.value || 'anonymous'}, ${request.num}`,
-    });
+    return {
+      text: `hello ${input?.value || 'anonymous'}, ${options.num}`,
+    };
   }
 }
 
