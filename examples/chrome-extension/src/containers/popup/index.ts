@@ -3,14 +3,14 @@ import { PopupToBackground } from '../../interface';
 
 class PopupTransport extends BrowserExtensionsTransport<PopupToBackground> {
   openClient() {
-    this.emit(
-      'openClient',
+    this.send(
+      {
+        name: 'openClient',
+        respond: false,
+      },
       {
         path: 'client.html',
         features: 'width=300,height=600',
-      },
-      {
-        respond: false,
       }
     );
   }

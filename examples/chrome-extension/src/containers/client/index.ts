@@ -1,14 +1,9 @@
-import {
-  Receiver,
-  BrowserExtensionsTransport,
-  listen,
-  Listen,
-} from 'data-transport';
+import { BrowserExtensionsTransport, listen } from 'data-transport';
 import { ClientToBackground, BackgroundToClient } from '../../interface';
 
 class ClientTransport
   extends BrowserExtensionsTransport<ClientToBackground>
-  implements Receiver<BackgroundToClient> {
+  implements BackgroundToClient {
   hasDisplay = true;
 
   async toggleText() {
@@ -20,15 +15,12 @@ class ClientTransport
   }
 
   @listen
-  changeTextDisplay({
-    request,
-    respond,
-  }: Listen<BackgroundToClient['changeTextDisplay']>) {
-    this.hasDisplay = request.status;
+  async changeTextDisplay(options: { status: boolean }) {
+    this.hasDisplay = options.status;
     this.render();
-    respond({
-      status: request.status,
-    });
+    return {
+      status: options.status,
+    };
   }
 
   render() {

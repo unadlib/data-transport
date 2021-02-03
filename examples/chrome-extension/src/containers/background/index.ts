@@ -1,9 +1,4 @@
-import {
-  BrowserExtensionsTransport,
-  listen,
-  Receiver,
-  Listen,
-} from 'data-transport';
+import { BrowserExtensionsTransport, listen } from 'data-transport';
 import {
   BackgroundToClient,
   ClientToBackground,
@@ -12,21 +7,21 @@ import {
 
 class BackgroundTransport
   extends BrowserExtensionsTransport<BackgroundToClient>
-  implements Receiver<ClientToBackground & PopupToBackground> {
+  implements ClientToBackground, PopupToBackground {
   showText() {
     return this.emit('changeTextDisplay', { status: true });
   }
 
   @listen
-  toggleText({ request, respond }: Listen<ClientToBackground['toggleText']>) {
-    respond({
-      status: !request.status,
-    });
+  async toggleText(options: { status: boolean }) {
+    return {
+      status: !options.status,
+    };
   }
 
   @listen
-  openClient({ request }: Listen<PopupToBackground['openClient']>) {
-    window.open(request.path, '', request.features);
+  async openClient(options: { path: string; features: string }) {
+    window.open(options.path, '', options.features);
   }
 }
 

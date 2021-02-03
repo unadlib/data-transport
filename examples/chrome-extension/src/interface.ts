@@ -1,13 +1,11 @@
-import { TransportData } from 'data-transport';
+export interface PopupToBackground {
+  openClient(options: { path: string; features: string }): Promise<void>;
+}
 
-export type PopupToBackground = {
-  openClient: TransportData<{ path: string; features: string }>;
-};
+export interface BackgroundToClient {
+  changeTextDisplay(options: { status: boolean }): Promise<{ status: boolean }>;
+}
 
-export type BackgroundToClient = {
-  changeTextDisplay: TransportData<{ status: boolean }, { status: boolean }>;
-};
-
-export type ClientToBackground = {
-  toggleText: TransportData<{ status: boolean }, { status: boolean }>;
-};
+export interface ClientToBackground {
+  toggleText(options: { status: boolean }): Promise<{ status: boolean }>;
+}
