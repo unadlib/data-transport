@@ -1,4 +1,5 @@
-import { TransportOptions } from '../interface';
+import { callbackKey } from '../constant';
+import { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface BrowserExtensionsTransportOptions
@@ -14,16 +15,27 @@ export interface BrowserExtensionsPortTransportOptions
 }
 
 abstract class BrowserExtensionsTransport<T = {}> extends Transport<T> {
+  private [callbackKey]!: (options: ListenerOptions) => void;
+
   constructor({
     browser = (window as any).browser ?? (window as any).chrome,
     listener = (callback) => {
-      browser.runtime.onMessage.addListener((data: any) => {
-        callback(data);
-      });
+      this[callbackKey] = callback;
+      browser.runtime.onMessage.addListener(
+        (data: any, sender: any, sendResponse: any) => {
+          data._sendResponse = sendResponse;
+          callback(data);
+        }
+      );
     },
     sender = (message) => {
-      // TODO: fix about `sendResponse` for a single point of emission
-      browser.runtime.sendMessage(message);
+      if ((message as any)._sendResponse) {
+        const sendResponse = (message as any)._sendResponse;
+        delete (message as any)._sendResponse;
+        sendResponse(message);
+      } else {
+        browser.runtime.sendMessage(message, this[callbackKey]);
+      }
     },
   }: BrowserExtensionsTransportOptions = {}) {
     super({

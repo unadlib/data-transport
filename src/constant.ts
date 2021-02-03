@@ -5,6 +5,7 @@ export const listensMapKey: unique symbol = Symbol('listensMapKey');
 export const originalListensMapKey: unique symbol = Symbol(
   'originalListensMap'
 );
+export const callbackKey: unique symbol = Symbol('callback');
 export const timeoutKey: unique symbol = Symbol('timeout');
 export const prefixKey: unique symbol = Symbol('prefix');
 export const produceKey: unique symbol = Symbol('produce');

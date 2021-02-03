@@ -1,3 +1,4 @@
+import { callbackKey } from '../constant';
 import { listen } from '../decorators';
 import {
   TransferableWorkerData,
@@ -6,9 +7,6 @@ import {
   ListenerOptions,
 } from '../interface';
 import { Transport } from '../transport';
-
-export const callbackKey: unique symbol = Symbol('callback');
-
 interface InternalToMain {
   connect(): Promise<void>;
 }
@@ -93,10 +91,8 @@ abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
       // TODO: clear port when the port's client is closed.
       this.ports.push(port);
       port.onmessage = ({ data }) => {
-        this[callbackKey]({
-          ...data,
-          _port: port,
-        });
+        data._port = port;
+        this[callbackKey](data);
       };
       // TODO: fix type
       // @ts-ignore
