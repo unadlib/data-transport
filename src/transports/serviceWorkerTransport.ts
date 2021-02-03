@@ -56,6 +56,7 @@ abstract class ServiceWorkerServiceTransport<T = {}> extends Transport<T> {
           console.warn(`The client "${(message as any)._clientId}" is closed.`);
           return;
         }
+        delete (message as any)._clientId;
         client.postMessage(
           message,
           (message as TransferableWorkerData)?.transfer || []
