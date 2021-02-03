@@ -40,12 +40,31 @@ abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
 abstract class ServiceWorkerServiceTransport<T = {}> extends Transport<T> {
   constructor({
     listener = (callback) => {
-      addEventListener('message', ({ data }) => {
-        callback(data);
+      addEventListener('message', ({ data, source }) => {
+        callback({
+          ...data,
+          _clientId: (source as any)?.id,
+        });
       });
     },
-    sender = (message: WorkerData) => {
+    sender = async (message: WorkerData) => {
+      if ((message as any)._clientId) {
+        const client = await (self as any).clients.get(
+          (message as any)._clientId
+        );
+        if (!client) {
+          console.warn(`The client "${(message as any)._clientId}" is closed.`);
+          return;
+        }
+        client.postMessage(
+          message,
+          (message as TransferableWorkerData)?.transfer || []
+        );
+        return;
+      }
+
       // TODO: fix https://github.com/microsoft/TypeScript/issues/14877
+      // TODO: select a client for sender.
       (self as any).clients
         .matchAll()
         .then((all: any) =>

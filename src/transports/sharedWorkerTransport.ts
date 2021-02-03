@@ -57,18 +57,31 @@ abstract class SharedWorkerMainTransport<T = {}>
 abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
   T & InternalToMain
 > {
-  protected port!: MessagePort;
+  protected ports: MessagePort[] = [];
   private [callbackKey]!: (options: ListenerOptions) => void;
 
   constructor({
     listener = function (this: SharedWorkerInternalTransport, callback) {
       this[callbackKey] = callback;
     },
-    sender = (message: WorkerData) =>
-      this.port.postMessage(
-        message,
-        (message as TransferableWorkerData)?.transfer || []
-      ),
+    sender = (message: WorkerData) => {
+      const port: MessagePort = (message as any)._port;
+      if (port) {
+        delete (message as any)._port;
+        port.postMessage(
+          message,
+          (message as TransferableWorkerData)?.transfer || []
+        );
+      } else {
+        // TODO: select a client for sender.
+        this.ports.forEach((port) => {
+          port.postMessage(
+            message,
+            (message as TransferableWorkerData)?.transfer || []
+          );
+        });
+      }
+    },
   }: SharedWorkerInternalTransportOptions = {}) {
     super({
       listener,
@@ -76,9 +89,14 @@ abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
     });
     // TODO: fix type
     (self as any).onconnect = (e: any) => {
-      this.port = e.ports[0];
-      this.port.onmessage = ({ data }) => {
-        this[callbackKey](data);
+      const port: MessagePort = e.ports[0];
+      // TODO: clear port when the port's client is closed.
+      this.ports.push(port);
+      port.onmessage = ({ data }) => {
+        this[callbackKey]({
+          ...data,
+          _port: port,
+        });
       };
       // TODO: fix type
       // @ts-ignore
