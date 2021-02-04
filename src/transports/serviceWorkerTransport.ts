@@ -5,6 +5,8 @@ import {
 } from '../interface';
 import { Transport } from '../transport';
 
+// follow issue: https://github.com/microsoft/TypeScript/issues/20595
+// workaround: `tsc --skipLibCheck`.
 declare var self: ServiceWorkerGlobalScope;
 
 interface ServiceWorkerClientId extends TransferableWorker {
