@@ -1,11 +1,5 @@
-// import {
-//   BrowserWindow,
-//   IpcRendererEvent,
-//   IpcMainEvent,
-//   IpcMain,
-//   IpcRenderer,
-// } from 'electron';
-import { TransportOptions } from '../interface';
+import type { BrowserWindow, IpcMain, IpcRenderer } from 'electron';
+import { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$Electron_Transport$$';
@@ -21,11 +15,11 @@ export interface ElectronMainTransportOptions extends ElectronTransportOptions {
   /**
    * Specify a browser windows created by the Electron main process.
    */
-  browserWindow: any;
+  browserWindow: BrowserWindow;
   /**
    * Communicate asynchronously from the main process to renderer processes.
    */
-  ipcMain: any;
+  ipcMain: IpcMain;
 }
 
 export interface ElectronRendererTransportOptions
@@ -33,7 +27,7 @@ export interface ElectronRendererTransportOptions
   /**
    * Communicate asynchronously from a renderer process to the main process.
    */
-  ipcRenderer: any;
+  ipcRenderer: IpcRenderer;
 }
 
 abstract class ElectronMainTransport<T = {}> extends Transport<T> {
@@ -42,7 +36,7 @@ abstract class ElectronMainTransport<T = {}> extends Transport<T> {
     browserWindow,
     channel = defaultChannel,
     listener = (callback) => {
-      ipcMain.on(channel, (e: any, data: any) => {
+      ipcMain.on(channel, (_, data: ListenerOptions) => {
         callback(data);
       });
     },
@@ -60,7 +54,7 @@ abstract class ElectronRendererTransport<T = {}> extends Transport<T> {
     ipcRenderer,
     channel = defaultChannel,
     listener = (callback) => {
-      ipcRenderer.on(channel, (_: any, data: any) => {
+      ipcRenderer.on(channel, (_, data: ListenerOptions) => {
         callback(data);
       });
     },

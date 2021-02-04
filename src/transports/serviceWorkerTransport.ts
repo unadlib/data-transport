@@ -1,34 +1,43 @@
 import {
-  TransferableWorkerData,
   TransportOptions,
-  WorkerData,
+  TransferableWorker,
+  ListenerOptions,
 } from '../interface';
 import { Transport } from '../transport';
 
+declare var self: ServiceWorkerGlobalScope;
+
+interface ServiceWorkerClientId extends TransferableWorker {
+  _clientId?: string;
+}
+
 export interface ServiceWorkerClientTransportOptions
-  extends Partial<TransportOptions> {
+  extends Partial<TransportOptions<TransferableWorker>> {
   /**
-   * Pass service worker using data transport.
+   * A service worker instance for data transport.
    */
   serviceWorker: ServiceWorker;
 }
 
 export interface ServiceWorkerServiceTransportOptions
-  extends Partial<TransportOptions> {}
+  extends Partial<TransportOptions<ServiceWorkerClientId>> {}
 
 abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
   constructor({
     serviceWorker,
     listener = (callback) => {
-      navigator.serviceWorker.addEventListener('message', ({ data }) => {
-        callback(data);
-      });
+      navigator.serviceWorker.addEventListener(
+        'message',
+        ({ data }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
+          callback(data);
+        }
+      );
     },
-    sender = (message: WorkerData) =>
-      serviceWorker.postMessage(
-        message,
-        (message as TransferableWorkerData)?.transfer || []
-      ),
+    sender = (message) => {
+      const transfer = message.transfer ?? [];
+      delete message.transfer;
+      serviceWorker.postMessage(message, transfer);
+    },
   }: ServiceWorkerClientTransportOptions) {
     super({
       listener,
@@ -40,41 +49,37 @@ abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
 abstract class ServiceWorkerServiceTransport<T = {}> extends Transport<T> {
   constructor({
     listener = (callback) => {
-      addEventListener('message', ({ data, source }) => {
-        callback({
-          ...data,
-          _clientId: (source as any)?.id,
-        });
-      });
+      addEventListener(
+        'message',
+        ({
+          data,
+          source,
+        }: MessageEvent<ListenerOptions<ServiceWorkerClientId>>) => {
+          // TODO: fix source type
+          data._clientId = (source as any).id as string;
+          callback(data);
+        }
+      );
     },
-    sender = async (message: WorkerData) => {
-      if ((message as any)._clientId) {
-        const client = await (self as any).clients.get(
-          (message as any)._clientId
-        );
+    sender = async (message) => {
+      const transfer = message.transfer || [];
+      delete message.transfer;
+      if (message._clientId) {
+        const client = await self.clients.get(message._clientId);
         if (!client) {
-          console.warn(`The client "${(message as any)._clientId}" is closed.`);
+          console.warn(`The client "${message._clientId}" is closed.`);
           return;
         }
-        delete (message as any)._clientId;
-        client.postMessage(
-          message,
-          (message as TransferableWorkerData)?.transfer || []
-        );
+        delete message._clientId;
+        client.postMessage(message, transfer);
         return;
       }
 
-      // TODO: fix https://github.com/microsoft/TypeScript/issues/14877
       // TODO: select a client for sender.
-      (self as any).clients
+      self.clients
         .matchAll()
-        .then((all: any) =>
-          all.map((client: any) =>
-            client.postMessage(
-              message,
-              (message as TransferableWorkerData)?.transfer || []
-            )
-          )
+        .then((all) =>
+          all.map((client) => client.postMessage(message, transfer))
         );
     },
   }: ServiceWorkerServiceTransportOptions = {}) {

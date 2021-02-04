@@ -1,4 +1,4 @@
-import { TransportOptions } from '../interface';
+import { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface IFrameTransportInternalOptions
@@ -27,8 +27,9 @@ abstract class IFrameMainTransport<T = {}> extends Transport<T> {
     iframe = undefined,
     targetOrigin = '*',
     listener = (callback) => {
-      window.addEventListener('message', ({ data }: MessageEvent<any>) =>
-        callback(data)
+      window.addEventListener(
+        'message',
+        ({ data }: MessageEvent<ListenerOptions>) => callback(data)
       );
     },
     sender = (message) => {
@@ -52,8 +53,9 @@ abstract class IFrameInternalTransport<T = {}> extends Transport<T> {
   constructor({
     targetOrigin = '*',
     listener = (callback) => {
-      window.addEventListener('message', ({ data }: MessageEvent<any>) =>
-        callback(data)
+      window.addEventListener(
+        'message',
+        ({ data }: MessageEvent<ListenerOptions>) => callback(data)
       );
     },
     sender = (message) => window.parent.postMessage(message, targetOrigin),

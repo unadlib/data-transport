@@ -34,7 +34,7 @@ export abstract class Transport<T = {}, P = {}> {
   private [senderKey]: TransportOptions['sender'];
   private [timeoutKey]: TransportOptions['timeout'];
   private [prefixKey]: TransportOptions['prefix'];
-  private [requestsMapKey]: Map<string, (value: any) => void> = new Map();
+  private [requestsMapKey]: Map<string, (value: unknown) => void> = new Map();
   private [listensMapKey]!: ListensMap;
   private [originalListensMapKey]!: Record<string, Function>;
 

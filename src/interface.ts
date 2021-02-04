@@ -30,32 +30,35 @@ interface Options {
   hasRespond: boolean;
 }
 
-export interface SendOptions extends Options {
-  request?: Request<any>;
-  response?: Response<any>;
-}
+export type SendOptions<T = {}> = T &
+  Options & {
+    request?: Request<any>;
+    response?: Response<any>;
+  };
 
-export interface IRequest extends Options {
-  request: Request<any>;
-}
+export type IRequest<T = {}> = T &
+  Options & {
+    request: Request<any>;
+  };
 
-export interface IResponse extends Options {
-  response: Response<any>;
-}
+export type IResponse<T = {}> = T &
+  Options & {
+    response: Response<any>;
+  };
 
-export type ListenerOptions = IRequest | IResponse;
+export type ListenerOptions<T = {}> = IRequest<T> | IResponse<T>;
 
-export interface TransportOptions {
+export interface TransportOptions<T = {}> {
   /**
    * @description
    * Send method defines an sender to the specified transport.
    */
-  sender: (options: SendOptions) => void;
+  sender: (options: SendOptions<T>) => void;
   /**
    * @description
    * Listen method attaches an event handler to the specified transport.
    */
-  listener: (callback: (options: ListenerOptions) => void) => void;
+  listener: (callback: (options: ListenerOptions<T>) => void) => void;
   /**
    * @description
    * Timeout milliseconds for sending a request.
@@ -65,7 +68,7 @@ export interface TransportOptions {
    * @description
    * Display verbose receive data log
    */
-  verbose?: boolean | ((listenOptions: ListenerOptions) => void);
+  verbose?: boolean | ((listenOptions: ListenerOptions<T>) => void);
   /**
    * @description
    * Specify a prefix for event types.
@@ -90,18 +93,9 @@ export type ListensMap = Record<
   ) => any
 >;
 
-export type TransferableWorkerData = Record<string, any> & {
+export interface TransferableWorker {
   /**
    * Specify data by transferring ownership (transferable objects)
    */
   transfer?: Transferable[];
-};
-
-export type WorkerData =
-  | TransferableWorkerData
-  | any[]
-  | string
-  | number
-  | boolean
-  | null
-  | undefined;
+}

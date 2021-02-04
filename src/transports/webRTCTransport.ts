@@ -1,18 +1,17 @@
-// import Peer from 'simple-peer';
-import { TransportOptions } from '../interface';
+import type { Instance } from 'simple-peer';
+import { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface WebRTCTransportOptions extends Partial<TransportOptions> {
-  // peer: Peer.Instance;
-  peer: any;
+  peer: Instance;
 }
 
 abstract class WebRTCTransport<T = {}> extends Transport<T> {
   constructor({
     peer,
     listener = (callback) => {
-      peer.on('data', (data: any) => {
-        callback(JSON.parse(data));
+      peer.on('data', (data: string) => {
+        callback(JSON.parse(data) as ListenerOptions);
       });
     },
     sender = (message) => {

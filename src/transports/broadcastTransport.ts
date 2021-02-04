@@ -1,4 +1,4 @@
-import { TransportOptions } from '../interface';
+import { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$BroadcastChannel_Transport$$';
@@ -19,7 +19,9 @@ abstract class BroadcastTransport<T = {}> extends Transport<T> {
     channel = defaultChannel,
     broadcastChannel = new BroadcastChannel(channel),
     listener = (callback) => {
-      broadcastChannel.onmessage = ({ data }) => {
+      broadcastChannel.onmessage = ({
+        data,
+      }: MessageEvent<ListenerOptions>) => {
         callback(data);
       };
     },
