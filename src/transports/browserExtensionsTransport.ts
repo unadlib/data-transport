@@ -48,9 +48,7 @@ abstract class BrowserExtensionsTransport<T = {}> extends Transport<T> {
         browser.runtime.sendMessage(
           message,
           {},
-          (response: IRequest<SendResponse>) => {
-            this[callbackKey](response);
-          }
+          this[callbackKey] as (response: IRequest<SendResponse>) => void
         );
       }
     },
