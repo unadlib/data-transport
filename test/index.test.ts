@@ -1,23 +1,15 @@
-import { Transport, listen, createTransport } from '../src';
+import { Transport, listen, createTransport, mockPorts } from '../src';
 
 test('base', async () => {
   interface Internal {
-    hello(options: { num: number }, x: string): Promise<{ text: string }>;
+    hello(options: { num: number }, word: string): Promise<{ text: string }>;
   }
 
-  let mockExternalSend: (...args: any) => void;
-  let mockInternalSend: (...args: any) => void;
+  const ports = mockPorts();
 
   class InternalTransport extends Transport<Internal> implements Internal {
     constructor() {
-      super({
-        listener: (callback) => {
-          mockExternalSend = callback;
-        },
-        sender: (message) => {
-          mockInternalSend(JSON.parse(JSON.stringify(message)));
-        },
-      });
+      super(ports[0]);
     }
 
     async hello(options: { num: number }, word: string) {
@@ -28,14 +20,7 @@ test('base', async () => {
 
   class ExternalTransport extends Transport implements Internal {
     constructor() {
-      super({
-        listener: (callback) => {
-          mockInternalSend = callback;
-        },
-        sender: (message) => {
-          mockExternalSend(JSON.parse(JSON.stringify(message)));
-        },
-      });
+      super(ports[1]);
     }
 
     @listen
@@ -288,28 +273,13 @@ test('base with `undefined`', async () => {
 
 test('base with createTransport', async () => {
   interface Internal {
-    hello(options: { num: number }, k: string): Promise<{ text: string }>;
+    hello(options: { num: number }, word: string): Promise<{ text: string }>;
   }
 
-  let mockExternalSend: (...args: any) => void;
-  let mockInternalSend: (...args: any) => void;
+  const ports = mockPorts();
 
-  const internal: Transport<Internal> = createTransport('Base', {
-    listener: (callback) => {
-      mockExternalSend = callback;
-    },
-    sender: (message) => {
-      mockInternalSend(JSON.parse(JSON.stringify(message)));
-    },
-  });
-  const external: Transport<any, Internal> = createTransport('Base', {
-    listener: (callback) => {
-      mockInternalSend = callback;
-    },
-    sender: (message) => {
-      mockExternalSend(JSON.parse(JSON.stringify(message)));
-    },
-  });
+  const internal: Transport<Internal> = createTransport('Base', ports[0]);
+  const external: Transport<any, Internal> = createTransport('Base', ports[1]);
   external.listen('hello', async (options, word) => ({
     text: `hello ${options.num} ${word}`,
   }));

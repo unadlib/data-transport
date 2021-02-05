@@ -48,6 +48,8 @@ export type IResponse<T = {}> = T &
 
 export type ListenerOptions<T = {}> = IRequest<T> | IResponse<T>;
 
+export type ListenCallback<T = {}> = (options: ListenerOptions<T>) => void;
+
 export interface TransportOptions<T = {}> {
   /**
    * @description
