@@ -1,11 +1,11 @@
-import { Transport, listen, createTransport, mockPorts } from '../src';
+import { Transport, listen, createTransport, mockPairPorts } from '../src';
 
 test('base', async () => {
   interface Internal {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
   }
 
-  const ports = mockPorts();
+  const ports = mockPairPorts();
 
   class InternalTransport extends Transport<Internal> implements Internal {
     constructor() {
@@ -276,7 +276,7 @@ test('base with createTransport', async () => {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
   }
 
-  const ports = mockPorts();
+  const ports = mockPairPorts();
 
   const internal: Transport<Internal> = createTransport('Base', ports[0]);
   const external: Transport<any, Internal> = createTransport('Base', ports[1]);

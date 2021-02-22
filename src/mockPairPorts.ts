@@ -1,9 +1,9 @@
 import { ListenCallback, SendOptions } from './interface';
 
 /**
- * mockPorts as testing mock
+ * Mock a pair of ports for testing
  */
-export const mockPorts = () => {
+export const mockPairPorts = () => {
   const mock: {
     internalSend?: ListenCallback;
     externalSend?: ListenCallback;
