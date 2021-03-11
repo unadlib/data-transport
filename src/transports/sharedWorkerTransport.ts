@@ -103,7 +103,7 @@ abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
       };
       // because parameters is unknown
       // @ts-ignore
-      this.send({ name: 'connect', respond: false });
+      this.emit({ name: 'connect', respond: false });
     };
   }
 }

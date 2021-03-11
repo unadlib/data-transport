@@ -20,6 +20,7 @@ import {
   ListensMap,
   Response,
   TransportOptions,
+  EmitParameter,
 } from './interface';
 
 const defaultTimeout = 60 * 1000;
@@ -186,32 +187,20 @@ export abstract class Transport<T = {}, P = {}> {
   /**
    * Emit an event that transport data.
    *
-   * @param name A transport action as post message data action type.
-   * @param request A request data
-   *
-   * @returns Return a response for the request.
-   */
-  emit<K extends keyof T>(name: K, ...request: Request<T[K]>) {
-    return this.send({ name }, ...request);
-  }
-
-  /**
-   * Emit an event that transport data.
-   *
    * @param emitOptions A option for the transport data
-   * * `name`: A transport action as post message data action type.
-   * * `respond`: (optional) A boolean for defined need to be respond.
-   * * `timeout`: (optional) A number for defined a timeout for responding.
    * @param request A request data
    *
    * @returns Return a response for the request.
    */
-  async send<K extends keyof T>(
-    { name, ...options }: EmitOptions<K>,
+  async emit<K extends keyof T>(
+    options: EmitOptions<K>,
     ...request: Request<T[K]>
   ): Promise<Response<T[K]>> {
-    const hasRespond = options.respond ?? true;
-    const timeout = options.timeout ?? this[timeoutKey];
+    const params =
+      typeof options === 'object' ? options : ({} as EmitParameter<T>);
+    const hasRespond = params.respond ?? true;
+    const timeout = params.timeout ?? this[timeoutKey];
+    const name = params.name ?? options;
     const transportId = v4({
       // In nodejs, crypto.getRandomValues() not supported.
       // workaround: https://github.com/uuidjs/uuid/issues/375

@@ -59,7 +59,7 @@ test('base with `{ hasRespond: false }`', async () => {
     }
 
     async hello(options: { num: number }) {
-      const response = await this.send(
+      const response = await this.emit(
         { name: 'hello', respond: false, timeout: 42 },
         options
       );

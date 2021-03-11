@@ -6,7 +6,7 @@ export type Response<T> = T extends (...args: any) => Promise<infer P>
   ? P
   : never;
 
-export interface EmitOptions<T> {
+export interface EmitParameter<T> {
   /**
    * Emit with the event name.
    */
@@ -20,6 +20,8 @@ export interface EmitOptions<T> {
    */
   timeout?: number;
 }
+
+export type EmitOptions<T> = T | EmitParameter<T>;
 
 type TransportType = typeof transportType;
 

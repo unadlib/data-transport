@@ -3,7 +3,7 @@ import { PopupToBackground } from '../../interface';
 
 class PopupTransport extends BrowserExtensionsTransport<PopupToBackground> {
   openClient() {
-    this.send(
+    this.emit(
       {
         name: 'openClient',
         respond: false,
