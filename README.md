@@ -72,6 +72,12 @@ const external = new ExternalTransport();
 expect(await internal.hello({ num: 42 })).toEqual({ text: 'hello 42' });
 ```
 
+## API
+
+- `emit`
+
+- `listen`
+
 ## Examples
 
 [Online about Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
