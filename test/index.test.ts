@@ -280,10 +280,24 @@ test('base with createTransport', async () => {
 
   const internal: Transport<Internal> = createTransport('Base', ports[0]);
   const external: Transport<any, Internal> = createTransport('Base', ports[1]);
-  external.listen('hello', async (options, word) => ({
+  const dispose = external.listen('hello', async (options, word) => ({
     text: `hello ${options.num} ${word}`,
   }));
   expect(await internal.emit('hello', { num: 42 }, 'Universe')).toEqual({
     text: 'hello 42 Universe',
   });
+
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+  dispose?.();
+
+  const result = await internal.emit(
+    { name: 'hello', timeout: 1000 },
+    { num: 42 },
+    'Universe'
+  );
+  expect(result).toBeUndefined();
+  expect(warn.mock.calls[0][0]).toBe(
+    "The event 'DataTransport-hello' timed out for 1000 seconds..."
+  );
 });

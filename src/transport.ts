@@ -182,6 +182,11 @@ export abstract class Transport<T = {}, P = {}> {
         `The event name "${name.toString()}" is not a string, it should be a string.`
       );
     }
+    return () => {
+      delete this[originalListensMapKey][name];
+      const action = getAction(this[prefixKey]!, name);
+      delete this[listensMapKey][action];
+    };
   }
 
   /**
