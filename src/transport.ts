@@ -241,13 +241,13 @@ export abstract class Transport<T = {}, P = {}> {
       }),
       new Promise((_, reject) => {
         timeoutId = setTimeout(() => {
-          reject(timeoutId);
+          reject();
         }, timeout);
       }),
     ]);
     return promise
       .catch((error) => {
-        if (typeof error === 'number') {
+        if (typeof error === 'undefined') {
           console.warn(
             `The event '${action}' timed out for ${timeout} seconds...`
           );
