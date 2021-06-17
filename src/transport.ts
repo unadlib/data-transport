@@ -38,6 +38,10 @@ export abstract class Transport<T = {}, P = {}> {
   private [requestsMapKey]: Map<string, (value: unknown) => void> = new Map();
   private [listensMapKey]!: ListensMap;
   private [originalListensMapKey]!: Record<string, Function>;
+  /**
+   *
+   */
+  public dispose: () => void;
 
   constructor({
     listener,
@@ -79,7 +83,7 @@ export abstract class Transport<T = {}, P = {}> {
       this[produceKey](name, fn);
     });
 
-    this[listenerKey].call(this, (options: ListenerOptions) => {
+    const dispose = this[listenerKey].call(this, (options: ListenerOptions) => {
       if (verbose) {
         if (typeof verbose === 'function') {
           verbose(options);
@@ -119,6 +123,17 @@ export abstract class Transport<T = {}, P = {}> {
         }
       }
     });
+
+    this.dispose =
+      typeof dispose === 'function'
+        ? dispose
+        : () => {
+            if (__DEV__) {
+              console.warn(
+                `The return value of the the '${this.constructor.name}' transport's listener should be a 'dispose' function for removing the listener`
+              );
+            }
+          };
   }
 
   private [produceKey]<K extends string, P extends Record<string, Function>>(
@@ -161,7 +176,7 @@ export abstract class Transport<T = {}, P = {}> {
    * @param name A transport action as listen message data action type
    * @param fn A transport listener
    */
-  listen<K extends keyof P>(name: K, fn: P[K]) {
+   public listen<K extends keyof P>(name: K, fn: P[K]) {
     if (typeof name === 'string') {
       if (this[originalListensMapKey][name]) {
         if (__DEV__) {
@@ -197,7 +212,7 @@ export abstract class Transport<T = {}, P = {}> {
    *
    * @returns Return a response for the request.
    */
-  async emit<K extends keyof T>(
+  public async emit<K extends keyof T>(
     options: EmitOptions<K>,
     ...request: Request<T[K]>
   ): Promise<Response<T[K]>> {

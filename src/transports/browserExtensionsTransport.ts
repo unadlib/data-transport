@@ -28,16 +28,18 @@ abstract class BrowserExtensionsTransport<T = {}> extends Transport<T> {
     browser = window.browser ?? window.chrome,
     listener = (callback) => {
       this[callbackKey] = callback;
-      browser.runtime.onMessage.addListener(
-        (
-          data: ListenerOptions<SendResponse>,
-          sender: browser.runtime.MessageSender | chrome.runtime.MessageSender,
-          sendResponse: (response?: SendOptions<SendResponse>) => void
-        ) => {
-          data._sendResponse = sendResponse;
-          callback(data);
-        }
-      );
+      const handler = (
+        data: ListenerOptions<SendResponse>,
+        sender: browser.runtime.MessageSender | chrome.runtime.MessageSender,
+        sendResponse: (response?: SendOptions<SendResponse>) => void
+      ) => {
+        data._sendResponse = sendResponse;
+        callback(data);
+      };
+      browser.runtime.onMessage.addListener(handler);
+      return () => {
+        browser.runtime.onMessage.removeListener(handler);
+      };
     },
     sender = (message) => {
       if (message._sendResponse) {
@@ -64,9 +66,13 @@ abstract class BrowserExtensionsPortTransport<T = {}> extends Transport<T> {
   constructor({
     port,
     listener = (callback) => {
-      port.onMessage.addListener((data: object) => {
+      const handler = (data: object) => {
         callback(data as ListenerOptions);
-      });
+      };
+      port.onMessage.addListener(handler);
+      return () => {
+        port.onMessage.removeListener(handler);
+      };
     },
     sender = (message) => {
       port.postMessage(message);

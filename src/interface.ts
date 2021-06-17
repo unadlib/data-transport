@@ -60,9 +60,11 @@ export interface TransportOptions<T = {}> {
   sender: (options: SendOptions<T>) => void;
   /**
    * @description
-   * Listen method attaches an event handler to the specified transport.
+   * Listen method attaches an event handler to the specified transport, and optionally returns a 'dispose' function to remove the listener.
    */
-  listener: (callback: (options: ListenerOptions<T>) => void) => void;
+  listener: (
+    callback: (options: ListenerOptions<T>) => void
+  ) => (() => void) | void;
   /**
    * @description
    * Timeout milliseconds for sending a request.

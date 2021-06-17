@@ -38,10 +38,15 @@ abstract class SharedWorkerMainTransport<T = {}>
   constructor({
     worker,
     listener = (callback) => {
-      worker.port.onmessage = ({
+      const handler = ({
         data,
       }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
         callback(data);
+      };
+      worker.port.addEventListener('message', handler);
+      worker.port.start();
+      return () => {
+        worker.port.removeEventListener('message', handler);
       };
     },
     sender = (message) => {
@@ -62,6 +67,10 @@ abstract class SharedWorkerMainTransport<T = {}>
   }
 }
 
+interface SharedWorkerTransportPort extends MessagePort {
+  _handler?: (options: MessageEvent<ListenerOptions<SharedWorkerPort>>) => void;
+}
+
 abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
   T & InternalToMain
 > {
@@ -71,6 +80,12 @@ abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
   constructor({
     listener = function (this: SharedWorkerInternalTransport, callback) {
       this[callbackKey] = callback;
+      return () => {
+        this.ports.forEach((port: SharedWorkerTransportPort) => {
+          port._handler && port.removeEventListener('message', port._handler);
+          delete port._handler;
+        });
+      };
     },
     sender = (message) => {
       const transfer = message.transfer ?? [];
@@ -92,15 +107,17 @@ abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
       sender,
     });
     self.onconnect = (e) => {
-      const port = e.ports[0];
+      const port: SharedWorkerTransportPort = e.ports[0];
       // TODO: clear port when the port's client is closed.
       this.ports.push(port);
-      port.onmessage = ({
+      port._handler = ({
         data,
       }: MessageEvent<ListenerOptions<SharedWorkerPort>>) => {
         data._port = port;
         this[callbackKey](data);
       };
+      port.addEventListener('message', port._handler);
+      port.start();
       // because parameters is unknown
       // @ts-ignore
       this.emit({ name: 'connect', respond: false });

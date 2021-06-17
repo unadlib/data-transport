@@ -1,8 +1,8 @@
 import { SharedWorkerTransport, listen } from 'data-transport';
-import { Main } from './interface';
+import { Main, Worker } from './interface';
 
 class SharedWorkerTransportService
-  extends SharedWorkerTransport.Worker
+  extends SharedWorkerTransport.Worker<Worker>
   implements Main {
   @listen
   async help(options: { text: string }) {
@@ -10,6 +10,11 @@ class SharedWorkerTransportService
     return {
       text: 'COPY!!!',
     };
+  }
+
+  async sayHello() {
+    const response = await this.emit('hello', { num: 42 });
+    return response;
   }
 }
 

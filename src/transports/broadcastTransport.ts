@@ -19,10 +19,12 @@ abstract class BroadcastTransport<T = {}> extends Transport<T> {
     channel = defaultChannel,
     broadcastChannel = new BroadcastChannel(channel),
     listener = (callback) => {
-      broadcastChannel.onmessage = ({
-        data,
-      }: MessageEvent<ListenerOptions>) => {
+      const handler = ({ data }: MessageEvent<ListenerOptions>) => {
         callback(data);
+      };
+      broadcastChannel.addEventListener('message', handler);
+      return () => {
+        broadcastChannel.removeEventListener('message', handler);
       };
     },
     sender = (message) => broadcastChannel.postMessage(message),

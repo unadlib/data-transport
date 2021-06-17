@@ -1,3 +1,4 @@
+import { removeListener } from 'process';
 import {
   TransportOptions,
   TransferableWorker,
@@ -20,10 +21,14 @@ abstract class WorkerMainTransport<T = {}> extends Transport<T> {
   constructor({
     worker,
     listener = (callback) => {
-      worker.onmessage = ({
+      const handler = ({
         data,
       }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
         callback(data);
+      };
+      worker.addEventListener('message', handler);
+      return () => {
+        worker.removeEventListener('message', handler);
       };
     },
     sender = (message) => {
@@ -42,8 +47,14 @@ abstract class WorkerMainTransport<T = {}> extends Transport<T> {
 abstract class WorkerInternalTransport<T = {}> extends Transport<T> {
   constructor({
     listener = (callback) => {
-      onmessage = ({ data }: MessageEvent<any>) => {
+      const handler = ({ data }: MessageEvent<any>) => {
         callback(data);
+      };
+      addEventListener('message', handler);
+      return () => {
+        // TODO: fix type
+        // @ts-ignore
+        removeListener('message', handler);
       };
     },
     sender = (message) => {

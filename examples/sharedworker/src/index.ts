@@ -1,7 +1,7 @@
-import { SharedWorkerTransport } from 'data-transport';
-import { Main } from './interface';
+import { listen, SharedWorkerTransport } from 'data-transport';
+import { Main, Worker } from './interface';
 
-class MainTransport extends SharedWorkerTransport.Main<Main> {
+class MainTransport extends SharedWorkerTransport.Main<Main> implements Worker {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     const div = document.createElement('div');
@@ -11,6 +11,14 @@ class MainTransport extends SharedWorkerTransport.Main<Main> {
 
   onConnect() {
     console.log('connect');
+  }
+
+  @listen
+  async hello(options: { num: number }) {
+    console.log('receive help', options);
+    return {
+      text: 'COPY!!!',
+    };
   }
 }
 

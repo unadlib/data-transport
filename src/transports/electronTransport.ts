@@ -36,9 +36,13 @@ abstract class ElectronMainTransport<T = {}> extends Transport<T> {
     browserWindow,
     channel = defaultChannel,
     listener = (callback) => {
-      ipcMain.on(channel, (_, data: ListenerOptions) => {
+      const handler = (_: Electron.IpcMainEvent, data: ListenerOptions) => {
         callback(data);
-      });
+      }
+      ipcMain.on(channel, handler);
+      return () => {
+        ipcMain.off(channel, handler);
+      };
     },
     sender = (message) => browserWindow.webContents.send(channel, message),
   }: ElectronMainTransportOptions) {
@@ -54,9 +58,13 @@ abstract class ElectronRendererTransport<T = {}> extends Transport<T> {
     ipcRenderer,
     channel = defaultChannel,
     listener = (callback) => {
-      ipcRenderer.on(channel, (_, data: ListenerOptions) => {
+      const handler = (_: Electron.IpcRendererEvent, data: ListenerOptions) => {
         callback(data);
-      });
+      };
+      ipcRenderer.on(channel, handler);
+      return () => {
+        ipcRenderer.off(channel, handler);
+      };
     },
     sender = (message) => ipcRenderer.send(channel, message),
   }: ElectronRendererTransportOptions) {

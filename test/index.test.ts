@@ -43,7 +43,7 @@ test('base with `{ hasRespond: false }`', async () => {
     hello(options: { num: number }): Promise<void>;
   }
 
-  let mockExternalSend: (...args: any) => void;
+  let mockExternalSend: ((...args: any) => void) | undefined;
   let mockInternalSend: (...args: any) => void;
 
   class InternalTransport extends Transport<Internal> implements Internal {
@@ -51,6 +51,9 @@ test('base with `{ hasRespond: false }`', async () => {
       super({
         listener: (callback) => {
           mockExternalSend = callback;
+          return () => {
+            mockExternalSend = undefined;
+          }
         },
         sender: (message) => {
           mockInternalSend(JSON.parse(JSON.stringify(message)));
@@ -74,7 +77,7 @@ test('base with `{ hasRespond: false }`', async () => {
           mockInternalSend = callback;
         },
         sender: (message) => {
-          mockExternalSend(JSON.parse(JSON.stringify(message)));
+          mockExternalSend?.(JSON.parse(JSON.stringify(message)));
         },
       });
     }

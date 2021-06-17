@@ -28,12 +28,15 @@ abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
   constructor({
     serviceWorker,
     listener = (callback) => {
-      navigator.serviceWorker.addEventListener(
-        'message',
-        ({ data }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
-          callback(data);
-        }
-      );
+      const handler = ({
+        data,
+      }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
+        callback(data);
+      };
+      navigator.serviceWorker.addEventListener('message', handler);
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', handler);
+      };
     },
     sender = (message) => {
       const transfer = message.transfer ?? [];
@@ -51,17 +54,16 @@ abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
 abstract class ServiceWorkerServiceTransport<T = {}> extends Transport<T> {
   constructor({
     listener = (callback) => {
-      addEventListener(
-        'message',
-        ({
-          data,
-          source,
-        }: MessageEvent<ListenerOptions<ServiceWorkerClientId>>) => {
-          // TODO: fix source type
-          data._clientId = (source as any).id as string;
-          callback(data);
-        }
-      );
+      const handler = ({
+        data,
+        source,
+      }: MessageEvent<ListenerOptions<ServiceWorkerClientId>>) => {
+        // TODO: fix source type
+        data._clientId = (source as any).id as string;
+        callback(data);
+      };
+      addEventListener('message', handler);
+      return () => removeEventListener('message', handler);
     },
     sender = async (message) => {
       const transfer = message.transfer || [];

@@ -27,10 +27,12 @@ abstract class IFrameMainTransport<T = {}> extends Transport<T> {
     iframe = undefined,
     targetOrigin = '*',
     listener = (callback) => {
-      window.addEventListener(
-        'message',
-        ({ data }: MessageEvent<ListenerOptions>) => callback(data)
-      );
+      const handler = ({ data }: MessageEvent<ListenerOptions>) =>
+        callback(data);
+      window.addEventListener('message', handler);
+      return () => {
+        window.removeEventListener('message', handler);
+      };
     },
     sender = (message) => {
       if (iframe) {
@@ -53,10 +55,12 @@ abstract class IFrameInternalTransport<T = {}> extends Transport<T> {
   constructor({
     targetOrigin = '*',
     listener = (callback) => {
-      window.addEventListener(
-        'message',
-        ({ data }: MessageEvent<ListenerOptions>) => callback(data)
-      );
+      const handler = ({ data }: MessageEvent<ListenerOptions>) =>
+        callback(data);
+      window.addEventListener('message', handler);
+      return () => {
+        window.removeEventListener('message', handler);
+      };
     },
     sender = (message) => window.parent.postMessage(message, targetOrigin),
   }: IFrameTransportInternalOptions = {}) {

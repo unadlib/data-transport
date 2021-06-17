@@ -12,6 +12,9 @@ export const mockPairPorts = () => {
     {
       listener: (callback: ListenCallback) => {
         mock.internalSend = callback;
+        return () => {
+          mock.internalSend = undefined;
+        };
       },
       sender: (message: SendOptions) => {
         mock.externalSend?.(JSON.parse(JSON.stringify(message)));
@@ -20,6 +23,9 @@ export const mockPairPorts = () => {
     {
       listener: (callback: ListenCallback) => {
         mock.externalSend = callback;
+        return () => {
+          mock.externalSend = undefined;
+        };
       },
       sender: (message: SendOptions) => {
         mock.internalSend?.(JSON.parse(JSON.stringify(message)));
