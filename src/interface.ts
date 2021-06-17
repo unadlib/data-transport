@@ -72,7 +72,7 @@ export interface TransportOptions<T = {}> {
   timeout?: number;
   /**
    * @description
-   * Display verbose receive data log
+   * Display verbose receive data log.
    */
   verbose?: boolean | ((listenOptions: ListenerOptions<T>) => void);
   /**
@@ -85,6 +85,11 @@ export interface TransportOptions<T = {}> {
    * Specify the method name list of the class to listen.
    */
   listenKeys?: string[];
+  /**
+   * @description
+   * Check the unexpected listen.
+   */
+   checkListen?: boolean;
 }
 
 export type ListensMap = Record<

@@ -18,7 +18,7 @@ class IFrameInternalTransport
 }
 
 const useIFrameInternalTransport = () => new IFrameInternalTransport({
-  prefix: 'test',
+  // prefix: 'test',
 });
 
 const init = () => {

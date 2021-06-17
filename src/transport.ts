@@ -50,6 +50,7 @@ export abstract class Transport<T = {}, P = {}> {
     verbose = false,
     prefix = defaultPrefix,
     listenKeys = [],
+    checkListen = true,
   }: TransportOptions) {
     this[listensMapKey] ??= {};
     this[originalListensMapKey] ??= {};
@@ -99,7 +100,7 @@ export abstract class Transport<T = {}, P = {}> {
           if (resolve) {
             resolve((options as IResponse).response);
           } else if (hasListen) {
-            if (__DEV__) {
+            if (__DEV__ && checkListen) {
               console.warn(
                 `The type '${options.action}' event '${options[transportKey]}' has been resolved. Please check for a duplicate response.`
               );
@@ -114,7 +115,7 @@ export abstract class Transport<T = {}, P = {}> {
               hasRespond: (options as IRequest).hasRespond,
             });
           } else if (hasListen) {
-            if (__DEV__) {
+            if (__DEV__ && checkListen) {
               console.error(
                 `In '${this.constructor.name}' class, the listen method '${listenName}' is NOT decorated by decorator '@listen' or be added 'listenKeys' list.`
               );
@@ -176,7 +177,7 @@ export abstract class Transport<T = {}, P = {}> {
    * @param name A transport action as listen message data action type
    * @param fn A transport listener
    */
-   public listen<K extends keyof P>(name: K, fn: P[K]) {
+  public listen<K extends keyof P>(name: K, fn: P[K]) {
     if (typeof name === 'string') {
       if (this[originalListensMapKey][name]) {
         if (__DEV__) {

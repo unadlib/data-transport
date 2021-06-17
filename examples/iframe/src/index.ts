@@ -23,7 +23,18 @@ window.messageTransport = messageTransport;
 const useMainTransport = (iframe: HTMLIFrameElement) =>
   new MainTransport({
     iframe,
-    prefix: 'test',
+    checkListen: false,
+    // prefix: 'test',
+    sender: (message) => {
+      if (iframe) {
+        iframe.contentWindow!.postMessage(message, '*');
+      } else if (window.frames[0]) {
+        window.frames[0].postMessage(message, '*');
+      } else {
+        console.error('The current page does not have any iframe elements');
+      }
+      window.postMessage(message, '*');
+    }
   });
 
 const init = () => {
