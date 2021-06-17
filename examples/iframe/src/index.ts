@@ -1,4 +1,4 @@
-import { IFrameTransport, listen } from 'data-transport';
+import { IFrameTransport, listen, messageTransport } from 'data-transport';
 import { Main, IFrame } from './interface';
 
 class MainTransport extends IFrameTransport.Main<Main> implements IFrame {
@@ -9,6 +9,7 @@ class MainTransport extends IFrameTransport.Main<Main> implements IFrame {
 
   @listen
   async hello(options: { num: number }) {
+    console.log('receive hello:', options);
     const input = document.getElementById('input') as HTMLInputElement;
     return {
       text: `hello ${input?.value || 'anonymous'}, ${options.num}`,
@@ -16,9 +17,13 @@ class MainTransport extends IFrameTransport.Main<Main> implements IFrame {
   }
 }
 
+// @ts-ignore
+window.messageTransport = messageTransport;
+
 const useMainTransport = (iframe: HTMLIFrameElement) =>
   new MainTransport({
     iframe,
+    prefix: 'test',
   });
 
 const init = () => {

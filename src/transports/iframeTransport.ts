@@ -1,3 +1,4 @@
+import { options } from 'yargs';
 import { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
@@ -43,8 +44,10 @@ abstract class IFrameMainTransport<T = {}> extends Transport<T> {
         console.error('The current page does not have any iframe elements');
       }
     },
+    ...options
   }: IFrameMainTransportOptions) {
     super({
+      ...options,
       listener,
       sender,
     });
@@ -63,8 +66,10 @@ abstract class IFrameInternalTransport<T = {}> extends Transport<T> {
       };
     },
     sender = (message) => window.parent.postMessage(message, targetOrigin),
+    ...options
   }: IFrameTransportInternalOptions = {}) {
     super({
+      ...options,
       listener,
       sender,
     });

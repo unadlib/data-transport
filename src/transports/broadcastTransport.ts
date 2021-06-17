@@ -28,8 +28,10 @@ abstract class BroadcastTransport<T = {}> extends Transport<T> {
       };
     },
     sender = (message) => broadcastChannel.postMessage(message),
+    ...options
   }: BroadcastTransportOptions = {}) {
     super({
+      ...options,
       listener,
       sender,
     });

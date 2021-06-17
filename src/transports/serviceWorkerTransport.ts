@@ -43,8 +43,10 @@ abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
       delete message.transfer;
       serviceWorker.postMessage(message, transfer);
     },
+    ...options
   }: ServiceWorkerClientTransportOptions) {
     super({
+      ...options,
       listener,
       sender,
     });
@@ -86,8 +88,10 @@ abstract class ServiceWorkerServiceTransport<T = {}> extends Transport<T> {
           all.map((client) => client.postMessage(message, transfer))
         );
     },
+    ...options
   }: ServiceWorkerServiceTransportOptions = {}) {
     super({
+      ...options,
       listener,
       sender,
     });

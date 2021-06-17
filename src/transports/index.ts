@@ -6,3 +6,4 @@ export * from './broadcastTransport';
 export * from './browserExtensionsTransport';
 export * from './electronTransport';
 export * from './webRTCTransport';
+export * from './messageTransport';

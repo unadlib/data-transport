@@ -54,8 +54,10 @@ abstract class SharedWorkerMainTransport<T = {}>
       delete message.transfer;
       worker.port.postMessage(message, transfer);
     },
+    ...options
   }: SharedWorkerMainTransportOptions) {
     super({
+      ...options,
       listener,
       sender,
     });
@@ -101,8 +103,10 @@ abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
         });
       }
     },
+    ...options
   }: SharedWorkerInternalTransportOptions = {}) {
     super({
+      ...options,
       listener,
       sender,
     });

@@ -21,8 +21,10 @@ abstract class WebRTCTransport<T = {}> extends Transport<T> {
     sender = (message) => {
       peer.send(JSON.stringify(message));
     },
+    ...options
   }: WebRTCTransportOptions) {
     super({
+      ...options,
       listener,
       sender,
     });

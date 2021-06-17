@@ -17,7 +17,9 @@ class IFrameInternalTransport
   }
 }
 
-const useIFrameInternalTransport = () => new IFrameInternalTransport();
+const useIFrameInternalTransport = () => new IFrameInternalTransport({
+  prefix: 'test',
+});
 
 const init = () => {
   window.addEventListener('load', () => {

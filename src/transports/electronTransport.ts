@@ -45,8 +45,10 @@ abstract class ElectronMainTransport<T = {}> extends Transport<T> {
       };
     },
     sender = (message) => browserWindow.webContents.send(channel, message),
+    ...options
   }: ElectronMainTransportOptions) {
     super({
+      ...options,
       listener,
       sender,
     });
@@ -67,8 +69,10 @@ abstract class ElectronRendererTransport<T = {}> extends Transport<T> {
       };
     },
     sender = (message) => ipcRenderer.send(channel, message),
+    ...options
   }: ElectronRendererTransportOptions) {
     super({
+      ...options,
       listener,
       sender,
     });

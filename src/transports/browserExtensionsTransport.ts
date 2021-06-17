@@ -54,8 +54,10 @@ abstract class BrowserExtensionsTransport<T = {}> extends Transport<T> {
         );
       }
     },
+    ...options
   }: BrowserExtensionsTransportOptions = {}) {
     super({
+      ...options,
       listener,
       sender,
     });
@@ -77,8 +79,10 @@ abstract class BrowserExtensionsPortTransport<T = {}> extends Transport<T> {
     sender = (message) => {
       port.postMessage(message);
     },
+    ...options
   }: BrowserExtensionsPortTransportOptions) {
     super({
+      ...options,
       listener,
       sender,
     });

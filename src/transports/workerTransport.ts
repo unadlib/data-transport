@@ -36,8 +36,10 @@ abstract class WorkerMainTransport<T = {}> extends Transport<T> {
       delete message.transfer;
       worker.postMessage(message, transfer);
     },
+    ...options
   }: WorkerMainTransportOptions) {
     super({
+      ...options,
       listener,
       sender,
     });
@@ -62,8 +64,10 @@ abstract class WorkerInternalTransport<T = {}> extends Transport<T> {
       delete message.transfer;
       postMessage(message, transfer);
     },
+    ...options
   }: WorkerInternalTransportOptions = {}) {
     super({
+      ...options,
       listener,
       sender,
     });

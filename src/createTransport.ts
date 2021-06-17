@@ -20,6 +20,8 @@ import {
   SharedWorkerTransport,
   SharedWorkerInternalTransportOptions,
   SharedWorkerMainTransportOptions,
+  MessageTransport,
+  MessageTransportOptions,
 } from './transports';
 import { Transport } from './transport';
 import { TransportOptions } from './interface';
@@ -39,10 +41,12 @@ interface TransportOptionsMap {
   SharedWorkerMain: SharedWorkerMainTransportOptions;
   SharedWorkerInternal: SharedWorkerInternalTransportOptions;
   Base: TransportOptions;
+  MessageTransport: MessageTransportOptions;
 }
 
 const TransportMap = {
   Base: Transport,
+  MessageTransport: MessageTransport,
   IFrameMain: IFrameTransport.Main,
   IFrameInternal: IFrameTransport.IFrame,
   ElectronMain: ElectronTransport.Main,
@@ -72,3 +76,5 @@ export const createTransport = <T extends keyof TransportOptionsMap>(
 ) => {
   return new (TransportMap[name] as any)(options);
 };
+
+export const messageTransport = createTransport('MessageTransport', {});
