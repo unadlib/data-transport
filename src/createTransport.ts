@@ -22,6 +22,16 @@ import {
   SharedWorkerMainTransportOptions,
   MessageTransport,
   MessageTransportOptions,
+  IFrameMainTransport,
+  IFrameInternalTransport,
+  ElectronMainTransport,
+  ElectronRendererTransport,
+  ServiceWorkerClientTransport,
+  ServiceWorkerServiceTransport,
+  WorkerInternalTransport,
+  WorkerMainTransport,
+  SharedWorkerMainTransport,
+  SharedWorkerInternalTransport,
 } from './transports';
 import { Transport } from './transport';
 import { TransportOptions } from './interface';
@@ -42,6 +52,24 @@ interface TransportOptionsMap {
   SharedWorkerInternal: SharedWorkerInternalTransportOptions;
   Base: TransportOptions;
   MessageTransport: MessageTransportOptions;
+}
+
+interface Transports {
+  Base: Transport;
+  MessageTransport: MessageTransport;
+  IFrameMain: IFrameMainTransport;
+  IFrameInternal: IFrameInternalTransport;
+  ElectronMain: ElectronMainTransport;
+  ElectronRenderer: ElectronRendererTransport;
+  ServiceWorkerClient: ServiceWorkerClientTransport;
+  ServiceWorkerService: ServiceWorkerServiceTransport;
+  WorkerMain: WorkerMainTransport;
+  WorkerInternal: WorkerInternalTransport;
+  WebRTC: WebRTCTransport;
+  Broadcast: BroadcastTransport;
+  BrowserExtensions: BrowserExtensionsTransport;
+  SharedWorkerMain: SharedWorkerMainTransport;
+  SharedWorkerInternal: SharedWorkerInternalTransport;
 }
 
 const TransportMap = {
@@ -73,7 +101,7 @@ const TransportMap = {
 export const createTransport = <T extends keyof TransportOptionsMap>(
   name: T,
   options: TransportOptionsMap[T]
-) => {
+): Transports[T] => {
   return new (TransportMap[name] as any)(options);
 };
 

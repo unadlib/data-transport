@@ -24,7 +24,7 @@ export interface ServiceWorkerClientTransportOptions
 export interface ServiceWorkerServiceTransportOptions
   extends Partial<TransportOptions<ServiceWorkerClientId>> {}
 
-abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
+export abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
   constructor({
     serviceWorker,
     listener = (callback) => {
@@ -53,7 +53,7 @@ abstract class ServiceWorkerClientTransport<T = {}> extends Transport<T> {
   }
 }
 
-abstract class ServiceWorkerServiceTransport<T = {}> extends Transport<T> {
+export abstract class ServiceWorkerServiceTransport<T = {}> extends Transport<T> {
   constructor({
     listener = (callback) => {
       const handler = ({

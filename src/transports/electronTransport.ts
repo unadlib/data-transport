@@ -30,7 +30,7 @@ export interface ElectronRendererTransportOptions
   ipcRenderer: IpcRenderer;
 }
 
-abstract class ElectronMainTransport<T = {}> extends Transport<T> {
+export abstract class ElectronMainTransport<T = {}> extends Transport<T> {
   constructor({
     ipcMain,
     browserWindow,
@@ -55,7 +55,7 @@ abstract class ElectronMainTransport<T = {}> extends Transport<T> {
   }
 }
 
-abstract class ElectronRendererTransport<T = {}> extends Transport<T> {
+export abstract class ElectronRendererTransport<T = {}> extends Transport<T> {
   constructor({
     ipcRenderer,
     channel = defaultChannel,

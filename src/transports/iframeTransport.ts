@@ -23,7 +23,7 @@ export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
   targetOrigin?: string;
 }
 
-abstract class IFrameMainTransport<T = {}> extends Transport<T> {
+export abstract class IFrameMainTransport<T = {}> extends Transport<T> {
   constructor({
     iframe = undefined,
     targetOrigin = '*',
@@ -54,7 +54,7 @@ abstract class IFrameMainTransport<T = {}> extends Transport<T> {
   }
 }
 
-abstract class IFrameInternalTransport<T = {}> extends Transport<T> {
+export abstract class IFrameInternalTransport<T = {}> extends Transport<T> {
   constructor({
     targetOrigin = '*',
     listener = (callback) => {
@@ -80,3 +80,4 @@ export const IFrameTransport = {
   Main: IFrameMainTransport,
   IFrame: IFrameInternalTransport,
 };
+
