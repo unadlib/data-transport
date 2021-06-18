@@ -1,4 +1,3 @@
-import { removeListener } from 'process';
 import {
   TransportOptions,
   TransferableWorker,
