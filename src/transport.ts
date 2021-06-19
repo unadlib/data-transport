@@ -30,7 +30,7 @@ const getAction = (prefix: string, name: string) =>
 const getListenName = (prefix: string, action: string) =>
   action.replace(new RegExp(`^${prefix}-`), '');
 
-export abstract class Transport<T = {}, P = {}> {
+export abstract class Transport<T = any, P = any> {
   private [listenerKey]: TransportOptions['listener'];
   private [senderKey]: TransportOptions['sender'];
   private [timeoutKey]: TransportOptions['timeout'];

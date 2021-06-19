@@ -30,7 +30,7 @@ export interface ElectronRendererTransportOptions
   ipcRenderer: IpcRenderer;
 }
 
-export abstract class ElectronMainTransport<T = {}> extends Transport<T> {
+export abstract class ElectronMainTransport<T = any, P = any> extends Transport<T, P> {
   constructor({
     ipcMain,
     browserWindow,
@@ -38,7 +38,7 @@ export abstract class ElectronMainTransport<T = {}> extends Transport<T> {
     listener = (callback) => {
       const handler = (_: Electron.IpcMainEvent, data: ListenerOptions) => {
         callback(data);
-      }
+      };
       ipcMain.on(channel, handler);
       return () => {
         ipcMain.off(channel, handler);
@@ -55,7 +55,10 @@ export abstract class ElectronMainTransport<T = {}> extends Transport<T> {
   }
 }
 
-export abstract class ElectronRendererTransport<T = {}> extends Transport<T> {
+export abstract class ElectronRendererTransport<
+  T = any,
+  P = any
+> extends Transport<T, P> {
   constructor({
     ipcRenderer,
     channel = defaultChannel,

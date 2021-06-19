@@ -14,7 +14,7 @@ export interface BroadcastTransportOptions extends Partial<TransportOptions> {
   broadcastChannel?: BroadcastChannel;
 }
 
-abstract class BroadcastTransport<T = {}> extends Transport<T> {
+abstract class BroadcastTransport<T = any, P = any> extends Transport<T, P> {
   constructor({
     channel = defaultChannel,
     broadcastChannel = new BroadcastChannel(channel),

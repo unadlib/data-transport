@@ -6,7 +6,7 @@ export interface WebRTCTransportOptions extends Partial<TransportOptions> {
   peer: Instance;
 }
 
-abstract class WebRTCTransport<T = {}> extends Transport<T> {
+abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
   constructor({
     peer,
     listener = (callback) => {

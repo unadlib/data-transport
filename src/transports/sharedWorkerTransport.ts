@@ -27,8 +27,8 @@ export interface SharedWorkerMainTransportOptions
 export interface SharedWorkerInternalTransportOptions
   extends Partial<TransportOptions<SharedWorkerPort>> {}
 
-export abstract class SharedWorkerMainTransport<T = {}>
-  extends Transport<T>
+export abstract class SharedWorkerMainTransport<T = any, P = any>
+  extends Transport<T, P>
   implements InternalToMain {
   /**
    * Define a connection listener.
@@ -73,9 +73,10 @@ interface SharedWorkerTransportPort extends MessagePort {
   _handler?: (options: MessageEvent<ListenerOptions<SharedWorkerPort>>) => void;
 }
 
-export abstract class SharedWorkerInternalTransport<T = {}> extends Transport<
-  T & InternalToMain
-> {
+export abstract class SharedWorkerInternalTransport<
+  T = any,
+  P = any
+> extends Transport<T & InternalToMain, P> {
   protected ports: MessagePort[] = [];
   private [callbackKey]!: (options: ListenerOptions<SharedWorkerPort>) => void;
 

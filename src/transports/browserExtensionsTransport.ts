@@ -21,7 +21,10 @@ export interface BrowserExtensionsPortTransportOptions
   port: browser.runtime.Port | chrome.runtime.Port;
 }
 
-abstract class BrowserExtensionsTransport<T = {}> extends Transport<T> {
+abstract class BrowserExtensionsTransport<T = any, P = any> extends Transport<
+  T,
+  P
+> {
   private [callbackKey]!: (options: ListenerOptions<SendResponse>) => void;
 
   constructor({
@@ -64,7 +67,10 @@ abstract class BrowserExtensionsTransport<T = {}> extends Transport<T> {
   }
 }
 
-abstract class BrowserExtensionsPortTransport<T = {}> extends Transport<T> {
+abstract class BrowserExtensionsPortTransport<
+  T = any,
+  P = any
+> extends Transport<T, P> {
   constructor({
     port,
     listener = (callback) => {

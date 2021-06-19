@@ -9,7 +9,7 @@ export interface MessageTransportOptions extends Partial<TransportOptions> {
   targetOrigin?: string;
 }
 
-abstract class MessageTransport<T = {}> extends Transport<T> {
+abstract class MessageTransport<T = any, P = any> extends Transport<T, P> {
   constructor({
     targetOrigin = '*',
     listener = (callback) => {

@@ -16,7 +16,10 @@ export interface WorkerMainTransportOptions
 export interface WorkerInternalTransportOptions
   extends Partial<TransportOptions<TransferableWorker>> {}
 
-export abstract class WorkerMainTransport<T = {}> extends Transport<T> {
+export abstract class WorkerMainTransport<T = any, P = any> extends Transport<
+  T,
+  P
+> {
   constructor({
     worker,
     listener = (callback) => {
@@ -45,7 +48,10 @@ export abstract class WorkerMainTransport<T = {}> extends Transport<T> {
   }
 }
 
-export abstract class WorkerInternalTransport<T = {}> extends Transport<T> {
+export abstract class WorkerInternalTransport<
+  T = any,
+  P = any
+> extends Transport<T, P> {
   constructor({
     listener = (callback) => {
       const handler = ({ data }: MessageEvent<any>) => {
