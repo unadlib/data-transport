@@ -104,5 +104,3 @@ export const createTransport = <T extends keyof TransportOptionsMap>(
 ): Transports[T] => {
   return new (TransportMap[name] as any)(options);
 };
-
-export const messageTransport = createTransport('MessageTransport', {});
