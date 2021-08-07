@@ -74,7 +74,7 @@ const options = {
     extensions: ['.ts', '.js', '.json'],
   },
   plugins: [
-    new CleanWebpackPlugin(),
+    new CleanWebpackPlugin({ cleanStaleWebpackAssets:false }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
     }),
