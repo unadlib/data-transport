@@ -19,17 +19,29 @@ interface SendResponse {
 
 export interface BrowserExtensionsGenericTransportOptions
   extends Partial<TransportOptions<SendResponse>> {
+  /**
+   * browser extension API.
+   */
   browser?: Browser;
 }
 
 export interface BrowserExtensionsMainTransportOptions
   extends Partial<TransportOptions<BrowserExtensionsMainPort>> {
+  /**
+   * browser extension API.
+   */
   browser?: Browser;
 }
 
 export interface BrowserExtensionsClientTransportOptions
   extends Partial<TransportOptions> {
+  /**
+   * browser extension API.
+   */
   browser?: Browser;
+  /**
+   * browser extension client port.
+   */
   port?: Port;
 }
 

@@ -74,4 +74,4 @@ expect(await internal.hello({ num: 42 })).toEqual({ text: 'hello 42' });
 
 ## Examples
 
-[Online about Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
+[Online with Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
