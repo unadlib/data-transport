@@ -54,8 +54,8 @@ export abstract class Transport<T = any, P = any> {
   }: TransportOptions) {
     this[listensMapKey] ??= {};
     this[originalListensMapKey] ??= {};
-    this[listenerKey] = listener;
-    this[senderKey] = sender;
+    this[listenerKey] = listener.bind(this);
+    this[senderKey] = sender.bind(this);
     this[timeoutKey] = timeout;
     this[prefixKey] = prefix;
 
@@ -84,7 +84,7 @@ export abstract class Transport<T = any, P = any> {
       this[produceKey](name, fn);
     });
 
-    const dispose = this[listenerKey].call(this, (options: ListenerOptions) => {
+    const dispose = this[listenerKey]((options: ListenerOptions) => {
       if (verbose) {
         if (typeof verbose === 'function') {
           verbose(options);

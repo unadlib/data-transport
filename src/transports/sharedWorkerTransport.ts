@@ -77,7 +77,7 @@ export abstract class SharedWorkerInternalTransport<
   T = any,
   P = any
 > extends Transport<T & InternalToMain, P> {
-  protected ports: MessagePort[] = [];
+  protected ports = new Set<MessagePort>();
   private [callbackKey]!: (options: ListenerOptions<SharedWorkerPort>) => void;
 
   constructor({
@@ -113,8 +113,8 @@ export abstract class SharedWorkerInternalTransport<
     });
     self.onconnect = (e) => {
       const port: SharedWorkerTransportPort = e.ports[0];
-      // TODO: clear port when the port's client is closed.
-      this.ports.push(port);
+      // TODO: clear port when the port's client is disconnected.
+      this.ports.add(port);
       port._handler = ({
         data,
       }: MessageEvent<ListenerOptions<SharedWorkerPort>>) => {

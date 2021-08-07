@@ -16,7 +16,12 @@ import {
   BroadcastTransport,
   BroadcastTransportOptions,
   BrowserExtensionsTransport,
-  BrowserExtensionsTransportOptions,
+  BrowserExtensionsMainTransport,
+  BrowserExtensionsMainTransportOptions,
+  BrowserExtensionsClientTransport,
+  BrowserExtensionsClientTransportOptions,
+  BrowserExtensionsGenericTransport,
+  BrowserExtensionsGenericTransportOptions,
   SharedWorkerTransport,
   SharedWorkerInternalTransportOptions,
   SharedWorkerMainTransportOptions,
@@ -47,7 +52,9 @@ interface TransportOptionsMap {
   WorkerInternal: WorkerInternalTransportOptions;
   WebRTC: WebRTCTransportOptions;
   Broadcast: BroadcastTransportOptions;
-  BrowserExtensions: BrowserExtensionsTransportOptions;
+  BrowserExtensions: BrowserExtensionsGenericTransportOptions;
+  BrowserExtensionsMain: BrowserExtensionsMainTransportOptions;
+  BrowserExtensionsClient: BrowserExtensionsClientTransportOptions;
   SharedWorkerMain: SharedWorkerMainTransportOptions;
   SharedWorkerInternal: SharedWorkerInternalTransportOptions;
   Base: TransportOptions;
@@ -67,7 +74,9 @@ interface Transports {
   WorkerInternal: WorkerInternalTransport;
   WebRTC: WebRTCTransport;
   Broadcast: BroadcastTransport;
-  BrowserExtensions: BrowserExtensionsTransport;
+  BrowserExtensions: BrowserExtensionsGenericTransport;
+  BrowserExtensionsMain: BrowserExtensionsMainTransport;
+  BrowserExtensionsClient: BrowserExtensionsClientTransport;
   SharedWorkerMain: SharedWorkerMainTransport;
   SharedWorkerInternal: SharedWorkerInternalTransport;
 }
@@ -85,9 +94,11 @@ const TransportMap = {
   WorkerInternal: WorkerTransport.Worker,
   WebRTC: WebRTCTransport,
   Broadcast: BroadcastTransport,
-  BrowserExtensions: BrowserExtensionsTransport,
+  BrowserExtensions: BrowserExtensionsGenericTransport,
   SharedWorkerMain: SharedWorkerTransport.Main,
   SharedWorkerInternal: SharedWorkerTransport.Worker,
+  BrowserExtensionsMain: BrowserExtensionsTransport.Main,
+  BrowserExtensionsClient: BrowserExtensionsTransport.Client,
 };
 
 /**

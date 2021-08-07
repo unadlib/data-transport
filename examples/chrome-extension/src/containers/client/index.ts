@@ -1,8 +1,8 @@
-import { BrowserExtensionsTransport, listen } from 'data-transport';
+import { BrowserExtensionsClientTransport, listen } from 'data-transport';
 import { ClientToBackground, BackgroundToClient } from '../../interface';
 
 class ClientTransport
-  extends BrowserExtensionsTransport<ClientToBackground>
+  extends BrowserExtensionsClientTransport<ClientToBackground>
   implements BackgroundToClient {
   hasDisplay = true;
 

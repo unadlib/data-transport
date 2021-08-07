@@ -1,7 +1,9 @@
-import { BrowserExtensionsTransport } from 'data-transport';
+import { BrowserExtensionsClientTransport } from 'data-transport';
 import { PopupToBackground } from '../../interface';
 
-class PopupTransport extends BrowserExtensionsTransport<PopupToBackground> {
+class PopupTransport extends BrowserExtensionsClientTransport<
+  PopupToBackground
+> {
   openClient() {
     this.emit(
       {

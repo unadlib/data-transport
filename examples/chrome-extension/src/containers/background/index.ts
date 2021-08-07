@@ -1,4 +1,4 @@
-import { BrowserExtensionsTransport, listen } from 'data-transport';
+import { BrowserExtensionsMainTransport, listen } from 'data-transport';
 import {
   BackgroundToClient,
   ClientToBackground,
@@ -6,7 +6,7 @@ import {
 } from '../../interface';
 
 class BackgroundTransport
-  extends BrowserExtensionsTransport<BackgroundToClient>
+  extends BrowserExtensionsMainTransport<BackgroundToClient>
   implements ClientToBackground, PopupToBackground {
   showText() {
     return this.emit('changeTextDisplay', { status: true });
