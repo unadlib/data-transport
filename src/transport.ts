@@ -147,16 +147,9 @@ export abstract class Transport<T = any, P = any> {
       request,
       { hasRespond, transportId, ...args }
     ) => {
+      if (!hasRespond) return;
       if (typeof fn === 'function') {
         const response: Response<P[K]> = await fn.apply(this, request);
-        if (__DEV__) {
-          if (!hasRespond) {
-            console.warn(
-              `The event '${action}' is just an event that doesn't require a response, and doesn't need to perform the callback.`
-            );
-            return;
-          }
-        }
         this[senderKey]({
           ...args,
           action,

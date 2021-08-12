@@ -37,6 +37,7 @@ const init = () => {
 
   peer.on('connect', () => {
     const mainTransport = new MainTransport({
+      // @ts-ignore
       peer,
     });
     (window as any).mainTransport = mainTransport;

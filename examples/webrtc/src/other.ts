@@ -35,6 +35,7 @@ const init = () => {
   });
   peer.on('connect', () => {
     const otherTransport = new OtherTransport({
+      // @ts-ignore
       peer,
     });
     (window as any).otherTransport = otherTransport;
