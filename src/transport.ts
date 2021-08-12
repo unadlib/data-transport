@@ -147,9 +147,9 @@ export abstract class Transport<T = any, P = any> {
       request,
       { hasRespond, transportId, ...args }
     ) => {
-      if (!hasRespond) return;
       if (typeof fn === 'function') {
         const response: Response<P[K]> = await fn.apply(this, request);
+        if (!hasRespond) return;
         this[senderKey]({
           ...args,
           action,
