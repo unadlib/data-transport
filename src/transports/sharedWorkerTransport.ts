@@ -12,10 +12,6 @@ interface InternalToMain {
   connect(): Promise<void>;
 }
 
-interface MainToInternal {
-  disconnect(port?: MessagePort): Promise<void>;
-}
-
 interface SharedWorkerPort extends TransferableWorker {
   _port?: MessagePort;
 }
@@ -32,7 +28,7 @@ export interface SharedWorkerInternalTransportOptions
   extends Partial<TransportOptions<SharedWorkerPort>> {}
 
 export abstract class SharedWorkerMainTransport<T = any, P = any>
-  extends Transport<T & MainToInternal, P>
+  extends Transport<T, P>
   implements InternalToMain {
   /**
    * Define a connection listener.
@@ -68,7 +64,7 @@ export abstract class SharedWorkerMainTransport<T = any, P = any>
 
     window.addEventListener('unload', () => {
       // @ts-ignore
-      this.emit({ name: 'disconnect', respond: false });
+      this.emit({ name: 'sharedworker-disconnect', respond: false });
     });
   }
 
@@ -82,9 +78,10 @@ interface SharedWorkerTransportPort extends MessagePort {
   _handler?: (options: MessageEvent<ListenerOptions<SharedWorkerPort>>) => void;
 }
 
-export abstract class SharedWorkerInternalTransport<T = any, P = any>
-  extends Transport<T & InternalToMain, P>
-  implements MainToInternal {
+export abstract class SharedWorkerInternalTransport<
+  T = any,
+  P = any
+> extends Transport<T & InternalToMain, P> {
   protected ports = new Set<MessagePort>();
   private [callbackKey]!: (options: ListenerOptions<SharedWorkerPort>) => void;
 
@@ -128,10 +125,11 @@ export abstract class SharedWorkerInternalTransport<T = any, P = any>
         if (data.hasRespond) {
           data._port = port;
         }
-        if (data.action === getAction(this[prefixKey]!, 'disconnect')) {
+        if (
+          data.action === getAction(this[prefixKey]!, 'sharedworker-disconnect')
+        ) {
           // clear port when the port's client is disconnected.
-          // @ts-ignore
-          data.request.push(port);
+          this.ports.delete(port!);
         }
         this[callbackKey](data);
       };
@@ -141,11 +139,6 @@ export abstract class SharedWorkerInternalTransport<T = any, P = any>
       // @ts-ignore
       this.emit({ name: 'connect', respond: false });
     };
-  }
-
-  @listen
-  async disconnect(port?: MessagePort) {
-    this.ports.delete(port!);
   }
 }
 
