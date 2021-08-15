@@ -1,15 +1,19 @@
-import { callbackKey } from '../constant';
+import { callbackKey, prefixKey } from '../constant';
 import { listen } from '../decorators';
 import {
   TransportOptions,
   TransferableWorker,
   ListenerOptions,
 } from '../interface';
-import { Transport } from '../transport';
+import { getAction, Transport } from '../transport';
 
 declare var self: SharedWorkerGlobalScope;
 interface InternalToMain {
   connect(): Promise<void>;
+}
+
+interface MainToInternal {
+  disconnect(port?: MessagePort): Promise<void>;
 }
 
 interface SharedWorkerPort extends TransferableWorker {
@@ -28,7 +32,7 @@ export interface SharedWorkerInternalTransportOptions
   extends Partial<TransportOptions<SharedWorkerPort>> {}
 
 export abstract class SharedWorkerMainTransport<T = any, P = any>
-  extends Transport<T, P>
+  extends Transport<T & MainToInternal, P>
   implements InternalToMain {
   /**
    * Define a connection listener.
@@ -61,6 +65,11 @@ export abstract class SharedWorkerMainTransport<T = any, P = any>
       listener,
       sender,
     });
+
+    window.addEventListener('unload', () => {
+      // @ts-ignore
+      this.emit({ name: 'disconnect', respond: false });
+    });
   }
 
   @listen
@@ -73,10 +82,9 @@ interface SharedWorkerTransportPort extends MessagePort {
   _handler?: (options: MessageEvent<ListenerOptions<SharedWorkerPort>>) => void;
 }
 
-export abstract class SharedWorkerInternalTransport<
-  T = any,
-  P = any
-> extends Transport<T & InternalToMain, P> {
+export abstract class SharedWorkerInternalTransport<T = any, P = any>
+  extends Transport<T & InternalToMain, P>
+  implements MainToInternal {
   protected ports = new Set<MessagePort>();
   private [callbackKey]!: (options: ListenerOptions<SharedWorkerPort>) => void;
 
@@ -113,12 +121,18 @@ export abstract class SharedWorkerInternalTransport<
     });
     self.onconnect = (e) => {
       const port: SharedWorkerTransportPort = e.ports[0];
-      // TODO: clear port when the port's client is disconnected.
       this.ports.add(port);
       port._handler = ({
         data,
       }: MessageEvent<ListenerOptions<SharedWorkerPort>>) => {
-        data._port = port;
+        if (data.hasRespond) {
+          data._port = port;
+        }
+        if (data.action === getAction(this[prefixKey]!, 'disconnect')) {
+          // clear port when the port's client is disconnected.
+          // @ts-ignore
+          data.request.push(port);
+        }
         this[callbackKey](data);
       };
       port.addEventListener('message', port._handler);
@@ -127,6 +141,11 @@ export abstract class SharedWorkerInternalTransport<
       // @ts-ignore
       this.emit({ name: 'connect', respond: false });
     };
+  }
+
+  @listen
+  async disconnect(port: MessagePort) {
+    this.ports.delete(port);
   }
 }
 

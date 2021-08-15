@@ -25,7 +25,7 @@ import {
 
 const defaultTimeout = 60 * 1000;
 const defaultPrefix = 'DataTransport';
-const getAction = (prefix: string, name: string) =>
+export const getAction = (prefix: string, name: string) =>
   `${prefix}-${name.toString()}`;
 const getListenName = (prefix: string, action: string) =>
   action.replace(new RegExp(`^${prefix}-`), '');
