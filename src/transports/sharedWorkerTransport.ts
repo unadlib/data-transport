@@ -144,8 +144,8 @@ export abstract class SharedWorkerInternalTransport<T = any, P = any>
   }
 
   @listen
-  async disconnect(port: MessagePort) {
-    this.ports.delete(port);
+  async disconnect(port?: MessagePort) {
+    this.ports.delete(port!);
   }
 }
 
