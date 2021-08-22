@@ -1,4 +1,4 @@
-import { IFrameTransport, listen, messageTransport } from 'data-transport';
+import { IFrameTransport, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
 class MainTransport extends IFrameTransport.Main<Main> implements IFrame {
@@ -16,9 +16,6 @@ class MainTransport extends IFrameTransport.Main<Main> implements IFrame {
     };
   }
 }
-
-// @ts-ignore
-window.messageTransport = messageTransport;
 
 const useMainTransport = (iframe: HTMLIFrameElement) =>
   new MainTransport({

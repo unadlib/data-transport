@@ -255,7 +255,15 @@ export abstract class Transport<T = any, P = any> {
       }),
     ]);
     return promise
+      .then((response) => {
+        // support Safari 10-11.1
+        clearTimeout(timeoutId as NodeJS.Timeout);
+        this[requestsMapKey].delete(transportId);
+        return response;
+      })
       .catch((error) => {
+        clearTimeout(timeoutId as NodeJS.Timeout);
+        this[requestsMapKey].delete(transportId);
         if (typeof error === 'undefined') {
           console.warn(
             `The event '${action}' timed out for ${timeout} seconds...`
@@ -265,10 +273,6 @@ export abstract class Transport<T = any, P = any> {
             throw error;
           }
         }
-      })
-      .finally(() => {
-        clearTimeout(timeoutId as NodeJS.Timeout);
-        this[requestsMapKey].delete(transportId);
       });
   }
 }
