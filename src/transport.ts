@@ -80,8 +80,8 @@ export abstract class Transport<T = any, P = any> {
       });
     });
 
-    Object.entries(this[originalListensMapKey]).forEach(([name, fn]) => {
-      this[produceKey](name, fn);
+    Object.keys(this[originalListensMapKey]).forEach((name) => {
+      this[produceKey](name, this[originalListensMapKey][name]);
     });
 
     const dispose = this[listenerKey]((options: ListenerOptions) => {
