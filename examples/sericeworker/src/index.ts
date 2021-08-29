@@ -23,7 +23,7 @@ if (navigator.serviceWorker) {
   navigator.serviceWorker.register('serviceworker.bundle.js');
   navigator.serviceWorker.ready.then((registration) => {
     (window as any).clientTransport = new ClientTransport({
-      serviceWorker: registration.active!,
+      worker: registration.active!,
     });
   });
 }

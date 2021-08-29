@@ -19,7 +19,7 @@ export interface ServiceWorkerClientTransportOptions
   /**
    * A service worker instance for data transport.
    */
-  serviceWorker: ServiceWorker;
+  worker: ServiceWorker;
   /**
    * Compatibility with unstable serialization in Safari
    */
@@ -61,7 +61,7 @@ export abstract class ServiceWorkerClientTransport<
   P = any
 > extends Transport<T, P> {
   constructor({
-    serviceWorker,
+    worker,
     useOnSafari = DEFAULT_USE_ON_SAFARI,
     listener = (callback) => {
       const handler = ({
@@ -77,7 +77,7 @@ export abstract class ServiceWorkerClientTransport<
     sender = (message) => {
       const transfer = message.transfer ?? [];
       delete message.transfer;
-      serviceWorker.postMessage(message, transfer);
+      worker.postMessage(message, transfer);
     },
     ...options
   }: ServiceWorkerClientTransportOptions) {
