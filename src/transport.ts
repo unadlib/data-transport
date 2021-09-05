@@ -39,9 +39,9 @@ export abstract class Transport<T = any, P = any> {
   private [listensMapKey]!: ListensMap;
   private [originalListensMapKey]!: Record<string, Function>;
   /**
-   *
+   * dispose transport
    */
-  public dispose: () => void;
+  public dispose: () => any;
 
   constructor({
     listener,
