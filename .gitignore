@@ -105,3 +105,4 @@ dist
 
 # examples yarn.lock
 examples/*/yarn.lock
+*.pem
