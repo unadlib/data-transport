@@ -12,7 +12,6 @@ A generic and responsible communication transporter
 - Web Worker
 - Service Worker
 - Shared Worker
-- Browser Extension
 - WebRTC
 - Electron
 
