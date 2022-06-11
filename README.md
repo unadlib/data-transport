@@ -28,13 +28,13 @@ yarn add data-transport
 - Create transports
 
 ```js
-// index.js
+// index.js in main page
 const external = createTransport('IFrameMain');
-external.listen('hello', async (options) => ({ text: `hello ${options.num}` }));
+external.listen('hello', async (num) => ({ text: `hello ${num}` }));
 
 // index.js in the iframe
 const internal = createTransport('IFrameInternal');
-expect(await internal.emit('hello', { num: 42 }).toEqual({ text: 'hello 42' });
+expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 ```
 
 ## Todo
