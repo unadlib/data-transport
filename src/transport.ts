@@ -11,7 +11,7 @@ import {
   transportType,
   produceKey,
 } from './constant';
-import {
+import type {
   EmitOptions,
   IRequest,
   IResponse,

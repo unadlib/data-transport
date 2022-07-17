@@ -1,18 +1,18 @@
-import { Transport, createTransport, mockPairPorts } from '../src';
+import { Transport, createTransport, mockPorts } from '../src';
 
-test.only('prefix in base transport', async () => {
+test('prefix in base transport', async () => {
   interface Internal {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
   }
 
-  const ports = mockPairPorts();
+  const ports = mockPorts();
 
   const internal: Transport<Internal> = createTransport('Base', {
-    ...ports[0],
+    ...ports.main,
     prefix: 'internal',
   });
   const external: Transport<any, Internal> = createTransport('Base', {
-    ...ports[1],
+    ...ports.create(),
     prefix: 'external',
   });
   external.listen('hello', async (options, word) => ({
