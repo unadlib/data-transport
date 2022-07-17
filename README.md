@@ -42,33 +42,37 @@ expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 ### APIs
 
 - `createTransport()`
-Create a transport instance by transport options.
+  Create a transport instance by transport options.
 
 - `mockPorts()`
-Mock ports for testing.
+  Mock ports for testing.
 
 - `merge()`
-Merge multiple transports into one transport.
+  Merge multiple transports into one transport.
+
+<details>
+<summary>Transport class</summary>
 
 - `Transport`
-  - `MessageTransport`
-  - `IFrameMainTransport`
-  - `IFrameInternalTransport`
-  - `SharedWorkerMainTransport`
-  - `SharedWorkerInternalTransport`
-  - `ServiceWorkerClientTransport`
-  - `ServiceWorkerServiceTransport`
-  - `WorkerMainTransport`
-  - `WorkerInternalTransport`
-  - `BrowserExtensionsGenericTransport`
-  - `BrowserExtensionsMainTransport`
-  - `BrowserExtensionsClientTransport`
-  - `ElectronMainTransport`
-  - `ElectronRendererTransport`
-  - `WebRTCTransport`
-  - `BroadcastTransport`
-  - `MainProcessTransport`
-  - `ChildProcessTransport`
+- `MessageTransport`
+- `IFrameMainTransport`
+- `IFrameInternalTransport`
+- `SharedWorkerMainTransport`
+- `SharedWorkerInternalTransport`
+- `ServiceWorkerClientTransport`
+- `ServiceWorkerServiceTransport`
+- `WorkerMainTransport`
+- `WorkerInternalTransport`
+- `BrowserExtensionsGenericTransport`
+- `BrowserExtensionsMainTransport`
+- `BrowserExtensionsClientTransport`
+- `ElectronMainTransport`
+- `ElectronRendererTransport`
+- `WebRTCTransport`
+- `BroadcastTransport`
+- `MainProcessTransport`
+- `ChildProcessTransport`
+</details>
 
 ## Examples
 
