@@ -3,6 +3,9 @@ import { createTransport } from './createTransport';
 import type { ListenerOptions } from './interface';
 import { Transport } from './transport';
 
+/**
+ * Merge multiple transports into one transport
+ */
 export const merge = (...args: Transport[]) => {
   if (args.length < 1) {
     throw new Error(`Only more than one transports can be merged.`);

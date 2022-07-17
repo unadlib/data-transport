@@ -39,6 +39,37 @@ const internal = createTransport('IFrameInternal');
 expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 ```
 
+### APIs
+
+- `createTransport()`
+Create a transport instance by transport options.
+
+- `mockPorts()`
+Mock ports for testing.
+
+- `merge()`
+Merge multiple transports into one transport.
+
+- `Transport`
+  - `MessageTransport`
+  - `IFrameMainTransport`
+  - `IFrameInternalTransport`
+  - `SharedWorkerMainTransport`
+  - `SharedWorkerInternalTransport`
+  - `ServiceWorkerClientTransport`
+  - `ServiceWorkerServiceTransport`
+  - `WorkerMainTransport`
+  - `WorkerInternalTransport`
+  - `BrowserExtensionsGenericTransport`
+  - `BrowserExtensionsMainTransport`
+  - `BrowserExtensionsClientTransport`
+  - `ElectronMainTransport`
+  - `ElectronRendererTransport`
+  - `WebRTCTransport`
+  - `BroadcastTransport`
+  - `MainProcessTransport`
+  - `ChildProcessTransport`
+
 ## Examples
 
 [Online with Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
