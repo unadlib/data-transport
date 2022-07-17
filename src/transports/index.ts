@@ -4,5 +4,6 @@ export * from './sharedWorkerTransport';
 export * from './serviceWorkerTransport';
 export * from './broadcastTransport';
 export * from './electronTransport';
+export * from './browserExtensionsTransport';
 export * from './webRTCTransport';
 export * from './messageTransport';

@@ -1,4 +1,4 @@
-import { ListenerOptions, TransportOptions } from '../interface';
+import type { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface MessageTransportOptions extends Partial<TransportOptions> {

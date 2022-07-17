@@ -37,6 +37,8 @@
     "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-replace": "^2.3.3",
+    "@types/chrome": "^0.0.193",
+    "@types/firefox-webext-browser": "^94.0.1",
     "@types/jest": "^27.4.0",
     "@types/node": "^14.6.0",
     "@types/simple-peer": "^9.6.0",

@@ -1,5 +1,5 @@
 import type { Instance } from 'simple-peer';
-import { ListenerOptions, TransportOptions } from '../interface';
+import type { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface WebRTCTransportOptions extends Partial<TransportOptions> {

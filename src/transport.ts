@@ -52,8 +52,8 @@ export abstract class Transport<T = any, P = any> {
     listenKeys = [],
     checkListen = true,
   }: TransportOptions) {
-    this[listensMapKey] ??= {};
-    this[originalListensMapKey] ??= {};
+    this[listensMapKey] = this[listensMapKey] ?? {};
+    this[originalListensMapKey] = this[originalListensMapKey] ?? {};
     this[listenerKey] = listener.bind(this);
     this[senderKey] = sender.bind(this);
     this[timeoutKey] = timeout;

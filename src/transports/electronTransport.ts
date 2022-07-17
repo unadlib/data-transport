@@ -1,5 +1,5 @@
 import type { BrowserWindow, IpcMain, IpcRenderer } from 'electron';
-import { ListenerOptions, TransportOptions } from '../interface';
+import type { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$Electron_Transport$$';

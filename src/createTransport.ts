@@ -15,6 +15,13 @@ import {
   WebRTCTransportOptions,
   BroadcastTransport,
   BroadcastTransportOptions,
+  BrowserExtensionsTransport,
+  BrowserExtensionsMainTransport,
+  BrowserExtensionsMainTransportOptions,
+  BrowserExtensionsClientTransport,
+  BrowserExtensionsClientTransportOptions,
+  BrowserExtensionsGenericTransport,
+  BrowserExtensionsGenericTransportOptions,
   SharedWorkerTransport,
   SharedWorkerInternalTransportOptions,
   SharedWorkerMainTransportOptions,
@@ -32,11 +39,14 @@ import {
   SharedWorkerInternalTransport,
 } from './transports';
 import { Transport } from './transport';
-import { TransportOptions } from './interface';
+import type { TransportOptions } from './interface';
 
 interface TransportOptionsMap {
   IFrameMain: IFrameMainTransportOptions;
   IFrameInternal: IFrameTransportInternalOptions;
+  BrowserExtensions: BrowserExtensionsGenericTransportOptions;
+  BrowserExtensionsMain: BrowserExtensionsMainTransportOptions;
+  BrowserExtensionsClient: BrowserExtensionsClientTransportOptions;
   ElectronMain: ElectronMainTransportOptions;
   ElectronRenderer: ElectronRendererTransportOptions;
   ServiceWorkerClient: ServiceWorkerClientTransportOptions;
@@ -56,16 +66,19 @@ interface Transports {
   MessageTransport: MessageTransport;
   IFrameMain: IFrameMainTransport;
   IFrameInternal: IFrameInternalTransport;
-  ElectronMain: ElectronMainTransport;
-  ElectronRenderer: ElectronRendererTransport;
+  SharedWorkerMain: SharedWorkerMainTransport;
+  SharedWorkerInternal: SharedWorkerInternalTransport;
   ServiceWorkerClient: ServiceWorkerClientTransport;
   ServiceWorkerService: ServiceWorkerServiceTransport;
   WorkerMain: WorkerMainTransport;
   WorkerInternal: WorkerInternalTransport;
+  BrowserExtensions: BrowserExtensionsGenericTransport;
+  BrowserExtensionsMain: BrowserExtensionsMainTransport;
+  BrowserExtensionsClient: BrowserExtensionsClientTransport;
+  ElectronMain: ElectronMainTransport;
+  ElectronRenderer: ElectronRendererTransport;
   WebRTC: WebRTCTransport;
   Broadcast: BroadcastTransport;
-  SharedWorkerMain: SharedWorkerMainTransport;
-  SharedWorkerInternal: SharedWorkerInternalTransport;
 }
 
 const TransportMap = {
@@ -73,6 +86,9 @@ const TransportMap = {
   MessageTransport: MessageTransport,
   IFrameMain: IFrameTransport.Main,
   IFrameInternal: IFrameTransport.IFrame,
+  BrowserExtensions: BrowserExtensionsGenericTransport,
+  BrowserExtensionsMain: BrowserExtensionsTransport.Main,
+  BrowserExtensionsClient: BrowserExtensionsTransport.Client,
   ElectronMain: ElectronTransport.Main,
   ElectronRenderer: ElectronTransport.Renderer,
   ServiceWorkerClient: ServiceWorkerTransport.Client,

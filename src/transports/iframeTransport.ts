@@ -1,5 +1,4 @@
-import { options } from 'yargs';
-import { ListenerOptions, TransportOptions } from '../interface';
+import type { ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface IFrameTransportInternalOptions

@@ -15,7 +15,7 @@ export const listen = (
       return descriptor;
     }
   }
-  target[originalListensMapKey] ??= {};
+  target[originalListensMapKey] = target[originalListensMapKey] ?? {};
   target[originalListensMapKey][key] = fn!;
   return {
     ...descriptor,

@@ -1,4 +1,4 @@
-import { ListenCallback, SendOptions } from './interface';
+import type { ListenCallback, SendOptions } from './interface';
 
 /**
  * Mock a pair of ports for testing
