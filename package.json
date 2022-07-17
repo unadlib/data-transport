@@ -30,6 +30,8 @@
     "Broadcast",
     "Web Worker",
     "Service Worker",
+    "Browser Extension",
+    "Node.js",
     "WebRTC",
     "Electron"
   ],

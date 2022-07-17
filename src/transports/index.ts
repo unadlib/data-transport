@@ -7,3 +7,4 @@ export * from './electronTransport';
 export * from './browserExtensionsTransport';
 export * from './webRTCTransport';
 export * from './messageTransport';
+export * from './processTransport';

@@ -37,6 +37,11 @@ import {
   WorkerMainTransport,
   SharedWorkerMainTransport,
   SharedWorkerInternalTransport,
+  ProcessTransport,
+  MainProcessTransport,
+  ChildProcessTransport,
+  MainProcessTransportOptions,
+  ChildProcessTransportOptions,
 } from './transports';
 import { Transport } from './transport';
 import type { TransportOptions } from './interface';
@@ -59,6 +64,8 @@ interface TransportOptionsMap {
   SharedWorkerInternal: SharedWorkerInternalTransportOptions;
   Base: TransportOptions;
   MessageTransport: MessageTransportOptions;
+  MainProcess: MainProcessTransportOptions;
+  ChildProcess: ChildProcessTransportOptions;
 }
 
 interface Transports {
@@ -79,6 +86,8 @@ interface Transports {
   ElectronRenderer: ElectronRendererTransport;
   WebRTC: WebRTCTransport;
   Broadcast: BroadcastTransport;
+  MainProcess: MainProcessTransport;
+  ChildProcess: ChildProcessTransport;
 }
 
 const TransportMap = {
@@ -98,7 +107,8 @@ const TransportMap = {
   WebRTC: WebRTCTransport,
   Broadcast: BroadcastTransport,
   SharedWorkerMain: SharedWorkerTransport.Main,
-  SharedWorkerInternal: SharedWorkerTransport.Worker,
+  MainProcess: ProcessTransport.Main,
+  ChildProcess: ProcessTransport.Child,
 };
 
 /**
@@ -109,9 +119,10 @@ const TransportMap = {
  *
  * @returns Return a transport instance.
  */
-export const createTransport = <T extends keyof TransportOptionsMap>(
+export const createTransport = <T extends keyof typeof TransportMap>(
   name: T,
   options: TransportOptionsMap[T]
 ): Transports[T] => {
   return new (TransportMap[name] as any)(options);
 };
+

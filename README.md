@@ -14,6 +14,8 @@ A simple and responsible transport
 - Web Worker
 - Service Worker
 - Shared Worker
+- Browser Extension
+- Node.js
 - WebRTC
 - Electron
 
