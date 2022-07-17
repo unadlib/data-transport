@@ -3,7 +3,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const { DefinePlugin, optimize } = require('webpack');
 const GenerateJsonFromJsPlugin = require('generate-json-from-js-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const { join } = require('path');
+const { join, resolve } = require('path');
 const dotenv = require('dotenv');
 
 const prodPlugins = [],
@@ -152,6 +152,7 @@ const config = {
       popup: Popup,
       assets: Assets,
       option: Option,
+      'data-transport': resolve(__dirname, '../../..'),
     },
   },
   optimization: {

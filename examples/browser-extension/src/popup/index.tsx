@@ -1,16 +1,27 @@
-import React from "react";
-import {
-  createRoot
-} from "react-dom/client";
+import browser from 'webextension-polyfill';
+import { BrowserExtensionsClientTransport } from 'data-transport';
+import { PopupToBackground } from '../interface';
 
-import App from "./components/app";
+class PopupTransport extends BrowserExtensionsClientTransport<PopupToBackground> {
+  openClient() {
+    this.emit(
+      {
+        name: 'openClient',
+        respond: false,
+      },
+      {
+        path: 'client.html',
+        features: 'width=300,height=600',
+      }
+    );
+  }
+}
 
-import "./index.scss";
+const popupTransport = new PopupTransport({
+  browser: browser as any,
+});
 
-const container = document.createElement("popup");
-document.body.appendChild(container);
-
-const root = createRoot(container);
-root.render(<App />);
-
-console.log("Popup 👋");
+const button = document.getElementById('button');
+button!.addEventListener('click', () => {
+  popupTransport.openClient();
+});

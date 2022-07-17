@@ -9,9 +9,7 @@ import { Transport } from '../transport';
 
 const transportName = '__DATA_TRANSPORT_BROWSER_EXTENSIONS__';
 
-type Browser = typeof window.browser | typeof window.chrome;
-
-const currentBrowser: Browser = window.browser ?? window.chrome;
+type Browser = typeof global.browser | typeof global.chrome;
 
 type Port = browser.runtime.Port | chrome.runtime.Port;
 
@@ -58,7 +56,7 @@ export abstract class BrowserExtensionsGenericTransport<
   private [callbackKey]!: (options: ListenerOptions<SendResponse>) => void;
 
   constructor({
-    browser = currentBrowser,
+    browser = global.browser ?? global.chrome,
     listener = function (this: BrowserExtensionsGenericTransport, callback) {
       this[callbackKey] = callback;
       const handler = (
@@ -109,7 +107,7 @@ export abstract class BrowserExtensionsMainTransport<
   ) => void;
 
   constructor({
-    browser = currentBrowser,
+    browser = global.browser ?? global.chrome,
     listener = function (this: BrowserExtensionsMainTransport, callback) {
       this[callbackKey] = callback;
       return () => {
@@ -159,7 +157,7 @@ export abstract class BrowserExtensionsClientTransport<
   P = any
 > extends Transport<T, P> {
   constructor({
-    browser = window.browser ?? window.chrome,
+    browser = global.browser ?? global.chrome,
     port = browser.runtime.connect({ name: transportName }),
     listener = (callback) => {
       const handler = (options: object) => {

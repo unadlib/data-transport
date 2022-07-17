@@ -13,9 +13,13 @@
     // "jsxImportSource": "preact",
     "resolveJsonModule": true,
     "downlevelIteration": true,
-    "baseUrl": "./src",
     "outDir": "./build",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "baseUrl": "./src",
+    "paths": {
+      "data-transport": ["../../.."]
+    }
   },
   "include": ["src", "typings.d.ts"],
   "exclude": ["node_modules", "src/**/*.spec.ts"]
