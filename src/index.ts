@@ -3,4 +3,5 @@ export * from './transport';
 export * from './createTransport';
 export * from './transports';
 export * from './mockPorts';
+export * from './merge';
 export * from './interface';

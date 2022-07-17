@@ -39,9 +39,6 @@ const internal = createTransport('IFrameInternal');
 expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 ```
 
-## Todo
-- [ ] support transport merging
-
 ## Examples
 
 [Online with Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
