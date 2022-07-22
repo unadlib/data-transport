@@ -18,7 +18,7 @@ A simple and responsible transport
 - Node.js
 - WebRTC
 - Electron
-- more transport port in JS
+- More transport port
 
 ## Usage
 
@@ -81,6 +81,6 @@ expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 - `ChildProcessTransport`
 </details>
 
-## Examples
+## Example
 
 [Online with Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
