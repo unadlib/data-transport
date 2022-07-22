@@ -6,8 +6,13 @@ import { Transport } from './transport';
 /**
  * Merge multiple transports into one transport
  */
-export const merge = (...args: Transport[]) => {
-  if (args.length < 1) {
+export const merge = (
+  first: Transport,
+  seconds: Transport,
+  ..._args: Transport[]
+) => {
+  const args = [first, seconds, ..._args] as Transport[];
+  if (typeof first === 'undefined' || typeof seconds === 'undefined') {
     throw new Error(`Only more than one transports can be merged.`);
   }
   return createTransport('Base', {

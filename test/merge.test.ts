@@ -13,12 +13,11 @@ test('base merge transport by main', async () => {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
   }
 
-
   const fn0 = jest.fn();
-  fn0.mockImplementation((data) => data)
+  fn0.mockImplementation((data) => data);
 
   const fn1 = jest.fn();
-  fn1.mockImplementation((data) => data)
+  fn1.mockImplementation((data) => data);
 
   const ports0 = mockPorts();
   const internal0: Transport<Internal0> = createTransport('Base', ports0.main);
@@ -34,15 +33,22 @@ test('base merge transport by main', async () => {
     ports1.create()
   );
 
-  external0.listen('hello', async (options, word) => fn0({
-    text: `hello0, ${options.num} ${word}`,
-  }));
+  external0.listen('hello', async (options, word) =>
+    fn0({
+      text: `hello0, ${options.num} ${word}`,
+    })
+  );
 
-  external1.listen('hi', async (options, word) => fn1({
-    text: `hi1, ${options.num} ${word}`,
-  }));
+  external1.listen('hi', async (options, word) =>
+    fn1({
+      text: `hi1, ${options.num} ${word}`,
+    })
+  );
 
-  const internal: Transport<Internal0 & Internal1, External> = merge(internal0, internal1);
+  const internal: Transport<Internal0 & Internal1, External> = merge(
+    internal0,
+    internal1
+  );
 
   internal.listen('hello', async (options, word) => ({
     text: `hello, ${options.num} ${word}`,
@@ -76,4 +82,23 @@ test('base merge transport by main', async () => {
   expect(await external0.emit('hello', { num: 42 }, 'Universe')).toEqual({
     text: 'hello, 42 Universe',
   });
+
+  internal.dispose();
+
+  await expect(
+    external0.emit('hello', { num: 42 }, 'Universe')
+  ).rejects.toThrowError();
+});
+
+test('base merge transport error', async () => {
+  expect(() => {
+    // @ts-expect-error
+    merge();
+  }).toThrowError();
+  expect(() => {
+    const ports0 = mockPorts();
+    const internal0 = createTransport('Base', ports0.main);
+    // @ts-expect-error
+    merge(internal0);
+  }).toThrowError();
 });

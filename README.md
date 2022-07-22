@@ -27,14 +27,20 @@ A simple and responsible transport
 yarn add data-transport
 ```
 
-- Create transports
+- Create transport in main page
 
 ```js
-// index.js in main page
+import { createTransport } from 'data-transport';
+
 const external = createTransport('IFrameMain');
 external.listen('hello', async (num) => ({ text: `hello ${num}` }));
+```
 
-// index.js in the iframe
+- Create transport in the iframe
+
+```js
+import { createTransport } from 'data-transport'
+
 const internal = createTransport('IFrameInternal');
 expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 ```
