@@ -30,6 +30,7 @@
     "Broadcast",
     "Web Worker",
     "Service Worker",
+    "Shared Worker",
     "Browser Extension",
     "Node.js",
     "WebRTC",
