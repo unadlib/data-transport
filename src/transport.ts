@@ -30,6 +30,9 @@ export const getAction = (prefix: string, name: string) =>
 const getListenName = (prefix: string, action: string) =>
   action.replace(new RegExp(`^${prefix}-`), '');
 
+/**
+ * Create a base transport
+ */
 export abstract class Transport<T = any, P = any> {
   private [listenerKey]: TransportOptions['listener'];
   private [senderKey]: TransportOptions['sender'];
