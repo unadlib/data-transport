@@ -107,6 +107,7 @@ const TransportMap = {
   WebRTC: WebRTCTransport,
   Broadcast: BroadcastTransport,
   SharedWorkerMain: SharedWorkerTransport.Main,
+  SharedWorkerInternal: SharedWorkerTransport.Worker,
   MainProcess: ProcessTransport.Main,
   ChildProcess: ProcessTransport.Child,
 };
@@ -125,4 +126,3 @@ export const createTransport = <T extends keyof typeof TransportMap>(
 ): Transports[T] => {
   return new (TransportMap[name] as any)(options);
 };
-
