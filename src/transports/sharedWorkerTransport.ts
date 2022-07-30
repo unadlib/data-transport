@@ -93,6 +93,7 @@ export abstract class SharedWorkerInternalTransport<
           port._handler && port.removeEventListener('message', port._handler);
           delete port._handler;
         });
+        self.close();
       };
     },
     sender = (message) => {
