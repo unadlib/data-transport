@@ -86,8 +86,13 @@ test('base merge transport by main', async () => {
   internal.dispose();
 
   await expect(
-    external0.emit('hello', { num: 42 }, 'Universe')
-  ).rejects.toThrowError();
+    Promise.race([
+      external0.emit('hello', { num: 42 }, 'Universe'),
+      new Promise((resolve) => {
+        setTimeout(() => resolve('timeout'), 100);
+      }),
+    ])
+  ).resolves.toBe('timeout');
 });
 
 test('base merge transport error', async () => {

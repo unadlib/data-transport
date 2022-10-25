@@ -28,7 +28,7 @@ export const mockPorts = () => {
         };
       },
       sender: (message: SendOptions) => {
-        mainCallback!(JSON.parse(JSON.stringify(message)));
+        mainCallback?.(JSON.parse(JSON.stringify(message)));
       },
     }),
   };
