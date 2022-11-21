@@ -87,15 +87,15 @@ export abstract class Transport<T = any, P = any> {
       this[produceKey](name, this[originalListensMapKey][name]);
     });
 
-    const dispose = this[listenerKey]((options: ListenerOptions) => {
+    const dispose = this[listenerKey]((options?: ListenerOptions) => {
       if (verbose) {
-        if (typeof verbose === 'function') {
+        if (typeof verbose === 'function' && options) {
           verbose(options);
         } else {
           console.info('DataTransport Receive: ', options);
         }
       }
-      if (options[transportKey]) {
+      if (options?.[transportKey]) {
         const listenName = getListenName(this[prefixKey]!, options.action);
         const hasListen = typeof (this as any)[listenName] === 'function';
         if ((options as IResponse).type === transportType.response) {
