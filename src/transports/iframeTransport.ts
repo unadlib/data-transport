@@ -32,7 +32,7 @@ export abstract class IFrameMainTransport<T = any, P = any> extends Transport<
     listener = (callback) => {
       const handler = ({ data, source }: MessageEvent<ListenerOptions>) => {
         const contentWindow = iframe?.contentWindow ?? window.frames[0];
-        if (contentWindow === source) {
+        if (contentWindow && contentWindow === (source as any)) {
           return callback(data);
         }
       };
