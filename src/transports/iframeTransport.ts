@@ -30,8 +30,12 @@ export abstract class IFrameMainTransport<T = any, P = any> extends Transport<
     iframe = undefined,
     targetOrigin = '*',
     listener = (callback) => {
-      const handler = ({ data }: MessageEvent<ListenerOptions>) =>
-        callback(data);
+      const handler = ({ data, source }: MessageEvent<ListenerOptions>) => {
+        const contentWindow = iframe?.contentWindow ?? window.frames[0];
+        if (contentWindow === source) {
+          return callback(data);
+        }
+      };
       window.addEventListener('message', handler);
       return () => {
         window.removeEventListener('message', handler);
