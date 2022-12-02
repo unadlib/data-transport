@@ -10,6 +10,7 @@ import {
   prefixKey,
   transportType,
   produceKey,
+  listenKey,
 } from './constant';
 import type {
   EmitOptions,
@@ -35,6 +36,7 @@ const getListenName = (prefix: string, action: string) =>
  */
 export abstract class Transport<T = any, P = any> {
   private [listenerKey]: TransportOptions['listener'];
+  private [listenKey]: (options?: ListenerOptions) => void;
   private [senderKey]: TransportOptions['sender'];
   private [timeoutKey]: TransportOptions['timeout'];
   private [prefixKey]: TransportOptions['prefix'];
@@ -87,7 +89,7 @@ export abstract class Transport<T = any, P = any> {
       this[produceKey](name, this[originalListensMapKey][name]);
     });
 
-    const dispose = this[listenerKey]((options?: ListenerOptions) => {
+    this[listenKey] = (options?: ListenerOptions) => {
       if (verbose) {
         if (typeof verbose === 'function' && options) {
           verbose(options);
@@ -126,7 +128,9 @@ export abstract class Transport<T = any, P = any> {
           }
         }
       }
-    });
+    };
+
+    const dispose = this[listenerKey](this[listenKey]);
 
     this.dispose =
       typeof dispose === 'function'
