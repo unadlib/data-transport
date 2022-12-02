@@ -1,3 +1,5 @@
+export { listenerKey, senderKey } from './constant';
+
 export * from './decorators';
 export * from './transport';
 export * from './createTransport';
