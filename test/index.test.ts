@@ -53,7 +53,7 @@ test('base with `{ hasRespond: false }`', async () => {
           mockExternalSend = callback;
           return () => {
             mockExternalSend = undefined;
-          }
+          };
         },
         sender: (message) => {
           mockInternalSend(JSON.parse(JSON.stringify(message)));
@@ -104,14 +104,18 @@ test('base with two-way', async () => {
 
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
-
+  const externalTransportListener = jest.fn();
+  const internalTransportListener = jest.fn();
   class InternalTransport
     extends Transport<Internal>
     implements External, Internal {
     constructor() {
       super({
         listener: (callback) => {
-          mockExternalSend = callback;
+          mockExternalSend = (data: any) => {
+            callback(data);
+            internalTransportListener(data);
+          };
         },
         sender: (message) => {
           mockInternalSend(JSON.parse(JSON.stringify(message)));
@@ -138,7 +142,10 @@ test('base with two-way', async () => {
     constructor() {
       super({
         listener: (callback) => {
-          mockInternalSend = callback;
+          mockInternalSend = (data: any) => {
+            callback(data);
+            externalTransportListener(data);
+          };
         },
         sender: (message) => {
           mockExternalSend(JSON.parse(JSON.stringify(message)));
@@ -161,6 +168,32 @@ test('base with two-way', async () => {
   const internal = new InternalTransport();
   const external = new ExternalTransport();
   expect(await internal.hello({ num: 42 })).toEqual({ text: 'hello 42' });
+  expect(externalTransportListener).toBeCalledTimes(1);
+  expect(
+    Object.prototype.hasOwnProperty.call(
+      externalTransportListener.mock.calls[0][0],
+      'response'
+    )
+  ).toBe(false);
+  expect(
+    Object.prototype.hasOwnProperty.call(
+      externalTransportListener.mock.calls[0][0],
+      'request'
+    )
+  ).toBe(true);
+  expect(internalTransportListener).toBeCalledTimes(1);
+  expect(
+    Object.prototype.hasOwnProperty.call(
+      internalTransportListener.mock.calls[0][0],
+      'request'
+    )
+  ).toBe(false);
+  expect(
+    Object.prototype.hasOwnProperty.call(
+      internalTransportListener.mock.calls[0][0],
+      'response'
+    )
+  ).toBe(true);
   expect(await external.help({ key: 65 })).toEqual({ text: 'A' });
   expect(() => {
     external.hello({ num: 42 });
@@ -282,7 +315,10 @@ test('base with createTransport', async () => {
   const ports = mockPorts();
 
   const internal: Transport<Internal> = createTransport('Base', ports.main);
-  const external: Transport<any, Internal> = createTransport('Base', ports.create());
+  const external: Transport<any, Internal> = createTransport(
+    'Base',
+    ports.create()
+  );
   const dispose = external.listen('hello', async (options, word) => ({
     text: `hello ${options.num} ${word}`,
   }));

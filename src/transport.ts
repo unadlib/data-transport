@@ -152,7 +152,7 @@ export abstract class Transport<T = any, P = any> {
     const action = getAction(this[prefixKey]!, name);
     this[listensMapKey][action] = async (
       request,
-      { hasRespond, transportId, ...args }
+      { hasRespond, transportId, request: _, ...args }
     ) => {
       if (typeof fn === 'function') {
         const response: Response<P[K]> = await fn.apply(this, request);
