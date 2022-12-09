@@ -106,6 +106,12 @@ test('base with two-way', async () => {
   let mockInternalSend: (...args: any) => void;
   const externalTransportListener = jest.fn();
   const internalTransportListener = jest.fn();
+
+  const serializer = {
+    parse: JSON.parse,
+    stringify: JSON.stringify,
+  };
+
   class InternalTransport
     extends Transport<Internal>
     implements External, Internal {
@@ -120,6 +126,7 @@ test('base with two-way', async () => {
         sender: (message) => {
           mockInternalSend(JSON.parse(JSON.stringify(message)));
         },
+        serializer,
       });
     }
 
@@ -150,6 +157,7 @@ test('base with two-way', async () => {
         sender: (message) => {
           mockExternalSend(JSON.parse(JSON.stringify(message)));
         },
+        serializer,
       });
     }
 
@@ -181,6 +189,9 @@ test('base with two-way', async () => {
       'request'
     )
   ).toBe(true);
+  expect(typeof externalTransportListener.mock.calls[0][0].request).toBe(
+    'string'
+  );
   expect(internalTransportListener).toBeCalledTimes(1);
   expect(
     Object.prototype.hasOwnProperty.call(
@@ -194,6 +205,25 @@ test('base with two-way', async () => {
       'response'
     )
   ).toBe(true);
+  expect(typeof internalTransportListener.mock.calls[0][0].response).toBe(
+    'string'
+  );
+
+  // clean up serializer
+  // @ts-ignore
+  delete serializer.parse;
+  // @ts-ignore
+  delete serializer.stringify;
+
+  expect(await internal.hello({ num: 42 })).toEqual({ text: 'hello 42' });
+
+  expect(typeof externalTransportListener.mock.calls[1][0].request).toBe(
+    'object'
+  );
+  expect(typeof internalTransportListener.mock.calls[1][0].response).toBe(
+    'object'
+  );
+
   expect(await external.help({ key: 65 })).toEqual({ text: 'A' });
   expect(() => {
     external.hello({ num: 42 });

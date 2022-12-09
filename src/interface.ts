@@ -34,8 +34,8 @@ interface Options {
 
 export type SendOptions<T = {}> = T &
   Options & {
-    request?: Request<any>;
-    response?: Response<any>;
+    request?: string | Response<any>;
+    response?: string | Response<any>;
   };
 
 export type IRequest<T = {}> = T &
@@ -83,6 +83,13 @@ export interface TransportOptions<T = {}> {
    * Check the unexpected listen.
    */
   checkListen?: boolean;
+  /**
+   * serializer
+   */
+  serializer?: {
+    stringify?: (data: any) => string;
+    parse?: (data: string) => any;
+  };
 }
 
 export type ListensMap = Record<

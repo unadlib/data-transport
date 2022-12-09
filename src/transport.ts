@@ -11,6 +11,7 @@ import {
   transportType,
   produceKey,
   listenKey,
+  serializerKey,
 } from './constant';
 import type {
   EmitOptions,
@@ -22,6 +23,7 @@ import type {
   Response,
   TransportOptions,
   EmitParameter,
+  SendOptions,
 } from './interface';
 
 const defaultTimeout = 60 * 1000;
@@ -40,6 +42,7 @@ export abstract class Transport<T = any, P = any> {
   private [senderKey]: TransportOptions['sender'];
   private [timeoutKey]: TransportOptions['timeout'];
   private [prefixKey]: TransportOptions['prefix'];
+  private [serializerKey]: TransportOptions['serializer'];
   private [requestsMapKey]: Map<string, (value: unknown) => void> = new Map();
   private [listensMapKey]!: ListensMap;
   private [originalListensMapKey]!: Record<string, Function>;
@@ -56,6 +59,7 @@ export abstract class Transport<T = any, P = any> {
     prefix = defaultPrefix,
     listenKeys = [],
     checkListen = true,
+    serializer,
   }: TransportOptions) {
     this[listensMapKey] = this[listensMapKey] ?? {};
     this[originalListensMapKey] = this[originalListensMapKey] ?? {};
@@ -63,6 +67,7 @@ export abstract class Transport<T = any, P = any> {
     this[senderKey] = sender.bind(this);
     this[timeoutKey] = timeout;
     this[prefixKey] = prefix;
+    this[serializerKey] = serializer;
 
     listenKeys.forEach((key) => {
       const fn = ((this as any) as Record<string, Function>)[key];
@@ -103,7 +108,12 @@ export abstract class Transport<T = any, P = any> {
         if ((options as IResponse).type === transportType.response) {
           const resolve = this[requestsMapKey].get(options[transportKey]);
           if (resolve) {
-            resolve((options as IResponse).response);
+            const { response } = options as IResponse;
+            resolve(
+              typeof response === 'string' && this[serializerKey]?.parse
+                ? this[serializerKey]!.parse!(response)
+                : response
+            );
           } else if (hasListen) {
             if (__DEV__ && checkListen) {
               console.warn(
@@ -114,11 +124,17 @@ export abstract class Transport<T = any, P = any> {
         } else if ((options as IRequest).type === transportType.request) {
           const respond = this[listensMapKey][options.action];
           if (typeof respond === 'function') {
-            respond((options as IRequest).request, {
-              ...options,
-              transportId: options[transportKey],
-              hasRespond: (options as IRequest).hasRespond,
-            });
+            const { request } = options as IRequest;
+            respond(
+              typeof request === 'string' && this[serializerKey]?.parse
+                ? this[serializerKey]!.parse!(request)
+                : request,
+              {
+                ...options,
+                transportId: options[transportKey],
+                hasRespond: (options as IRequest).hasRespond,
+              }
+            );
           } else if (hasListen) {
             if (__DEV__ && checkListen) {
               console.error(
@@ -160,7 +176,10 @@ export abstract class Transport<T = any, P = any> {
         this[senderKey]({
           ...args,
           action,
-          response,
+          response: (typeof response !== 'undefined' &&
+          this[serializerKey]?.stringify
+            ? this[serializerKey]!.stringify!(response)
+            : response) as string | undefined,
           hasRespond,
           [transportKey]: transportId,
           type: transportType.response,
@@ -239,7 +258,10 @@ export abstract class Transport<T = any, P = any> {
     const data = {
       type: transportType.request,
       action,
-      request,
+      request:
+        typeof request !== 'undefined' && this[serializerKey]?.stringify
+          ? this[serializerKey]!.stringify!(request)
+          : request,
       hasRespond,
       [transportKey]: transportId,
     };
