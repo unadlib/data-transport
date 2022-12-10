@@ -4,6 +4,7 @@ export const senderKey: unique symbol = Symbol('sender');
 export const requestsMapKey: unique symbol = Symbol('requestsMap');
 export const listensMapKey: unique symbol = Symbol('listensMap');
 export const serializerKey: unique symbol = Symbol('serializer');
+export const logKey: unique symbol = Symbol('log');
 export const originalListensMapKey: unique symbol = Symbol(
   'originalListensMap'
 );

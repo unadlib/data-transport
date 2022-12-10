@@ -12,6 +12,7 @@ import {
   produceKey,
   listenKey,
   serializerKey,
+  logKey,
 } from './constant';
 import type {
   EmitOptions,
@@ -46,6 +47,7 @@ export abstract class Transport<T = any, P = any> {
   private [requestsMapKey]: Map<string, (value: unknown) => void> = new Map();
   private [listensMapKey]!: ListensMap;
   private [originalListensMapKey]!: Record<string, Function>;
+  private [logKey]?: (listenOptions: ListenerOptions<any>) => void;
   /**
    * dispose transport
    */
@@ -68,14 +70,13 @@ export abstract class Transport<T = any, P = any> {
     this[timeoutKey] = timeout;
     this[prefixKey] = prefix;
     this[serializerKey] = serializer;
+    this[logKey] = verbose ? console.log : undefined;
 
     listenKeys.forEach((key) => {
       const fn = ((this as any) as Record<string, Function>)[key];
       if (__DEV__) {
         if (typeof fn !== 'function') {
-          console.warn(
-            `'${key}' is NOT a methods or function.`
-          );
+          console.warn(`'${key}' is NOT a methods or function.`);
         }
       }
       this[originalListensMapKey][key] = fn;
@@ -96,8 +97,8 @@ export abstract class Transport<T = any, P = any> {
 
     this[listenKey] = (options?: ListenerOptions) => {
       if (verbose) {
-        if (typeof verbose === 'function' && options) {
-          verbose(options);
+        if (typeof this[logKey] === 'function' && options) {
+          this[logKey]!(options);
         } else {
           console.info('DataTransport Receive: ', options);
         }

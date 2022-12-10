@@ -70,7 +70,7 @@ export interface TransportOptions<T = {}> {
   /**
    * Display verbose receive data log.
    */
-  verbose?: boolean | ((listenOptions: ListenerOptions<T>) => void);
+  verbose?: boolean;
   /**
    * Specify a prefix for event types.
    */

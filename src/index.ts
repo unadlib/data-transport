@@ -1,4 +1,4 @@
-export { listenerKey, senderKey, listenKey } from './constant';
+export { listenerKey, senderKey, listenKey, logKey } from './constant';
 
 export * from './decorators';
 export * from './transport';
