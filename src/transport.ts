@@ -23,11 +23,11 @@ import type {
   Response,
   TransportOptions,
   EmitParameter,
-  SendOptions,
 } from './interface';
 
-const defaultTimeout = 60 * 1000;
-const defaultPrefix = 'DataTransport';
+const DEFAULT_TIMEOUT = 60 * 1000;
+const DEFAULT_PREFIX = 'DataTransport';
+
 export const getAction = (prefix: string, name: string) =>
   `${prefix}-${name.toString()}`;
 const getListenName = (prefix: string, action: string) =>
@@ -54,9 +54,9 @@ export abstract class Transport<T = any, P = any> {
   constructor({
     listener,
     sender,
-    timeout = defaultTimeout,
+    timeout = DEFAULT_TIMEOUT,
     verbose = false,
-    prefix = defaultPrefix,
+    prefix = DEFAULT_PREFIX,
     listenKeys = [],
     checkListen = true,
     serializer,
@@ -74,7 +74,7 @@ export abstract class Transport<T = any, P = any> {
       if (__DEV__) {
         if (typeof fn !== 'function') {
           console.warn(
-            `In '${this.constructor.name}' class, '${key}' is NOT a methods.`
+            `'${key}' is NOT a methods or function.`
           );
         }
       }
@@ -138,7 +138,7 @@ export abstract class Transport<T = any, P = any> {
           } else if (hasListen) {
             if (__DEV__ && checkListen) {
               console.error(
-                `In '${this.constructor.name}' class, the listen method '${listenName}' is NOT decorated by decorator '@listen' or be added 'listenKeys' list.`
+                `The listen method or function '${listenName}' is NOT decorated by decorator '@listen' or be added 'listenKeys' list.`
               );
             }
           }
@@ -254,6 +254,9 @@ export abstract class Transport<T = any, P = any> {
         return randomNumbers;
       },
     });
+    if (__DEV__ && (!name || typeof name !== 'string')) {
+      throw new Error(`The event name should be a string, and it's required.`);
+    }
     const action = getAction(this[prefixKey]!, name as string);
     const data = {
       type: transportType.request,
