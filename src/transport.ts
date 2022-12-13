@@ -13,6 +13,7 @@ import {
   listenKey,
   serializerKey,
   logKey,
+  verboseKey,
 } from './constant';
 import type {
   EmitOptions,
@@ -48,6 +49,7 @@ export abstract class Transport<T = any, P = any> {
   private [listensMapKey]!: ListensMap;
   private [originalListensMapKey]!: Record<string, Function>;
   private [logKey]?: (listenOptions: ListenerOptions<any>) => void;
+  private [verboseKey]: boolean;
   /**
    * dispose transport
    */
@@ -62,6 +64,7 @@ export abstract class Transport<T = any, P = any> {
     listenKeys = [],
     checkListen = true,
     serializer,
+    logger,
   }: TransportOptions) {
     this[listensMapKey] = this[listensMapKey] ?? {};
     this[originalListensMapKey] = this[originalListensMapKey] ?? {};
@@ -70,7 +73,8 @@ export abstract class Transport<T = any, P = any> {
     this[timeoutKey] = timeout;
     this[prefixKey] = prefix;
     this[serializerKey] = serializer;
-    this[logKey] = verbose ? console.log : undefined;
+    this[verboseKey] = verbose;
+    this[logKey] = logger;
 
     listenKeys.forEach((key) => {
       const fn = ((this as any) as Record<string, Function>)[key];
@@ -96,7 +100,7 @@ export abstract class Transport<T = any, P = any> {
     });
 
     this[listenKey] = (options?: ListenerOptions) => {
-      if (verbose) {
+      if (this[verboseKey]) {
         if (typeof this[logKey] === 'function' && options) {
           this[logKey]!(options);
         } else {

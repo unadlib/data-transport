@@ -90,6 +90,10 @@ export interface TransportOptions<T = {}> {
     stringify?: (data: any) => string;
     parse?: (data: string) => any;
   };
+  /**
+   * logger
+   */
+  logger?: (listenOptions: ListenerOptions<any>) => void;
 }
 
 export type ListensMap = Record<
