@@ -10,6 +10,8 @@ const MAX_CHUNK_SIZE = 1024 * 60;
 
 const BUFFER_FULL_THRESHOLD = 1024 * 64;
 
+const EXPIRED_TIME = 1000 * 60;
+
 export interface WebRTCTransportOptions extends Partial<TransportOptions> {
   peer: Instance;
 }
@@ -45,6 +47,11 @@ abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
           delete message.isLastChunk;
           callback(message as ListenerOptions);
           this.receiveBuffer.delete(message.__DATA_TRANSPORT_UUID__);
+          for (const [id, item] of this.receiveBuffer) {
+            if (Date.now() - item.timestamp > EXPIRED_TIME) {
+              this.receiveBuffer.delete(id);
+            }
+          }
         }
       };
       peer.on('data', handler);
