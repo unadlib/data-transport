@@ -85,50 +85,49 @@ abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
       listener,
       sender,
     });
-
-    let webRTCPaused = false;
-    const webRTCMessageQueue: any[] = [];
-    const peerSend = peer.send.bind(peer);
-    const sendMessageQueued = () => {
-      webRTCPaused = false;
-      let message = webRTCMessageQueue.shift();
-      while (message) {
-        if (
-          (peer as any)._channel.bufferedAmount &&
-          (peer as any)._channel.bufferedAmount > BUFFER_FULL_THRESHOLD
-        ) {
-          webRTCPaused = true;
-          webRTCMessageQueue.unshift(message);
-          const listener = () => {
-            (peer as any)._channel.removeEventListener(
+    if (peer) {
+      let webRTCPaused = false;
+      const webRTCMessageQueue: any[] = [];
+      const peerSend = peer.send.bind(peer);
+      const sendMessageQueued = () => {
+        webRTCPaused = false;
+        let message = webRTCMessageQueue.shift();
+        while (message) {
+          if (
+            (peer as any)._channel.bufferedAmount &&
+            (peer as any)._channel.bufferedAmount > BUFFER_FULL_THRESHOLD
+          ) {
+            webRTCPaused = true;
+            webRTCMessageQueue.unshift(message);
+            const listener = () => {
+              (peer as any)._channel.removeEventListener(
+                'bufferedamountlow',
+                listener
+              );
+              sendMessageQueued();
+            };
+            (peer as any)._channel.addEventListener(
               'bufferedamountlow',
               listener
             );
-            sendMessageQueued();
-          };
-          (peer as any)._channel.addEventListener(
-            'bufferedamountlow',
-            listener
-          );
+            return;
+          }
+          try {
+            peerSend(message);
+            message = webRTCMessageQueue.shift();
+          } catch (error: any) {
+            throw new Error(`Error send message to peer: ${error.message}`);
+          }
+        }
+      };
+      peer.send = function (chunk: any) {
+        webRTCMessageQueue.push(chunk);
+        if (webRTCPaused) {
           return;
         }
-        try {
-          peerSend(message);
-          message = webRTCMessageQueue.shift();
-        } catch (error: any) {
-          throw new Error(
-            `Error send message to peer: ${error.message}`
-          );
-        }
-      }
-    };
-    peer.send = function (chunk: any) {
-      webRTCMessageQueue.push(chunk);
-      if (webRTCPaused) {
-        return;
-      }
-      sendMessageQueued();
-    };
+        sendMessageQueued();
+      };
+    }
   }
 }
 
