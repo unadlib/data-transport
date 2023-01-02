@@ -2,9 +2,16 @@ import { WebRTCTransport, listen } from 'data-transport';
 import SimplePeer from 'simple-peer';
 import { Other, Main } from './interface';
 
+const bigData = Array(10 ** 5 * 3)
+  .fill(1)
+  .map((_, i) => ({
+    i: Math.random(),
+  }));
+
 class MainTransport extends WebRTCTransport<Main> implements Other {
   async help() {
-    const response = await this.emit('help', { text: 'SOS!!!' });
+    // @ts-ignore
+    const response = await this.emit('help', { text: 'SOS!!!', bigData });
     return response;
   }
 
@@ -14,6 +21,7 @@ class MainTransport extends WebRTCTransport<Main> implements Other {
     const input = document.getElementById('input') as HTMLInputElement;
     return {
       text: `hello ${input?.value || 'anonymous'}, ${options.num}`,
+      bigData,
     };
   }
 }
