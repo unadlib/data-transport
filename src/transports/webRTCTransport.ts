@@ -42,7 +42,8 @@ abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
         buffer.data[message.chunkId!] = message[key];
         buffer.data.length = message.length!;
         buffer.timestamp = Date.now();
-        const isComplete = buffer.data.filter((item) => item).length === message.length;
+        const isComplete =
+          buffer.data.filter((item) => item).length === message.length;
         if (isComplete) {
           const data = JSON.parse(buffer.data.join(''));
           message[key] = key === 'request' ? data : data[0];
@@ -73,7 +74,7 @@ abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
           : []
       );
       let chunkId = 0;
-      let allChunks = Math.ceil(
+      const allChunksSize = Math.ceil(
         (message[key] as string).length / MAX_CHUNK_SIZE
       );
       while ((message[key] as string).length > 0) {
@@ -81,7 +82,7 @@ abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
           ...message,
           [key]: (message[key] as string).slice(0, MAX_CHUNK_SIZE),
           chunkId,
-          length: allChunks,
+          length: allChunksSize,
         };
         peer.send(JSON.stringify(data));
         message[key] = (message[key] as string).slice(MAX_CHUNK_SIZE);
