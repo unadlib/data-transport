@@ -17,8 +17,8 @@ export interface WebRTCTransportOptions extends Partial<TransportOptions> {
 }
 
 interface WebRTCTransportSendOptions extends SendOptions<{}> {
-  isLastChunk?: boolean;
   chunkId?: number;
+  length?: number;
 }
 
 abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
@@ -40,11 +40,13 @@ abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
         };
         this.receiveBuffer.set(message.__DATA_TRANSPORT_UUID__, buffer);
         buffer.data[message.chunkId!] = message[key];
+        buffer.data.length = message.length!;
         buffer.timestamp = Date.now();
-        if (message.isLastChunk) {
+        const isComplete = buffer.data.filter((item) => item).length === message.length;
+        if (isComplete) {
           const data = JSON.parse(buffer.data.join(''));
           message[key] = key === 'request' ? data : data[0];
-          delete message.isLastChunk;
+          delete message.length;
           callback(message as ListenerOptions);
           this.receiveBuffer.delete(message.__DATA_TRANSPORT_UUID__);
           for (const [id, item] of this.receiveBuffer) {
@@ -71,15 +73,16 @@ abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
           : []
       );
       let chunkId = 0;
+      let allChunks = Math.ceil(
+        (message[key] as string).length / MAX_CHUNK_SIZE
+      );
       while ((message[key] as string).length > 0) {
         const data = {
           ...message,
           [key]: (message[key] as string).slice(0, MAX_CHUNK_SIZE),
           chunkId,
+          length: allChunks,
         };
-        if ((data[key] as string).length < MAX_CHUNK_SIZE) {
-          data.isLastChunk = true;
-        }
         peer.send(JSON.stringify(data));
         message[key] = (message[key] as string).slice(MAX_CHUNK_SIZE);
         chunkId += 1;

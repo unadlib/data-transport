@@ -13,6 +13,7 @@ class OtherTransport extends WebRTCTransport<Other> implements Main {
 
   async sayHello() {
     const response = await this.emit('hello', { num: 42 });
+    console.log(response);
     return response;
   }
 }
