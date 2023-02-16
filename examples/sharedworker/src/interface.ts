@@ -1,7 +1,7 @@
-export interface Main {
+export type Main = {
   help(options: { text: string }): Promise<{ text: string }>;
-}
+};
 
-export interface Worker {
+export type Worker = {
   hello(options: { num: number }): Promise<{ text: string }>;
-}
+};

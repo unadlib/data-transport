@@ -1,11 +1,11 @@
-export interface PopupToBackground {
+export type PopupToBackground = {
   openClient(options: { path: string; features: string }): Promise<void>;
 }
 
-export interface BackgroundToClient {
+export type BackgroundToClient = {
   changeTextDisplay(options: { status: boolean }): Promise<{ status: boolean }>;
 }
 
-export interface ClientToBackground {
+export type ClientToBackground = {
   toggleText(options: { status: boolean }): Promise<{ status: boolean }>;
 }

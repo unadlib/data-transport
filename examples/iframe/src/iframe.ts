@@ -2,7 +2,7 @@ import { IFrameTransport, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
 class IFrameInternalTransport
-  extends IFrameTransport.IFrame<IFrame>
+  extends IFrameTransport.IFrame<{ listen: IFrame }>
   implements Main {
   @listen
   async help(options: { text: string }) {
@@ -17,9 +17,10 @@ class IFrameInternalTransport
   }
 }
 
-const useIFrameInternalTransport = () => new IFrameInternalTransport({
-  // prefix: 'test',
-});
+const useIFrameInternalTransport = () =>
+  new IFrameInternalTransport({
+    // prefix: 'test',
+  });
 
 const init = () => {
   window.addEventListener('load', () => {

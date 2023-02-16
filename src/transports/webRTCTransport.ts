@@ -1,5 +1,6 @@
 import type { Instance } from 'simple-peer';
 import type {
+  BaseInteraction,
   ListenerOptions,
   SendOptions,
   TransportOptions,
@@ -21,7 +22,9 @@ interface WebRTCTransportSendOptions extends SendOptions<{}> {
   length?: number;
 }
 
-abstract class WebRTCTransport<T = any, P = any> extends Transport<T, P> {
+abstract class WebRTCTransport<
+  T extends BaseInteraction = any
+> extends Transport<T> {
   private receiveBuffer = new Map<string, { data: any[]; timestamp: number }>();
 
   constructor({

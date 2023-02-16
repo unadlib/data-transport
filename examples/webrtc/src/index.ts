@@ -8,7 +8,7 @@ const bigData = Array(10 ** 5 * 3)
     i: Math.random(),
   }));
 
-class MainTransport extends WebRTCTransport<Main> implements Other {
+class MainTransport extends WebRTCTransport<{ listen: Main }> implements Other {
   async help() {
     // @ts-ignore
     const response = await this.emit('help', { text: 'SOS!!!', bigData });

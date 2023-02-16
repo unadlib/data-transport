@@ -2,6 +2,7 @@ import {
   TransportOptions,
   TransferableWorker,
   ListenerOptions,
+  BaseInteraction,
 } from '../interface';
 import { Transport } from '../transport';
 import { detectSafari } from '../utils';
@@ -57,9 +58,8 @@ const encode = (data: any, useOnSafari: boolean) => {
 };
 
 export abstract class ServiceWorkerClientTransport<
-  T = any,
-  P = any
-> extends Transport<T, P> {
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     worker,
     useOnSafari = DEFAULT_USE_ON_SAFARI,
@@ -90,9 +90,8 @@ export abstract class ServiceWorkerClientTransport<
 }
 
 export abstract class ServiceWorkerServiceTransport<
-  T = any,
-  P = any
-> extends Transport<T, P> {
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     useOnSafari = DEFAULT_USE_ON_SAFARI,
     listener = (callback) => {

@@ -1,7 +1,9 @@
 import { listen, SharedWorkerTransport } from 'data-transport';
 import { Main, Worker } from './interface';
 
-class MainTransport extends SharedWorkerTransport.Main<Main> implements Worker {
+class MainTransport
+  extends SharedWorkerTransport.Main<{ listen: Main }>
+  implements Worker {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     const div = document.createElement('div');

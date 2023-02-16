@@ -4,6 +4,7 @@ import {
   TransportOptions,
   TransferableWorker,
   ListenerOptions,
+  BaseInteraction,
 } from '../interface';
 import { getAction, Transport } from '../transport';
 
@@ -27,8 +28,8 @@ export interface SharedWorkerMainTransportOptions
 export interface SharedWorkerInternalTransportOptions
   extends Partial<TransportOptions<SharedWorkerPort>> {}
 
-export abstract class SharedWorkerMainTransport<T = any, P = any>
-  extends Transport<T, P>
+export abstract class SharedWorkerMainTransport<T extends BaseInteraction = any>
+  extends Transport<T>
   implements InternalToMain {
   /**
    * Define a connection listener.
@@ -79,9 +80,8 @@ interface SharedWorkerTransportPort extends MessagePort {
 }
 
 export abstract class SharedWorkerInternalTransport<
-  T = any,
-  P = any
-> extends Transport<T & InternalToMain, P> {
+  T extends BaseInteraction = any
+> extends Transport<{ listen: T['listen'] & InternalToMain; emit: T['emit'] }> {
   protected ports = new Set<MessagePort>();
   private [callbackKey]!: (options: ListenerOptions<SharedWorkerPort>) => void;
 

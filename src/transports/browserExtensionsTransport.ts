@@ -1,5 +1,6 @@
 import { callbackKey } from '../constant';
 import type {
+  BaseInteraction,
   IRequest,
   ListenerOptions,
   SendOptions,
@@ -50,9 +51,8 @@ interface BrowserExtensionsMainPort {
 }
 
 export abstract class BrowserExtensionsGenericTransport<
-  T = any,
-  P = any
-> extends Transport<T, P> {
+  T extends BaseInteraction = any
+> extends Transport<T> {
   private [callbackKey]!: (options: ListenerOptions<SendResponse>) => void;
 
   constructor({
@@ -97,9 +97,8 @@ export abstract class BrowserExtensionsGenericTransport<
 }
 
 export abstract class BrowserExtensionsMainTransport<
-  T = any,
-  P = any
-> extends Transport<T, P> {
+  T extends BaseInteraction = any
+> extends Transport<T> {
   protected ports = new Set<Port>();
 
   private [callbackKey]!: (
@@ -153,9 +152,8 @@ export abstract class BrowserExtensionsMainTransport<
 }
 
 export abstract class BrowserExtensionsClientTransport<
-  T = any,
-  P = any
-> extends Transport<T, P> {
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     browser = global.browser ?? global.chrome,
     port = browser.runtime.connect({ name: transportName }),

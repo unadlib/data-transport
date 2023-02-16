@@ -1,17 +1,17 @@
 import { Transport, createTransport, mockPorts, merge } from '../src';
 
 test('base merge transport by main', async () => {
-  interface Internal0 {
+  type Internal0 = {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
-  }
+  };
 
-  interface Internal1 {
+  type Internal1 = {
     hi(options: { num: number }, word: string): Promise<{ text: string }>;
-  }
+  };
 
-  interface External {
+  type External = {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
-  }
+  };
 
   const fn0 = jest.fn();
   fn0.mockImplementation((data) => data);
@@ -20,18 +20,24 @@ test('base merge transport by main', async () => {
   fn1.mockImplementation((data) => data);
 
   const ports0 = mockPorts();
-  const internal0: Transport<Internal0> = createTransport('Base', ports0.main);
-  const external0: Transport<External, Internal0> = createTransport(
+  const internal0: Transport<{ listen: Internal0 }> = createTransport(
     'Base',
-    ports0.create()
+    ports0.main
   );
+  const external0: Transport<{
+    listen: External;
+    emit: Internal0;
+  }> = createTransport('Base', ports0.create());
 
   const ports1 = mockPorts();
-  const internal1: Transport<Internal1> = createTransport('Base', ports1.main);
-  const external1: Transport<External, Internal1> = createTransport(
+  const internal1: Transport<{ listen: Internal1 }> = createTransport(
     'Base',
-    ports1.create()
+    ports1.main
   );
+  const external1: Transport<{
+    listen: External;
+    emit: Internal1;
+  }> = createTransport('Base', ports1.create());
 
   external0.listen('hello', async (options, word) =>
     fn0({
@@ -45,10 +51,10 @@ test('base merge transport by main', async () => {
     })
   );
 
-  const internal: Transport<Internal0 & Internal1, External> = merge(
-    internal0,
-    internal1
-  );
+  const internal: Transport<{
+    listen: Internal0 & Internal1;
+    emit: External;
+  }> = merge(internal0, internal1);
 
   internal.listen('hello', async (options, word) => ({
     text: `hello, ${options.num} ${word}`,

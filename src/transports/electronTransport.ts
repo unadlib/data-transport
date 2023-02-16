@@ -1,5 +1,9 @@
 import type { BrowserWindow, IpcMain, IpcRenderer } from 'electron';
-import type { ListenerOptions, TransportOptions } from '../interface';
+import type {
+  BaseInteraction,
+  ListenerOptions,
+  TransportOptions,
+} from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$Electron_Transport$$';
@@ -30,7 +34,9 @@ export interface ElectronRendererTransportOptions
   ipcRenderer: IpcRenderer;
 }
 
-export abstract class ElectronMainTransport<T = any, P = any> extends Transport<T, P> {
+export abstract class ElectronMainTransport<
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     ipcMain,
     browserWindow,
@@ -56,9 +62,8 @@ export abstract class ElectronMainTransport<T = any, P = any> extends Transport<
 }
 
 export abstract class ElectronRendererTransport<
-  T = any,
-  P = any
-> extends Transport<T, P> {
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     ipcRenderer,
     channel = defaultChannel,

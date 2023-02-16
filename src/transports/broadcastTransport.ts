@@ -1,4 +1,4 @@
-import type { ListenerOptions, TransportOptions } from '../interface';
+import type { BaseInteraction, ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$BroadcastChannel_Transport$$';
@@ -14,7 +14,9 @@ export interface BroadcastTransportOptions extends Partial<TransportOptions> {
   broadcastChannel?: BroadcastChannel;
 }
 
-abstract class BroadcastTransport<T = any, P = any> extends Transport<T, P> {
+abstract class BroadcastTransport<
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     channel = defaultChannel,
     broadcastChannel = new BroadcastChannel(channel),
