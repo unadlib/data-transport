@@ -1,14 +1,17 @@
 import { Transport, createTransport, mockPorts } from '../src';
 
 test('dispose in base transport', async () => {
-  interface Internal {
+  type Internal = {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
-  }
+  };
 
   const ports = mockPorts();
 
-  const internal: Transport<Internal> = createTransport('Base', ports.main);
-  const external: Transport<any, Internal> = createTransport(
+  const internal: Transport<{ listen: Internal }> = createTransport(
+    'Base',
+    ports.main
+  );
+  const external: Transport<{ emit: Internal }> = createTransport(
     'Base',
     ports.create()
   );

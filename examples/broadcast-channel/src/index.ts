@@ -2,7 +2,7 @@ import { Transport, listen } from 'data-transport';
 import { BroadcastChannel } from 'broadcast-channel';
 import { Other, Main } from './interface';
 
-class MainTransport extends Transport<Main> implements Other {
+class MainTransport extends Transport<{ listen: Main }> implements Other {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;

@@ -1,5 +1,10 @@
 import { transportKey, transportType } from './constant';
 
+export interface BaseInteraction {
+  listen?: Record<string, (...args: any) => any>;
+  emit?: Record<string, (...args: any) => any>;
+}
+
 export type Request<T> = T extends (...args: infer P) => any ? P : never;
 
 export type Response<T> = T extends (...args: any) => Promise<infer P>

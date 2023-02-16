@@ -1,4 +1,4 @@
-import type { ListenerOptions, TransportOptions } from '../interface';
+import type { BaseInteraction, ListenerOptions, TransportOptions } from '../interface';
 import { Transport } from '../transport';
 
 export interface MessageTransportOptions extends Partial<TransportOptions> {
@@ -9,7 +9,9 @@ export interface MessageTransportOptions extends Partial<TransportOptions> {
   targetOrigin?: string;
 }
 
-abstract class MessageTransport<T = any, P = any> extends Transport<T, P> {
+abstract class MessageTransport<
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     targetOrigin = '*',
     listener = (callback) => {

@@ -25,6 +25,7 @@ import type {
   Response,
   TransportOptions,
   EmitParameter,
+  BaseInteraction,
 } from './interface';
 
 const DEFAULT_TIMEOUT = 60 * 1000;
@@ -38,7 +39,7 @@ const getListenName = (prefix: string, action: string) =>
 /**
  * Create a base transport
  */
-export abstract class Transport<T = any, P = any> {
+export abstract class Transport<T extends BaseInteraction = any> {
   private [listenerKey]: TransportOptions['listener'];
   private [listenKey]: (options?: ListenerOptions) => void;
   private [senderKey]: TransportOptions['sender'];
@@ -201,7 +202,7 @@ export abstract class Transport<T = any, P = any> {
    * @param name A transport action as listen message data action type
    * @param fn A transport listener
    */
-  public listen<K extends keyof P>(name: K, fn: P[K]) {
+  public listen<K extends keyof T['emit']>(name: K, fn: T['emit'][K]) {
     if (typeof name === 'string') {
       if (this[originalListensMapKey][name]) {
         if (__DEV__) {
@@ -237,12 +238,12 @@ export abstract class Transport<T = any, P = any> {
    *
    * @returns Return a response for the request.
    */
-  public async emit<K extends keyof T>(
+  public async emit<K extends keyof T['listen']>(
     options: EmitOptions<K>,
-    ...request: Request<T[K]>
-  ): Promise<Response<T[K]>> {
+    ...request: Request<T['listen'][K]>
+  ): Promise<Response<T['listen'][K]>> {
     const params =
-      typeof options === 'object' ? options : ({} as EmitParameter<T>);
+      typeof options === 'object' ? options : ({} as EmitParameter<K>);
     const hasRespond = params.respond ?? true;
     const timeout = params.timeout ?? this[timeoutKey];
     const name = params.name ?? options;
@@ -276,7 +277,7 @@ export abstract class Transport<T = any, P = any> {
     if (!hasRespond) {
       return new Promise((resolve) => {
         this[senderKey](data);
-        resolve(undefined as Response<T[K]>);
+        resolve(undefined as Response<T['listen'][K]>);
       });
     }
     let timeoutId: NodeJS.Timeout | number;

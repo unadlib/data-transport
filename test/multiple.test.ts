@@ -1,41 +1,45 @@
 import { Transport, createTransport, mockPorts } from '../src';
 
 test('base multiple transport', async () => {
-  interface Internal {
+  type Internal = {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
     hi(options: { num: number }, word: string): Promise<{ text: string }>;
-  }
+  };
 
-  interface External {
+  type External = {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
-  }
+  };
 
   const ports = mockPorts();
 
   const fn0 = jest.fn();
-  fn0.mockImplementation((data) => data)
+  fn0.mockImplementation((data) => data);
 
   const fn1 = jest.fn();
-  fn1.mockImplementation((data) => data)
+  fn1.mockImplementation((data) => data);
 
-  const internal: Transport<Internal, External> = createTransport(
-    'Base',
-    ports.main
-  );
-  const external0: Transport<any, Internal> = createTransport(
-    'Base',
-    ports.create()
-  );
-  external0.listen('hello', async (options, word) => fn0({
-    text: `hello0, ${options.num} ${word}`,
-  }));
-  const external1: Transport<External, Internal> = createTransport(
+  const internal: Transport<{
+    listen: Internal;
+    emit: External;
+  }> = createTransport('Base', ports.main);
+  const external0: Transport<{ emit: Internal }> = createTransport(
     'Base',
     ports.create()
   );
-  external1.listen('hello', async (options, word) => fn1({
-    text: `hello1, ${options.num} ${word}`,
-  }));
+  external0.listen('hello', async (options, word) =>
+    fn0({
+      text: `hello0, ${options.num} ${word}`,
+    })
+  );
+  const external1: Transport<{
+    listen: External;
+    emit: Internal;
+  }> = createTransport('Base', ports.create());
+  external1.listen('hello', async (options, word) =>
+    fn1({
+      text: `hello1, ${options.num} ${word}`,
+    })
+  );
 
   external1.listen('hi', async (options, word) => ({
     text: `hi1, ${options.num} ${word}`,

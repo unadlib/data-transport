@@ -1,12 +1,18 @@
 import type { ChildProcess } from 'child_process';
-import type { ListenerOptions, TransportOptions } from '../interface';
+import type {
+  BaseInteraction,
+  ListenerOptions,
+  TransportOptions,
+} from '../interface';
 import { Transport } from '../transport';
 
 export interface MainProcessTransportOptions extends Partial<TransportOptions> {
   child: ChildProcess;
 }
 
-export class MainProcessTransport extends Transport {
+export class MainProcessTransport<
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     child,
     listener = (callback) => {
@@ -36,7 +42,9 @@ export interface ChildProcessTransportOptions
   //
 }
 
-export class ChildProcessTransport extends Transport {
+export class ChildProcessTransport<
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     listener = (callback) => {
       const handler = (data: ListenerOptions) => {

@@ -2,7 +2,7 @@ import { ServiceWorkerTransport, listen } from 'data-transport';
 import { Service, Client } from './interface';
 
 class ClientTransport
-  extends ServiceWorkerTransport.Client<Client>
+  extends ServiceWorkerTransport.Client<{ listen: Client }>
   implements Service {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });

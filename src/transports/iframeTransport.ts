@@ -1,4 +1,8 @@
-import type { ListenerOptions, TransportOptions } from '../interface';
+import type {
+  BaseInteraction,
+  ListenerOptions,
+  TransportOptions,
+} from '../interface';
 import { Transport } from '../transport';
 
 export interface IFrameTransportInternalOptions
@@ -22,10 +26,9 @@ export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
   targetOrigin?: string;
 }
 
-export abstract class IFrameMainTransport<T = any, P = any> extends Transport<
-  T,
-  P
-> {
+export abstract class IFrameMainTransport<
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     iframe = undefined,
     targetOrigin = '*',
@@ -61,9 +64,8 @@ export abstract class IFrameMainTransport<T = any, P = any> extends Transport<
 }
 
 export abstract class IFrameInternalTransport<
-  T = any,
-  P = any
-> extends Transport<T, P> {
+  T extends BaseInteraction = any
+> extends Transport<T> {
   constructor({
     targetOrigin = '*',
     listener = (callback) => {

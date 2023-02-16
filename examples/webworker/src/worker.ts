@@ -2,7 +2,7 @@ import { WorkerTransport, listen } from 'data-transport';
 import { Main, Worker } from './interface';
 
 class WebWorkerTransport
-  extends WorkerTransport.Worker<Worker>
+  extends WorkerTransport.Worker<{ listen: Worker }>
   implements Main {
   @listen
   async help(options: { text: string }) {

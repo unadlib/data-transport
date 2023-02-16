@@ -1,7 +1,7 @@
-export interface Service {
+export type Service = {
   hello(options: { num: number }): Promise<{ text: string }>;
 }
 
-export interface Client {
+export type Client = {
   help(options: { text: string }): Promise<{ text: string }>;
 }
