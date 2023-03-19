@@ -279,10 +279,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
       [transportKey]: transportId,
     };
     if (!hasRespond) {
-      return new Promise((resolve) => {
-        this[senderKey](data);
-        resolve(undefined as Response<T['listen'][K]>);
-      });
+      this[senderKey](data);
+      return Promise.resolve(undefined as Response<T['listen'][K]>);
     }
     let timeoutId: NodeJS.Timeout | number;
     const promise = Promise.race<any>([
