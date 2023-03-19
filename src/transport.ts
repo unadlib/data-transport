@@ -67,7 +67,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
     serializer,
     logger,
   }: TransportOptions) {
-    this[listensMapKey] = this[listensMapKey] ?? {};
+    this[listensMapKey] = this[listensMapKey] ?? new Map();
     this[originalListensMapKey] = this[originalListensMapKey] ?? {};
     this[listenerKey] = listener.bind(this);
     this[senderKey] = sender.bind(this);
@@ -128,7 +128,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
             }
           }
         } else if ((options as IRequest).type === transportType.request) {
-          const respond = this[listensMapKey][options.action];
+          const respond = this[listensMapKey].get(options.action);
           if (typeof respond === 'function') {
             const { request } = options as IRequest;
             respond(
@@ -172,28 +172,30 @@ export abstract class Transport<T extends BaseInteraction = any> {
   ) {
     // https://github.com/microsoft/TypeScript/issues/40465
     const action = getAction(this[prefixKey]!, name);
-    this[listensMapKey][action] = async (
-      request,
-      { hasRespond, transportId, request: _, ...args }
-    ) => {
-      if (typeof fn === 'function') {
-        const response: Response<P[K]> = await fn.apply(this, request);
-        if (!hasRespond) return;
-        this[senderKey]({
-          ...args,
-          action,
-          response: (typeof response !== 'undefined' &&
-          this[serializerKey]?.stringify
-            ? this[serializerKey]!.stringify!(response)
-            : response) as string | undefined,
-          hasRespond,
-          [transportKey]: transportId,
-          type: transportType.response,
-        });
-      } else {
-        throw new Error(`The listener for event ${name} should be a function.`);
+    this[listensMapKey].set(
+      action,
+      async (request, { hasRespond, transportId, request: _, ...args }) => {
+        if (typeof fn === 'function') {
+          const response: Response<P[K]> = await fn.apply(this, request);
+          if (!hasRespond) return;
+          this[senderKey]({
+            ...args,
+            action,
+            response: (typeof response !== 'undefined' &&
+            this[serializerKey]?.stringify
+              ? this[serializerKey]!.stringify!(response)
+              : response) as string | undefined,
+            hasRespond,
+            [transportKey]: transportId,
+            type: transportType.response,
+          });
+        } else {
+          throw new Error(
+            `The listener for event ${name} should be a function.`
+          );
+        }
       }
-    };
+    );
   }
 
   /**
@@ -226,7 +228,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
     return () => {
       delete this[originalListensMapKey][name];
       const action = getAction(this[prefixKey]!, name);
-      delete this[listensMapKey][action];
+      this[listensMapKey].delete(action);
     };
   }
 

@@ -101,7 +101,7 @@ export interface TransportOptions<T = {}> {
   logger?: (listenOptions: ListenerOptions<any>) => void;
 }
 
-export type ListensMap = Record<
+export type ListensMap = Map<
   string,
   (
     request: Request<any>,
