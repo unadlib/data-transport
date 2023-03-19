@@ -48,7 +48,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
   private [serializerKey]: TransportOptions['serializer'];
   private [requestsMapKey]: Map<string, (value: unknown) => void> = new Map();
   private [listensMapKey]!: ListensMap;
-  private [originalListensMapKey]!: Record<string, Function>;
+  private [originalListensMapKey]!: Map<string, Function>;
   private [logKey]?: (listenOptions: ListenerOptions<any>) => void;
   private [verboseKey]: boolean;
   /**
@@ -68,7 +68,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
     logger,
   }: TransportOptions) {
     this[listensMapKey] = this[listensMapKey] ?? new Map();
-    this[originalListensMapKey] = this[originalListensMapKey] ?? {};
+    this[originalListensMapKey] = this[originalListensMapKey] ?? new Map();
     this[listenerKey] = listener.bind(this);
     this[senderKey] = sender.bind(this);
     this[timeoutKey] = timeout;
@@ -84,7 +84,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
           console.warn(`'${key}' is NOT a methods or function.`);
         }
       }
-      this[originalListensMapKey][key] = fn;
+      this[originalListensMapKey].set(key, fn);
       Object.assign(this, {
         [key]() {
           if (__DEV__) {
@@ -96,8 +96,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
       });
     });
 
-    Object.keys(this[originalListensMapKey]).forEach((name) => {
-      this[produceKey](name, this[originalListensMapKey][name]);
+    this[originalListensMapKey].forEach((value, name) => {
+      this[produceKey](name, value);
     });
 
     this[listenKey] = (options?: ListenerOptions) => {
@@ -206,7 +206,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
    */
   public listen<K extends keyof T['emit']>(name: K, fn: T['emit'][K]) {
     if (typeof name === 'string') {
-      if (this[originalListensMapKey][name]) {
+      if (this[originalListensMapKey].get(name)) {
         if (__DEV__) {
           console.warn(
             `Failed to listen to the event "${name}", the event "${name}" is already listened to.`
@@ -215,7 +215,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
         return;
       }
       if (typeof fn === 'function') {
-        this[originalListensMapKey][name] = fn;
+        this[originalListensMapKey].set(name, fn);
         this[produceKey](name, fn);
       } else {
         throw new Error(`The listener for event ${name} should be a function.`);
@@ -226,7 +226,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
       );
     }
     return () => {
-      delete this[originalListensMapKey][name];
+      this[originalListensMapKey].delete(name);
       const action = getAction(this[prefixKey]!, name);
       this[listensMapKey].delete(action);
     };

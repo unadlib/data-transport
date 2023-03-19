@@ -15,8 +15,8 @@ export const listen = (
       return descriptor;
     }
   }
-  target[originalListensMapKey] = target[originalListensMapKey] ?? {};
-  target[originalListensMapKey][key] = fn!;
+  target[originalListensMapKey] = target[originalListensMapKey] ?? new Map();
+  target[originalListensMapKey].set(key, fn!);
   return {
     ...descriptor,
     value(this: Transport) {
