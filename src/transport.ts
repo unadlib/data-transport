@@ -77,7 +77,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
     this[verboseKey] = verbose;
     this[logKey] = logger;
 
-    listenKeys.forEach((key) => {
+    new Set(listenKeys).forEach((key) => {
       const fn = ((this as any) as Record<string, Function>)[key];
       if (__DEV__) {
         if (typeof fn !== 'function') {
@@ -154,16 +154,18 @@ export abstract class Transport<T extends BaseInteraction = any> {
 
     const dispose = this[listenerKey](this[listenKey]);
 
-    this.dispose =
-      typeof dispose === 'function'
-        ? dispose
-        : () => {
-            if (__DEV__) {
-              console.warn(
-                `The return value of the the '${this.constructor.name}' transport's listener should be a 'dispose' function for removing the listener`
-              );
-            }
-          };
+    this.dispose = () => {
+      if (typeof dispose === 'function') {
+        this[requestsMapKey].clear();
+        this[listensMapKey].clear();
+        this[originalListensMapKey].clear();
+        return dispose();
+      } else if (__DEV__) {
+        console.warn(
+          `The return value of the the '${this.constructor.name}' transport's listener should be a 'dispose' function for removing the listener`
+        );
+      }
+    };
   }
 
   private [produceKey]<K extends string, P extends Record<string, Function>>(
