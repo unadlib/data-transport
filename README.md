@@ -5,6 +5,12 @@
 
 A simple and responsible transport
 
+## Motivation
+
+Many front-end communication APIs based on JavaScript are almost one-way communication, and their communication interface are often different. In terms of communication interaction protocols, we need a common and responsive communication library that will help us communicate in any scenario very simply and easily. 
+
+And It is also very easy to mock to be used for testing, and it is also easy to design a common interface that is compatible with multiple communication APIs.
+
 ## Support Transport
 
 `data-transport` is a generic and responsible communication transporter
