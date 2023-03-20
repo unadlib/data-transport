@@ -29,7 +29,9 @@ module.exports = [
       filename: 'main.js',
     },
     devServer: {
-      writeToDisk: true,
+      devMiddleware: {
+        writeToDisk: true,
+      },
     },
   },
   {
