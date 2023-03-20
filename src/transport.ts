@@ -48,7 +48,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
   private [serializerKey]: TransportOptions['serializer'];
   private [requestsMapKey]: Map<string, (value: unknown) => void> = new Map();
   private [listensMapKey]!: ListensMap;
-  private [originalListensMapKey]!: Record<string, Function>;
+  private [originalListensMapKey]!: Map<string, Function>;
   private [logKey]?: (listenOptions: ListenerOptions<any>) => void;
   private [verboseKey]: boolean;
   /**
@@ -67,8 +67,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
     serializer,
     logger,
   }: TransportOptions) {
-    this[listensMapKey] = this[listensMapKey] ?? {};
-    this[originalListensMapKey] = this[originalListensMapKey] ?? {};
+    this[listensMapKey] = this[listensMapKey] ?? new Map();
+    this[originalListensMapKey] = this[originalListensMapKey] ?? new Map();
     this[listenerKey] = listener.bind(this);
     this[senderKey] = sender.bind(this);
     this[timeoutKey] = timeout;
@@ -77,14 +77,14 @@ export abstract class Transport<T extends BaseInteraction = any> {
     this[verboseKey] = verbose;
     this[logKey] = logger;
 
-    listenKeys.forEach((key) => {
+    new Set(listenKeys).forEach((key) => {
       const fn = ((this as any) as Record<string, Function>)[key];
       if (__DEV__) {
         if (typeof fn !== 'function') {
           console.warn(`'${key}' is NOT a methods or function.`);
         }
       }
-      this[originalListensMapKey][key] = fn;
+      this[originalListensMapKey].set(key, fn);
       Object.assign(this, {
         [key]() {
           if (__DEV__) {
@@ -96,8 +96,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
       });
     });
 
-    Object.keys(this[originalListensMapKey]).forEach((name) => {
-      this[produceKey](name, this[originalListensMapKey][name]);
+    this[originalListensMapKey].forEach((value, name) => {
+      this[produceKey](name, value);
     });
 
     this[listenKey] = (options?: ListenerOptions) => {
@@ -128,7 +128,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
             }
           }
         } else if ((options as IRequest).type === transportType.request) {
-          const respond = this[listensMapKey][options.action];
+          const respond = this[listensMapKey].get(options.action);
           if (typeof respond === 'function') {
             const { request } = options as IRequest;
             respond(
@@ -154,16 +154,18 @@ export abstract class Transport<T extends BaseInteraction = any> {
 
     const dispose = this[listenerKey](this[listenKey]);
 
-    this.dispose =
-      typeof dispose === 'function'
-        ? dispose
-        : () => {
-            if (__DEV__) {
-              console.warn(
-                `The return value of the the '${this.constructor.name}' transport's listener should be a 'dispose' function for removing the listener`
-              );
-            }
-          };
+    this.dispose = () => {
+      if (typeof dispose === 'function') {
+        this[requestsMapKey].clear();
+        this[listensMapKey].clear();
+        this[originalListensMapKey].clear();
+        return dispose();
+      } else if (__DEV__) {
+        console.warn(
+          `The return value of the the '${this.constructor.name}' transport's listener should be a 'dispose' function for removing the listener`
+        );
+      }
+    };
   }
 
   private [produceKey]<K extends string, P extends Record<string, Function>>(
@@ -172,28 +174,30 @@ export abstract class Transport<T extends BaseInteraction = any> {
   ) {
     // https://github.com/microsoft/TypeScript/issues/40465
     const action = getAction(this[prefixKey]!, name);
-    this[listensMapKey][action] = async (
-      request,
-      { hasRespond, transportId, request: _, ...args }
-    ) => {
-      if (typeof fn === 'function') {
-        const response: Response<P[K]> = await fn.apply(this, request);
-        if (!hasRespond) return;
-        this[senderKey]({
-          ...args,
-          action,
-          response: (typeof response !== 'undefined' &&
-          this[serializerKey]?.stringify
-            ? this[serializerKey]!.stringify!(response)
-            : response) as string | undefined,
-          hasRespond,
-          [transportKey]: transportId,
-          type: transportType.response,
-        });
-      } else {
-        throw new Error(`The listener for event ${name} should be a function.`);
+    this[listensMapKey].set(
+      action,
+      async (request, { hasRespond, transportId, request: _, ...args }) => {
+        if (typeof fn === 'function') {
+          const response: Response<P[K]> = await fn.apply(this, request);
+          if (!hasRespond) return;
+          this[senderKey]({
+            ...args,
+            action,
+            response: (typeof response !== 'undefined' &&
+            this[serializerKey]?.stringify
+              ? this[serializerKey]!.stringify!(response)
+              : response) as string | undefined,
+            hasRespond,
+            [transportKey]: transportId,
+            type: transportType.response,
+          });
+        } else {
+          throw new Error(
+            `The listener for event ${name} should be a function.`
+          );
+        }
       }
-    };
+    );
   }
 
   /**
@@ -204,7 +208,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
    */
   public listen<K extends keyof T['emit']>(name: K, fn: T['emit'][K]) {
     if (typeof name === 'string') {
-      if (this[originalListensMapKey][name]) {
+      if (this[originalListensMapKey].get(name)) {
         if (__DEV__) {
           console.warn(
             `Failed to listen to the event "${name}", the event "${name}" is already listened to.`
@@ -213,7 +217,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
         return;
       }
       if (typeof fn === 'function') {
-        this[originalListensMapKey][name] = fn;
+        this[originalListensMapKey].set(name, fn);
         this[produceKey](name, fn);
       } else {
         throw new Error(`The listener for event ${name} should be a function.`);
@@ -224,9 +228,9 @@ export abstract class Transport<T extends BaseInteraction = any> {
       );
     }
     return () => {
-      delete this[originalListensMapKey][name];
+      this[originalListensMapKey].delete(name);
       const action = getAction(this[prefixKey]!, name);
-      delete this[listensMapKey][action];
+      this[listensMapKey].delete(action);
     };
   }
 
@@ -275,10 +279,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
       [transportKey]: transportId,
     };
     if (!hasRespond) {
-      return new Promise((resolve) => {
-        this[senderKey](data);
-        resolve(undefined as Response<T['listen'][K]>);
-      });
+      this[senderKey](data);
+      return Promise.resolve(undefined as Response<T['listen'][K]>);
     }
     let timeoutId: NodeJS.Timeout | number;
     const promise = Promise.race<any>([
