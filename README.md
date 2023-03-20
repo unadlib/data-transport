@@ -7,9 +7,9 @@ A simple and responsible transport
 
 ## Motivation
 
-Many front-end communication APIs based on JavaScript are almost one-way communication, and their communication interface are often different. In terms of communication interaction protocols, we need a common and responsive communication library that will help us communicate in any scenario very simply and easily. 
+Many front-end communication APIs based on JavaScript are almost one-way communication, and their communication interface are often different. In terms of communication interaction protocols, we need an universal and responsive communication library that will help us communicate in any scenario very simply and easily. 
 
-And It is also very easy to mock to be used for testing, and it is also easy to design a common interface that is compatible with multiple communication APIs.
+And It is also very easy to mock to be used for testing, and it is also easy to design an common interface that is compatible with multiple communication APIs.
 
 ## Support Transport
 
@@ -89,4 +89,6 @@ expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 
 ## Example
 
-[Online with Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
+- [More examples](./examples)
+
+- [Online with Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
