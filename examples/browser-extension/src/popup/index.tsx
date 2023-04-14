@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 import { BrowserExtensionsClientTransport } from 'data-transport';
 import { PopupToBackground } from '../interface';
 
-class PopupTransport extends BrowserExtensionsClientTransport<{ listen: PopupToBackground }> {
+class PopupTransport extends BrowserExtensionsClientTransport<{ emit: PopupToBackground }> {
   openClient() {
     this.emit(
       {

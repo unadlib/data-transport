@@ -1,9 +1,28 @@
 import { transportKey, transportType } from './constant';
+import { listen } from './decorators';
 
 export interface BaseInteraction {
   listen?: Record<string, (...args: any) => any>;
   emit?: Record<string, (...args: any) => any>;
 }
+
+export type MergeInteraction<
+  T extends BaseInteraction,
+  U extends BaseInteraction
+> = (T['listen'] extends undefined
+  ? U['listen'] extends undefined
+    ? never
+    : { listen: U['listen'] }
+  : U['listen'] extends undefined
+  ? { listen: T['listen'] }
+  : { listen: T['listen'] & U['listen'] }) &
+  (T['emit'] extends undefined
+    ? U['emit'] extends undefined
+      ? never
+      : { emit: U['emit'] }
+    : U['emit'] extends undefined
+    ? { emit: T['emit'] }
+    : { emit: T['emit'] & U['emit'] });
 
 export type Request<T> = T extends (...args: infer P) => any ? P : never;
 

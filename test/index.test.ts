@@ -8,8 +8,9 @@ test('base', async () => {
   const ports = mockPorts();
 
   class InternalTransport
-    extends Transport<{ listen: Internal }>
-    implements Internal {
+    extends Transport<{ emit: Internal }>
+    implements Internal
+  {
     constructor() {
       super(ports.main);
     }
@@ -49,8 +50,9 @@ test('base with `{ hasRespond: false }`', async () => {
   let mockInternalSend: (...args: any) => void;
 
   class InternalTransport
-    extends Transport<{ listen: Internal }>
-    implements Internal {
+    extends Transport<{ emit: Internal }>
+    implements Internal
+  {
     constructor() {
       super({
         listener: (callback) => {
@@ -104,7 +106,7 @@ test('base with two-way', async () => {
 
   type External = {
     help(options: { key: number }): Promise<{ text: string }>;
-  }
+  };
 
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
@@ -117,8 +119,9 @@ test('base with two-way', async () => {
   };
 
   class InternalTransport
-    extends Transport<{ listen: Internal }>
-    implements External, Internal {
+    extends Transport<{ emit: Internal }>
+    implements External, Internal
+  {
     constructor() {
       super({
         listener: (callback) => {
@@ -148,8 +151,9 @@ test('base with two-way', async () => {
   }
 
   class ExternalTransport
-    extends Transport<{ listen: External }>
-    implements External, Internal {
+    extends Transport<{ emit: External }>
+    implements External, Internal
+  {
     constructor() {
       super({
         listener: (callback) => {
@@ -249,7 +253,10 @@ test('base with non-decorator', async () => {
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
 
-  class InternalTransport extends Transport<{ listen: Internal }> implements Internal {
+  class InternalTransport
+    extends Transport<{ emit: Internal }>
+    implements Internal
+  {
     constructor() {
       super({
         listener: (callback) => {
@@ -300,7 +307,10 @@ test('base with `undefined`', async () => {
   let mockExternalSend: (...args: any) => void;
   let mockInternalSend: (...args: any) => void;
 
-  class InternalTransport extends Transport<{ listen: Internal }> implements Internal {
+  class InternalTransport
+    extends Transport<{ emit: Internal }>
+    implements Internal
+  {
     constructor() {
       super({
         listener: (callback) => {
@@ -348,11 +358,11 @@ test('base with createTransport', async () => {
 
   const ports = mockPorts();
 
-  const internal: Transport<{ listen: Internal }> = createTransport(
+  const internal: Transport<{ emit: Internal }> = createTransport(
     'Base',
     ports.main
   );
-  const external: Transport<{ emit: Internal }> = createTransport(
+  const external: Transport<{ listen: Internal }> = createTransport(
     'Base',
     ports.create()
   );

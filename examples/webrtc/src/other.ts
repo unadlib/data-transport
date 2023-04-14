@@ -2,7 +2,7 @@ import { WebRTCTransport, listen } from 'data-transport';
 import SimplePeer from 'simple-peer';
 import { Other, Main } from './interface';
 
-class OtherTransport extends WebRTCTransport<{ listen: Other }> implements Main {
+class OtherTransport extends WebRTCTransport<{ emit: Other }> implements Main {
   @listen
   async help(options: { text: string }) {
     console.log('receive help', options);

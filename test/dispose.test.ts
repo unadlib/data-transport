@@ -7,11 +7,11 @@ test('dispose in base transport', async () => {
 
   const ports = mockPorts();
 
-  const internal: Transport<{ listen: Internal }> = createTransport(
+  const internal: Transport<{ emit: Internal }> = createTransport(
     'Base',
     ports.main
   );
-  const external: Transport<{ emit: Internal }> = createTransport(
+  const external: Transport<{ listen: Internal }> = createTransport(
     'Base',
     ports.create()
   );

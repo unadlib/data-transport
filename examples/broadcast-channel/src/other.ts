@@ -2,7 +2,7 @@ import { Transport, listen } from 'data-transport';
 import { BroadcastChannel } from 'broadcast-channel';
 import { Other, Main } from './interface';
 
-class OtherTransport extends Transport<{ listen: Other }> implements Main {
+class OtherTransport extends Transport<{ emit: Other }> implements Main {
   @listen
   async help(options: { text: string }) {
     return {
@@ -21,7 +21,7 @@ const broadcastChannel = new BroadcastChannel('broadcastChannel_test');
 const useOtherTransport = () =>
   new OtherTransport({
     listener: (callback) => {
-      broadcastChannel.onmessage = (data) => {
+      broadcastChannel.onmessage = (data: any) => {
         callback(data);
       };
     },

@@ -78,7 +78,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
     this[logKey] = logger;
 
     new Set(listenKeys).forEach((key) => {
-      const fn = ((this as any) as Record<string, Function>)[key];
+      const fn = (this as any as Record<string, Function>)[key];
       if (__DEV__) {
         if (typeof fn !== 'function') {
           console.warn(`'${key}' is NOT a methods or function.`);
@@ -206,7 +206,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
    * @param name A transport action as listen message data action type
    * @param fn A transport listener
    */
-  public listen<K extends keyof T['emit']>(name: K, fn: T['emit'][K]) {
+  public listen<K extends keyof T['listen']>(name: K, fn: T['listen'][K]) {
     if (typeof name === 'string') {
       if (this[originalListensMapKey].get(name)) {
         if (__DEV__) {
@@ -242,10 +242,10 @@ export abstract class Transport<T extends BaseInteraction = any> {
    *
    * @returns Return a response for the request.
    */
-  public async emit<K extends keyof T['listen']>(
+  public async emit<K extends keyof T['emit']>(
     options: EmitOptions<K>,
-    ...request: Request<T['listen'][K]>
-  ): Promise<Response<T['listen'][K]>> {
+    ...request: Request<T['emit'][K]>
+  ): Promise<Response<T['emit'][K]>> {
     const params =
       typeof options === 'object' ? options : ({} as EmitParameter<K>);
     const hasRespond = params.respond ?? true;
@@ -280,7 +280,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
     };
     if (!hasRespond) {
       this[senderKey](data);
-      return Promise.resolve(undefined as Response<T['listen'][K]>);
+      return Promise.resolve(undefined as Response<T['emit'][K]>);
     }
     let timeoutId: NodeJS.Timeout | number;
     const promise = Promise.race<any>([

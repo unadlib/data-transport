@@ -7,11 +7,11 @@ test('prefix in base transport', async () => {
 
   const ports = mockPorts();
 
-  const internal: Transport<{ listen: Internal }> = createTransport('Base', {
+  const internal: Transport<{ emit: Internal }> = createTransport('Base', {
     ...ports.main,
     prefix: 'internal',
   });
-  const external: Transport<{ emit: Internal }> = createTransport('Base', {
+  const external: Transport<{ listen: Internal }> = createTransport('Base', {
     ...ports.create(),
     prefix: 'external',
   });

@@ -19,10 +19,10 @@ test('base multiple transport', async () => {
   fn1.mockImplementation((data) => data);
 
   const internal: Transport<{
-    listen: Internal;
-    emit: External;
+    emit: Internal;
+    listen: External;
   }> = createTransport('Base', ports.main);
-  const external0: Transport<{ emit: Internal }> = createTransport(
+  const external0: Transport<{ listen: Internal }> = createTransport(
     'Base',
     ports.create()
   );
@@ -32,8 +32,8 @@ test('base multiple transport', async () => {
     })
   );
   const external1: Transport<{
-    listen: External;
-    emit: Internal;
+    emit: External;
+    listen: Internal;
   }> = createTransport('Base', ports.create());
   external1.listen('hello', async (options, word) =>
     fn1({

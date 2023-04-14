@@ -1,4 +1,10 @@
-import { Transport, createTransport, mockPorts, merge } from '../src';
+import {
+  Transport,
+  createTransport,
+  mockPorts,
+  merge,
+  MergeInteraction,
+} from '../src';
 
 test('base merge transport by main', async () => {
   type Internal0 = {
@@ -20,23 +26,27 @@ test('base merge transport by main', async () => {
   fn1.mockImplementation((data) => data);
 
   const ports0 = mockPorts();
-  const internal0: Transport<{ listen: Internal0 }> = createTransport(
+  const internal0: Transport<{ emit: Internal0 }> = createTransport(
     'Base',
     ports0.main
   );
-  const external0: Transport<{
-    listen: External;
-    emit: Internal0;
-  }> = createTransport('Base', ports0.create());
+  type External0Interaction = {
+    emit: External;
+    listen: Internal0;
+  };
+  const external0: Transport<External0Interaction> = createTransport(
+    'Base',
+    ports0.create()
+  );
 
   const ports1 = mockPorts();
-  const internal1: Transport<{ listen: Internal1 }> = createTransport(
+  const internal1: Transport<{ emit: Internal1 }> = createTransport(
     'Base',
     ports1.main
   );
   const external1: Transport<{
-    listen: External;
-    emit: Internal1;
+    emit: External;
+    listen: Internal1;
   }> = createTransport('Base', ports1.create());
 
   external0.listen('hello', async (options, word) =>
@@ -51,10 +61,14 @@ test('base merge transport by main', async () => {
     })
   );
 
-  const internal: Transport<{
-    listen: Internal0 & Internal1;
-    emit: External;
-  }> = merge(internal0, internal1);
+  const internal: Transport<
+    MergeInteraction<
+      External0Interaction,
+      {
+        emit: Internal1;
+      }
+    >
+  > = merge(internal0, internal1);
 
   internal.listen('hello', async (options, word) => ({
     text: `hello, ${options.num} ${word}`,
