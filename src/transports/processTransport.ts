@@ -13,22 +13,23 @@ export interface MainProcessTransportOptions extends Partial<TransportOptions> {
 export class MainProcessTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    child,
-    listener = (callback) => {
-      const handler = (data: ListenerOptions) => {
-        callback(data);
-      };
-      child.on('message', handler);
-      return () => {
-        child.off('message', handler);
-      };
-    },
-    sender = (message) => {
-      child.send(message);
-    },
-    ...options
-  }: MainProcessTransportOptions) {
+  constructor(_options: MainProcessTransportOptions) {
+    const {
+      child,
+      listener = (callback) => {
+        const handler = (data: ListenerOptions) => {
+          callback(data);
+        };
+        child.on('message', handler);
+        return () => {
+          child.off('message', handler);
+        };
+      },
+      sender = (message) => {
+        child.send(message);
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,
@@ -45,22 +46,23 @@ export interface ChildProcessTransportOptions
 export class ChildProcessTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    listener = (callback) => {
-      const handler = (data: ListenerOptions) => {
-        callback(data);
-      };
-      process.on('message', handler);
-      return () => {
-        process.off('message', handler);
-      };
-    },
-    sender = (message) => {
-      // @ts-ignore
-      process.send(message);
-    },
-    ...options
-  }: ChildProcessTransportOptions = {}) {
+  constructor(_options: ChildProcessTransportOptions = {}) {
+    const {
+      listener = (callback) => {
+        const handler = (data: ListenerOptions) => {
+          callback(data);
+        };
+        process.on('message', handler);
+        return () => {
+          process.off('message', handler);
+        };
+      },
+      sender = (message) => {
+        // @ts-ignore
+        process.send(message);
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,

@@ -60,27 +60,28 @@ const encode = (data: any, useOnSafari: boolean) => {
 export abstract class ServiceWorkerClientTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    worker,
-    useOnSafari = DEFAULT_USE_ON_SAFARI,
-    listener = (callback) => {
-      const handler = ({
-        data,
-      }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
-        callback(encode(data, useOnSafari));
-      };
-      navigator.serviceWorker.addEventListener('message', handler);
-      return () => {
-        navigator.serviceWorker.removeEventListener('message', handler);
-      };
-    },
-    sender = (message) => {
-      const transfer = message.transfer ?? [];
-      delete message.transfer;
-      worker.postMessage(message, transfer);
-    },
-    ...options
-  }: ServiceWorkerClientTransportOptions) {
+  constructor(_options: ServiceWorkerClientTransportOptions) {
+    const {
+      worker,
+      useOnSafari = DEFAULT_USE_ON_SAFARI,
+      listener = (callback) => {
+        const handler = ({
+          data,
+        }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
+          callback(encode(data, useOnSafari));
+        };
+        navigator.serviceWorker.addEventListener('message', handler);
+        return () => {
+          navigator.serviceWorker.removeEventListener('message', handler);
+        };
+      },
+      sender = (message) => {
+        const transfer = message.transfer ?? [];
+        delete message.transfer;
+        worker.postMessage(message, transfer);
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,
@@ -92,42 +93,45 @@ export abstract class ServiceWorkerClientTransport<
 export abstract class ServiceWorkerServiceTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    useOnSafari = DEFAULT_USE_ON_SAFARI,
-    listener = (callback) => {
-      const handler = ({
-        data,
-        source,
-      }: MessageEvent<ListenerOptions<ServiceWorkerClientId>>) => {
-        // TODO: fix source type
-        data._clientId = (source as any).id as string;
-        callback(data);
-      };
-      addEventListener('message', handler);
-      return () => removeEventListener('message', handler);
-    },
-    sender = async (message) => {
-      const transfer = message.transfer || [];
-      delete message.transfer;
-      const data = decode(message, useOnSafari);
-      if (message._clientId) {
-        const client = await self.clients.get(message._clientId);
-        if (!client) {
-          console.warn(`The client "${message._clientId}" is closed.`);
+  constructor(_options: ServiceWorkerServiceTransportOptions = {}) {
+    const {
+      useOnSafari = DEFAULT_USE_ON_SAFARI,
+      listener = (callback) => {
+        const handler = ({
+          data,
+          source,
+        }: MessageEvent<ListenerOptions<ServiceWorkerClientId>>) => {
+          // TODO: fix source type
+          data._clientId = (source as any).id as string;
+          callback(data);
+        };
+        addEventListener('message', handler);
+        return () => removeEventListener('message', handler);
+      },
+      sender = async (message) => {
+        const transfer = message.transfer || [];
+        delete message.transfer;
+        const data = decode(message, useOnSafari);
+        if (message._clientId) {
+          const client = await self.clients.get(message._clientId);
+          if (!client) {
+            console.warn(`The client "${message._clientId}" is closed.`);
+            return;
+          }
+          delete message._clientId;
+          client.postMessage(data, transfer);
           return;
         }
-        delete message._clientId;
-        client.postMessage(data, transfer);
-        return;
-      }
 
-      // TODO: select a client for sender.
-      self.clients
-        .matchAll()
-        .then((all) => all.map((client) => client.postMessage(data, transfer)));
-    },
-    ...options
-  }: ServiceWorkerServiceTransportOptions = {}) {
+        // TODO: select a client for sender.
+        self.clients
+          .matchAll()
+          .then((all) =>
+            all.map((client) => client.postMessage(data, transfer))
+          );
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,

@@ -36,27 +36,28 @@ export abstract class SharedWorkerMainTransport<T extends BaseInteraction = any>
    */
   protected onConnect?(): void;
 
-  constructor({
-    worker,
-    listener = (callback) => {
-      const handler = ({
-        data,
-      }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
-        callback(data);
-      };
-      worker.port.addEventListener('message', handler);
-      worker.port.start();
-      return () => {
-        worker.port.removeEventListener('message', handler);
-      };
-    },
-    sender = (message) => {
-      const transfer = message.transfer ?? [];
-      delete message.transfer;
-      worker.port.postMessage(message, transfer);
-    },
-    ...options
-  }: SharedWorkerMainTransportOptions) {
+  constructor(_options: SharedWorkerMainTransportOptions) {
+    const {
+      worker,
+      listener = (callback) => {
+        const handler = ({
+          data,
+        }: MessageEvent<ListenerOptions<TransferableWorker>>) => {
+          callback(data);
+        };
+        worker.port.addEventListener('message', handler);
+        worker.port.start();
+        return () => {
+          worker.port.removeEventListener('message', handler);
+        };
+      },
+      sender = (message) => {
+        const transfer = message.transfer ?? [];
+        delete message.transfer;
+        worker.port.postMessage(message, transfer);
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,
@@ -85,33 +86,34 @@ export abstract class SharedWorkerInternalTransport<
   protected ports = new Set<MessagePort>();
   private [callbackKey]!: (options: ListenerOptions<SharedWorkerPort>) => void;
 
-  constructor({
-    listener = function (this: SharedWorkerInternalTransport, callback) {
-      this[callbackKey] = callback;
-      return () => {
-        this.ports.forEach((port: SharedWorkerTransportPort) => {
-          port._handler && port.removeEventListener('message', port._handler);
-          delete port._handler;
-        });
-        self.close();
-      };
-    },
-    sender = (message) => {
-      const transfer = message.transfer ?? [];
-      delete message.transfer;
-      const port = message._port;
-      if (port) {
-        delete message._port;
-        port.postMessage(message, transfer);
-      } else {
-        // TODO: select a client for sender.
-        this.ports.forEach((port) => {
+  constructor(_options: SharedWorkerInternalTransportOptions = {}) {
+    const {
+      listener = function (this: SharedWorkerInternalTransport, callback) {
+        this[callbackKey] = callback;
+        return () => {
+          this.ports.forEach((port: SharedWorkerTransportPort) => {
+            port._handler && port.removeEventListener('message', port._handler);
+            delete port._handler;
+          });
+          self.close();
+        };
+      },
+      sender = (message) => {
+        const transfer = message.transfer ?? [];
+        delete message.transfer;
+        const port = message._port;
+        if (port) {
+          delete message._port;
           port.postMessage(message, transfer);
-        });
-      }
-    },
-    ...options
-  }: SharedWorkerInternalTransportOptions = {}) {
+        } else {
+          // TODO: select a client for sender.
+          this.ports.forEach((port) => {
+            port.postMessage(message, transfer);
+          });
+        }
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,

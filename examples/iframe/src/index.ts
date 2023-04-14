@@ -1,7 +1,7 @@
 import { IFrameTransport, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
-class MainTransport extends IFrameTransport.Main<{ listen: Main }> implements IFrame {
+class MainTransport extends IFrameTransport.Main<{ emit: Main }> implements IFrame {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;

@@ -2,7 +2,7 @@ import { SharedWorkerTransport, listen } from 'data-transport';
 import { Main, Worker } from './interface';
 
 class SharedWorkerTransportService
-  extends SharedWorkerTransport.Worker<{ listen: Worker }>
+  extends SharedWorkerTransport.Worker<{ emit: Worker }>
   implements Main {
   @listen
   async help(options: { text: string }) {

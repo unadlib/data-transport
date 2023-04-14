@@ -3,7 +3,10 @@ import * as path from 'path';
 import { ElectronTransport, listen } from 'data-transport';
 import { Renderer, Main } from './interface';
 
-class MainTransport extends ElectronTransport.Main<{ listen: Main }> implements Renderer {
+class MainTransport
+  extends ElectronTransport.Main<{ emit: Main }>
+  implements Renderer
+{
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;
@@ -24,7 +27,7 @@ function createWindow() {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
     },
     width: 800,
   });

@@ -55,39 +55,40 @@ export abstract class BrowserExtensionsGenericTransport<
 > extends Transport<T> {
   private [callbackKey]!: (options: ListenerOptions<SendResponse>) => void;
 
-  constructor({
-    browser = global.browser ?? global.chrome,
-    listener = function (this: BrowserExtensionsGenericTransport, callback) {
-      this[callbackKey] = callback;
-      const handler = (
-        data: ListenerOptions<SendResponse>,
-        sender: browser.runtime.MessageSender | chrome.runtime.MessageSender,
-        sendResponse: (response?: SendOptions<SendResponse>) => void
-      ) => {
-        data._sendResponse = sendResponse;
-        callback(data);
-      };
-      browser.runtime.onMessage.addListener(handler);
-      return () => {
-        browser.runtime.onMessage.removeListener(handler);
-      };
-    },
-    sender = function (this: BrowserExtensionsGenericTransport, message) {
-      if (message._sendResponse) {
-        const sendResponse = message._sendResponse;
-        delete message._sendResponse;
-        sendResponse(message);
-      } else {
-        // @ts-ignore
-        browser.runtime.sendMessage(
-          message,
-          {},
-          this[callbackKey] as (response: IRequest<SendResponse>) => void
-        );
-      }
-    },
-    ...options
-  }: BrowserExtensionsGenericTransportOptions = {}) {
+  constructor(_options: BrowserExtensionsGenericTransportOptions = {}) {
+    const {
+      browser = global.browser ?? global.chrome,
+      listener = function (this: BrowserExtensionsGenericTransport, callback) {
+        this[callbackKey] = callback;
+        const handler = (
+          data: ListenerOptions<SendResponse>,
+          sender: browser.runtime.MessageSender | chrome.runtime.MessageSender,
+          sendResponse: (response?: SendOptions<SendResponse>) => void
+        ) => {
+          data._sendResponse = sendResponse;
+          callback(data);
+        };
+        browser.runtime.onMessage.addListener(handler);
+        return () => {
+          browser.runtime.onMessage.removeListener(handler);
+        };
+      },
+      sender = function (this: BrowserExtensionsGenericTransport, message) {
+        if (message._sendResponse) {
+          const sendResponse = message._sendResponse;
+          delete message._sendResponse;
+          sendResponse(message);
+        } else {
+          // @ts-ignore
+          browser.runtime.sendMessage(
+            message,
+            {},
+            this[callbackKey] as (response: IRequest<SendResponse>) => void
+          );
+        }
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,
@@ -105,30 +106,31 @@ export abstract class BrowserExtensionsMainTransport<
     options: ListenerOptions<BrowserExtensionsMainPort>
   ) => void;
 
-  constructor({
-    browser = global.browser ?? global.chrome,
-    listener = function (this: BrowserExtensionsMainTransport, callback) {
-      this[callbackKey] = callback;
-      return () => {
-        this.ports.forEach((port) => {
-          port.disconnect();
-        });
-      };
-    },
-    sender = function (this: BrowserExtensionsMainTransport, message) {
-      const port = message._port;
-      if (port) {
-        delete message._port;
-        port.postMessage(message);
-      } else {
-        // TODO: select an assignable port
-        this.ports.forEach((port) => {
+  constructor(_options: BrowserExtensionsMainTransportOptions = {}) {
+    const {
+      browser = global.browser ?? global.chrome,
+      listener = function (this: BrowserExtensionsMainTransport, callback) {
+        this[callbackKey] = callback;
+        return () => {
+          this.ports.forEach((port) => {
+            port.disconnect();
+          });
+        };
+      },
+      sender = function (this: BrowserExtensionsMainTransport, message) {
+        const port = message._port;
+        if (port) {
+          delete message._port;
           port.postMessage(message);
-        });
-      }
-    },
-    ...options
-  }: BrowserExtensionsMainTransportOptions = {}) {
+        } else {
+          // TODO: select an assignable port
+          this.ports.forEach((port) => {
+            port.postMessage(message);
+          });
+        }
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,
@@ -154,23 +156,24 @@ export abstract class BrowserExtensionsMainTransport<
 export abstract class BrowserExtensionsClientTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    browser = global.browser ?? global.chrome,
-    port = browser.runtime.connect({ name: transportName }),
-    listener = (callback) => {
-      const handler = (options: object) => {
-        callback(options as ListenerOptions<{}>);
-      };
-      port.onMessage.addListener(handler);
-      return () => {
-        port.onMessage.removeListener(handler);
-      };
-    },
-    sender = (message) => {
-      port.postMessage(message);
-    },
-    ...options
-  }: BrowserExtensionsClientTransportOptions = {}) {
+  constructor(_options: BrowserExtensionsClientTransportOptions = {}) {
+    const {
+      browser = global.browser ?? global.chrome,
+      port = browser.runtime.connect({ name: transportName }),
+      listener = (callback) => {
+        const handler = (options: object) => {
+          callback(options as ListenerOptions<{}>);
+        };
+        port.onMessage.addListener(handler);
+        return () => {
+          port.onMessage.removeListener(handler);
+        };
+      },
+      sender = (message) => {
+        port.postMessage(message);
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,

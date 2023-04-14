@@ -1,4 +1,8 @@
-import type { BaseInteraction, ListenerOptions, TransportOptions } from '../interface';
+import type {
+  BaseInteraction,
+  ListenerOptions,
+  TransportOptions,
+} from '../interface';
 import { Transport } from '../transport';
 
 export interface MessageTransportOptions extends Partial<TransportOptions> {
@@ -12,21 +16,22 @@ export interface MessageTransportOptions extends Partial<TransportOptions> {
 abstract class MessageTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    targetOrigin = '*',
-    listener = (callback) => {
-      const handler = ({ data }: MessageEvent<ListenerOptions>) =>
-        callback(data);
-      window.addEventListener('message', handler);
-      return () => {
-        window.removeEventListener('message', handler);
-      };
-    },
-    sender = (message) => {
-      window.postMessage(message, targetOrigin);
-    },
-    ...options
-  }: MessageTransportOptions) {
+  constructor(_options: MessageTransportOptions) {
+    const {
+      targetOrigin = '*',
+      listener = (callback) => {
+        const handler = ({ data }: MessageEvent<ListenerOptions>) =>
+          callback(data);
+        window.addEventListener('message', handler);
+        return () => {
+          window.removeEventListener('message', handler);
+        };
+      },
+      sender = (message) => {
+        window.postMessage(message, targetOrigin);
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,

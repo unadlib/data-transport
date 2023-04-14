@@ -2,7 +2,7 @@ import { WorkerTransport, listen } from 'data-transport';
 import { Worker, Main } from './interface';
 
 class MainTransport
-  extends WorkerTransport.Main<{ listen: Main }>
+  extends WorkerTransport.Main<{ emit: Main }>
   implements Worker {
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });

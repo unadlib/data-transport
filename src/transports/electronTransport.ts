@@ -37,22 +37,23 @@ export interface ElectronRendererTransportOptions
 export abstract class ElectronMainTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    ipcMain,
-    browserWindow,
-    channel = defaultChannel,
-    listener = (callback) => {
-      const handler = (_: Electron.IpcMainEvent, data: ListenerOptions) => {
-        callback(data);
-      };
-      ipcMain.on(channel, handler);
-      return () => {
-        ipcMain.off(channel, handler);
-      };
-    },
-    sender = (message) => browserWindow.webContents.send(channel, message),
-    ...options
-  }: ElectronMainTransportOptions) {
+  constructor(_options: ElectronMainTransportOptions) {
+    const {
+      ipcMain,
+      browserWindow,
+      channel = defaultChannel,
+      listener = (callback) => {
+        const handler = (_: Electron.IpcMainEvent, data: ListenerOptions) => {
+          callback(data);
+        };
+        ipcMain.on(channel, handler);
+        return () => {
+          ipcMain.off(channel, handler);
+        };
+      },
+      sender = (message) => browserWindow.webContents.send(channel, message),
+      ...options
+    } = _options;
     super({
       ...options,
       listener,
@@ -64,21 +65,25 @@ export abstract class ElectronMainTransport<
 export abstract class ElectronRendererTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    ipcRenderer,
-    channel = defaultChannel,
-    listener = (callback) => {
-      const handler = (_: Electron.IpcRendererEvent, data: ListenerOptions) => {
-        callback(data);
-      };
-      ipcRenderer.on(channel, handler);
-      return () => {
-        ipcRenderer.off(channel, handler);
-      };
-    },
-    sender = (message) => ipcRenderer.send(channel, message),
-    ...options
-  }: ElectronRendererTransportOptions) {
+  constructor(_options: ElectronRendererTransportOptions) {
+    const {
+      ipcRenderer,
+      channel = defaultChannel,
+      listener = (callback) => {
+        const handler = (
+          _: Electron.IpcRendererEvent,
+          data: ListenerOptions
+        ) => {
+          callback(data);
+        };
+        ipcRenderer.on(channel, handler);
+        return () => {
+          ipcRenderer.off(channel, handler);
+        };
+      },
+      sender = (message) => ipcRenderer.send(channel, message),
+      ...options
+    } = _options;
     super({
       ...options,
       listener,

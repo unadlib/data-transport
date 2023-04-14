@@ -2,7 +2,7 @@ import { IFrameTransport, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
 class IFrameInternalTransport
-  extends IFrameTransport.IFrame<{ listen: IFrame }>
+  extends IFrameTransport.IFrame<{ emit: IFrame }>
   implements Main {
   @listen
   async help(options: { text: string }) {

@@ -29,32 +29,33 @@ export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
 export abstract class IFrameMainTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    iframe = undefined,
-    targetOrigin = '*',
-    listener = (callback) => {
-      const handler = ({ data, source }: MessageEvent<ListenerOptions>) => {
-        const contentWindow = iframe?.contentWindow ?? window.frames[0];
-        if (contentWindow && contentWindow === (source as any)) {
-          return callback(data);
+  constructor(_options: IFrameMainTransportOptions) {
+    const {
+      iframe = undefined,
+      targetOrigin = '*',
+      listener = (callback) => {
+        const handler = ({ data, source }: MessageEvent<ListenerOptions>) => {
+          const contentWindow = iframe?.contentWindow ?? window.frames[0];
+          if (contentWindow && contentWindow === (source as any)) {
+            return callback(data);
+          }
+        };
+        window.addEventListener('message', handler);
+        return () => {
+          window.removeEventListener('message', handler);
+        };
+      },
+      sender = (message) => {
+        if (iframe) {
+          iframe.contentWindow!.postMessage(message, targetOrigin);
+        } else if (window.frames[0]) {
+          window.frames[0].postMessage(message, targetOrigin);
+        } else {
+          console.error('The current page does not have any iframe elements');
         }
-      };
-      window.addEventListener('message', handler);
-      return () => {
-        window.removeEventListener('message', handler);
-      };
-    },
-    sender = (message) => {
-      if (iframe) {
-        iframe.contentWindow!.postMessage(message, targetOrigin);
-      } else if (window.frames[0]) {
-        window.frames[0].postMessage(message, targetOrigin);
-      } else {
-        console.error('The current page does not have any iframe elements');
-      }
-    },
-    ...options
-  }: IFrameMainTransportOptions) {
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,
@@ -66,19 +67,20 @@ export abstract class IFrameMainTransport<
 export abstract class IFrameInternalTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    targetOrigin = '*',
-    listener = (callback) => {
-      const handler = ({ data }: MessageEvent<ListenerOptions>) =>
-        callback(data);
-      window.addEventListener('message', handler);
-      return () => {
-        window.removeEventListener('message', handler);
-      };
-    },
-    sender = (message) => window.parent.postMessage(message, targetOrigin),
-    ...options
-  }: IFrameTransportInternalOptions = {}) {
+  constructor(_options: IFrameTransportInternalOptions = {}) {
+    const {
+      targetOrigin = '*',
+      listener = (callback) => {
+        const handler = ({ data }: MessageEvent<ListenerOptions>) =>
+          callback(data);
+        window.addEventListener('message', handler);
+        return () => {
+          window.removeEventListener('message', handler);
+        };
+      },
+      sender = (message) => window.parent.postMessage(message, targetOrigin),
+      ...options
+    } = _options;
     super({
       ...options,
       listener,

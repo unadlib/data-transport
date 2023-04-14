@@ -1,4 +1,8 @@
-import type { BaseInteraction, ListenerOptions, TransportOptions } from '../interface';
+import type {
+  BaseInteraction,
+  ListenerOptions,
+  TransportOptions,
+} from '../interface';
 import { Transport } from '../transport';
 
 const defaultChannel = '$$BroadcastChannel_Transport$$';
@@ -17,21 +21,22 @@ export interface BroadcastTransportOptions extends Partial<TransportOptions> {
 abstract class BroadcastTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  constructor({
-    channel = defaultChannel,
-    broadcastChannel = new BroadcastChannel(channel),
-    listener = (callback) => {
-      const handler = ({ data }: MessageEvent<ListenerOptions>) => {
-        callback(data);
-      };
-      broadcastChannel.addEventListener('message', handler);
-      return () => {
-        broadcastChannel.removeEventListener('message', handler);
-      };
-    },
-    sender = (message) => broadcastChannel.postMessage(message),
-    ...options
-  }: BroadcastTransportOptions = {}) {
+  constructor(_options: BroadcastTransportOptions = {}) {
+    const {
+      channel = defaultChannel,
+      broadcastChannel = new BroadcastChannel(channel),
+      listener = (callback) => {
+        const handler = ({ data }: MessageEvent<ListenerOptions>) => {
+          callback(data);
+        };
+        broadcastChannel.addEventListener('message', handler);
+        return () => {
+          broadcastChannel.removeEventListener('message', handler);
+        };
+      },
+      sender = (message) => broadcastChannel.postMessage(message),
+      ...options
+    } = _options;
     super({
       ...options,
       listener,

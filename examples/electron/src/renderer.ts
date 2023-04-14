@@ -3,7 +3,7 @@ import { ipcRenderer } from 'electron';
 import { Renderer, Main } from './interface';
 
 class RendererTransport
-  extends ElectronTransport.Renderer<{ listen: Renderer }>
+  extends ElectronTransport.Renderer<{ emit: Renderer }>
   implements Main {
   @listen
   async help(options: { text: string }) {

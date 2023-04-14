@@ -27,73 +27,74 @@ abstract class WebRTCTransport<
 > extends Transport<T> {
   private receiveBuffer = new Map<string, { data: any[]; timestamp: number }>();
 
-  constructor({
-    peer,
-    listener = (callback) => {
-      const handler = (data: string) => {
-        const message: WebRTCTransportSendOptions = JSON.parse(data);
+  constructor(_options: WebRTCTransportOptions) {
+    const {
+      peer,
+      listener = (callback) => {
+        const handler = (data: string) => {
+          const message: WebRTCTransportSendOptions = JSON.parse(data);
+          const key = Object.prototype.hasOwnProperty.call(message, 'request')
+            ? 'request'
+            : 'response';
+          const buffer = this.receiveBuffer.get(
+            message.__DATA_TRANSPORT_UUID__
+          ) ?? {
+            data: [],
+            timestamp: Date.now(),
+          };
+          this.receiveBuffer.set(message.__DATA_TRANSPORT_UUID__, buffer);
+          buffer.data[message.chunkId!] = message[key];
+          buffer.data.length = message.length!;
+          buffer.timestamp = Date.now();
+          const isComplete =
+            buffer.data.filter((item) => item).length === message.length;
+          if (isComplete) {
+            const data = JSON.parse(buffer.data.join(''));
+            message[key] = key === 'request' ? data : data[0];
+            delete message.length;
+            callback(message as ListenerOptions);
+            this.receiveBuffer.delete(message.__DATA_TRANSPORT_UUID__);
+            for (const [id, item] of this.receiveBuffer) {
+              if (Date.now() - item.timestamp > EXPIRED_TIME) {
+                this.receiveBuffer.delete(id);
+              }
+            }
+          }
+        };
+        peer.on('data', handler);
+        return () => {
+          peer.off('data', handler);
+        };
+      },
+      sender = (message: WebRTCTransportSendOptions) => {
         const key = Object.prototype.hasOwnProperty.call(message, 'request')
           ? 'request'
           : 'response';
-        const buffer = this.receiveBuffer.get(
-          message.__DATA_TRANSPORT_UUID__
-        ) ?? {
-          data: [],
-          timestamp: Date.now(),
-        };
-        this.receiveBuffer.set(message.__DATA_TRANSPORT_UUID__, buffer);
-        buffer.data[message.chunkId!] = message[key];
-        buffer.data.length = message.length!;
-        buffer.timestamp = Date.now();
-        const isComplete =
-          buffer.data.filter((item) => item).length === message.length;
-        if (isComplete) {
-          const data = JSON.parse(buffer.data.join(''));
-          message[key] = key === 'request' ? data : data[0];
-          delete message.length;
-          callback(message as ListenerOptions);
-          this.receiveBuffer.delete(message.__DATA_TRANSPORT_UUID__);
-          for (const [id, item] of this.receiveBuffer) {
-            if (Date.now() - item.timestamp > EXPIRED_TIME) {
-              this.receiveBuffer.delete(id);
-            }
-          }
+        message[key] = JSON.stringify(
+          key === 'request'
+            ? message.request
+            : typeof message.response !== 'undefined'
+            ? [message.response]
+            : []
+        );
+        let chunkId = 0;
+        const allChunksSize = Math.ceil(
+          (message[key] as string).length / MAX_CHUNK_SIZE
+        );
+        while ((message[key] as string).length > 0) {
+          const data = {
+            ...message,
+            [key]: (message[key] as string).slice(0, MAX_CHUNK_SIZE),
+            chunkId,
+            length: allChunksSize,
+          };
+          peer.send(JSON.stringify(data));
+          message[key] = (message[key] as string).slice(MAX_CHUNK_SIZE);
+          chunkId += 1;
         }
-      };
-      peer.on('data', handler);
-      return () => {
-        peer.off('data', handler);
-      };
-    },
-    sender = (message: WebRTCTransportSendOptions) => {
-      const key = Object.prototype.hasOwnProperty.call(message, 'request')
-        ? 'request'
-        : 'response';
-      message[key] = JSON.stringify(
-        key === 'request'
-          ? message.request
-          : typeof message.response !== 'undefined'
-          ? [message.response]
-          : []
-      );
-      let chunkId = 0;
-      const allChunksSize = Math.ceil(
-        (message[key] as string).length / MAX_CHUNK_SIZE
-      );
-      while ((message[key] as string).length > 0) {
-        const data = {
-          ...message,
-          [key]: (message[key] as string).slice(0, MAX_CHUNK_SIZE),
-          chunkId,
-          length: allChunksSize,
-        };
-        peer.send(JSON.stringify(data));
-        message[key] = (message[key] as string).slice(MAX_CHUNK_SIZE);
-        chunkId += 1;
-      }
-    },
-    ...options
-  }: WebRTCTransportOptions) {
+      },
+      ...options
+    } = _options;
     super({
       ...options,
       listener,
