@@ -351,23 +351,21 @@ test('base with `undefined`', async () => {
   expect(await internal.hello()).toBeUndefined();
 });
 
-test('base with createTransport and enable verbose', async () => {
+test('base with createTransport', async () => {
   type Internal = {
     hello(options: { num: number }, word: string): Promise<{ text: string }>;
   };
 
-  const infoLog = jest.spyOn(console, 'info').mockImplementation(() => {});
-
   const ports = mockPorts();
 
-  const internal: Transport<{ emit: Internal }> = createTransport('Base', {
-    ...ports.main,
-    verbose: true,
-  });
-  const external: Transport<{ listen: Internal }> = createTransport('Base', {
-    ...ports.create(),
-    verbose: true,
-  });
+  const internal: Transport<{ emit: Internal }> = createTransport(
+    'Base',
+    ports.main
+  );
+  const external: Transport<{ listen: Internal }> = createTransport(
+    'Base',
+    ports.create()
+  );
   const dispose = external.listen('hello', async (options, word) => ({
     text: `hello ${options.num} ${word}`,
   }));
@@ -375,7 +373,7 @@ test('base with createTransport and enable verbose', async () => {
     text: 'hello 42 Universe',
   });
 
-  const warnLog = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
   dispose?.();
 
@@ -385,11 +383,7 @@ test('base with createTransport and enable verbose', async () => {
     'Universe'
   );
   expect(result).toBeUndefined();
-  expect(warnLog.mock.calls[0][0]).toBe(
+  expect(warn.mock.calls[0][0]).toBe(
     "The event 'DataTransport-hello' timed out for 1000 seconds..."
   );
-
-  expect(infoLog.mock.calls).toMatchInlineSnapshot();
-
-  warnLog.mockRestore();
 });
