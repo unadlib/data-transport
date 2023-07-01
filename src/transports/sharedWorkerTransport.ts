@@ -9,15 +9,11 @@ import {
 import { getAction, Transport } from '../transport';
 
 declare var self: SharedWorkerGlobalScope;
-interface InternalToMain {
-  connect(): Promise<void>;
-}
-
 interface SharedWorkerPort extends TransferableWorker {
   _port?: MessagePort;
 }
 
-export interface SharedWorkerMainTransportOptions
+export interface SharedWorkerClientTransportOptions
   extends Partial<TransportOptions<TransferableWorker>> {
   /**
    * Pass a shared worker instance for data transport.
@@ -25,18 +21,19 @@ export interface SharedWorkerMainTransportOptions
   worker: SharedWorker;
 }
 
+type WorkerCallback = () => void | Promise<void>;
+type ClientCallback = (clientId: string) => void | Promise<void>;
+
+const connectEventName = 'sharedworker-connect';
+const disconnectEventName = 'sharedworker-disconnect';
+
 export interface SharedWorkerInternalTransportOptions
   extends Partial<TransportOptions<SharedWorkerPort>> {}
 
-export abstract class SharedWorkerMainTransport<T extends BaseInteraction = any>
-  extends Transport<T>
-  implements InternalToMain {
-  /**
-   * Define a connection listener.
-   */
-  protected onConnect?(): void;
-
-  constructor(_options: SharedWorkerMainTransportOptions) {
+export abstract class SharedWorkerClientTransport<
+  T extends BaseInteraction = any
+> extends Transport<T> {
+  constructor(_options: SharedWorkerClientTransportOptions) {
     const {
       worker,
       listener = (callback) => {
@@ -63,16 +60,28 @@ export abstract class SharedWorkerMainTransport<T extends BaseInteraction = any>
       listener,
       sender,
     });
-
     window.addEventListener('unload', () => {
       // @ts-ignore
-      this.emit({ name: 'sharedworker-disconnect', respond: false });
+      this.emit({ name: disconnectEventName, respond: false }, this.id);
+    });
+    // @ts-ignore
+    this.listen(connectEventName, async () => {
+      Promise.resolve().then(() => {
+        this._onConnectCallback.forEach((callback) => {
+          callback();
+        });
+      });
+      return this.id;
     });
   }
 
-  @listen
-  async connect() {
-    this.onConnect?.();
+  private _onConnectCallback = new Set<WorkerCallback>();
+
+  onConnect(callback: WorkerCallback) {
+    this._onConnectCallback.add(callback);
+    return () => {
+      this._onConnectCallback.delete(callback);
+    };
   }
 }
 
@@ -82,8 +91,8 @@ interface SharedWorkerTransportPort extends MessagePort {
 
 export abstract class SharedWorkerInternalTransport<
   T extends BaseInteraction = any
-> extends Transport<{ listen: T['listen'] & InternalToMain; emit: T['emit'] }> {
-  protected ports = new Set<MessagePort>();
+> extends Transport<T> {
+  protected ports = new Map<string, MessagePort>();
   private [callbackKey]!: (options: ListenerOptions<SharedWorkerPort>) => void;
 
   constructor(_options: SharedWorkerInternalTransportOptions = {}) {
@@ -101,12 +110,20 @@ export abstract class SharedWorkerInternalTransport<
       sender = (message) => {
         const transfer = message.transfer ?? [];
         delete message.transfer;
-        const port = message._port;
+        const port = message._extra?._port;
+        // pick a client port for sender.
         if (port) {
-          delete message._port;
+          delete message._extra!._port;
+          port.postMessage(message, transfer);
+        } else if (
+          message.type === 'response' &&
+          // @ts-ignore
+          this.ports.has(message.requestId)
+        ) {
+          // @ts-ignore
+          const port = this.ports.get(message.requestId)!;
           port.postMessage(message, transfer);
         } else {
-          // TODO: select a client for sender.
           this.ports.forEach((port) => {
             port.postMessage(message, transfer);
           });
@@ -119,20 +136,29 @@ export abstract class SharedWorkerInternalTransport<
       listener,
       sender,
     });
-    self.onconnect = (e) => {
+
+    const disconnectActionName = getAction(
+      this[prefixKey]!,
+      disconnectEventName
+    );
+    self.addEventListener('connect', async (e) => {
       const port: SharedWorkerTransportPort = e.ports[0];
-      this.ports.add(port);
       port._handler = ({
         data,
       }: MessageEvent<ListenerOptions<SharedWorkerPort>>) => {
         if (data.hasRespond) {
-          data._port = port;
+          data._extra = data._extra ?? {};
+          data._extra._port = port;
         }
         if (
-          data.action === getAction(this[prefixKey]!, 'sharedworker-disconnect')
+          data.action === disconnectActionName &&
+          this.ports.has(data.requestId)
         ) {
-          // clear port when the port's client is disconnected.
-          this.ports.delete(port!);
+          // clear port and clientId when the port's client is disconnected.
+          this.ports.delete(data.requestId);
+          this._onDisconnectCallback.forEach((callback) => {
+            callback(data.requestId);
+          });
         }
         this[callbackKey](data);
       };
@@ -140,12 +166,38 @@ export abstract class SharedWorkerInternalTransport<
       port.start();
       // because parameters is unknown
       // @ts-ignore
-      this.emit({ name: 'connect', respond: false });
+      const id: string = await this.emit({
+        // @ts-ignore
+        name: connectEventName,
+        _extra: { _port: port },
+      });
+      this.ports.set(id, port);
+      this._onConnectCallback.forEach((callback) => {
+        callback(id);
+      });
+    });
+  }
+
+  private _onConnectCallback = new Set<ClientCallback>();
+
+  onConnect(callback: ClientCallback) {
+    this._onConnectCallback.add(callback);
+    return () => {
+      this._onConnectCallback.delete(callback);
+    };
+  }
+
+  private _onDisconnectCallback = new Set<ClientCallback>();
+
+  onDisconnect(callback: ClientCallback) {
+    this._onDisconnectCallback.add(callback);
+    return () => {
+      this._onDisconnectCallback.delete(callback);
     };
   }
 }
 
 export const SharedWorkerTransport = {
-  Main: SharedWorkerMainTransport,
+  Client: SharedWorkerClientTransport,
   Worker: SharedWorkerInternalTransport,
 };

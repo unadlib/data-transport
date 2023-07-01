@@ -1,9 +1,10 @@
 import { SharedWorkerTransport, listen } from 'data-transport';
-import { Main, Worker } from './interface';
+import { Client, Worker } from './interface';
 
 class SharedWorkerTransportService
   extends SharedWorkerTransport.Worker<{ emit: Worker }>
-  implements Main {
+  implements Client {
+
   @listen
   async help(options: { text: string }) {
     console.log('receive help', options);
@@ -18,4 +19,14 @@ class SharedWorkerTransportService
   }
 }
 
-(self as any).sharedWorkerTransportService = new SharedWorkerTransportService();
+(self as any).transport = new SharedWorkerTransportService({
+  verbose: true,
+});
+
+(self as any).transport.onConnect((id: string) => {
+  console.log('onConnect', id);
+});
+
+(self as any).transport.onDisconnect((id: string) => {
+  console.log('onDisconnect', id);
+});

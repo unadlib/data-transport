@@ -43,6 +43,10 @@ export interface EmitParameter<T> {
    * Timeout for the emitting event.
    */
   timeout?: number;
+  /**
+   * Extra data for the emitting event.
+   */
+  _extra?: Record<string, any>;
 }
 
 export type EmitOptions<T> = T | EmitParameter<T>;
@@ -54,6 +58,7 @@ interface Options {
   type: TransportType[keyof TransportType];
   [transportKey]: string;
   hasRespond: boolean;
+  _extra?: Record<string, any>;
 }
 
 export type SendOptions<T = {}> = T &
@@ -64,11 +69,14 @@ export type SendOptions<T = {}> = T &
 
 export type IRequest<T = {}> = T &
   Options & {
+    requestId: string;
     request: Request<any>;
   };
 
 export type IResponse<T = {}> = T &
   Options & {
+    requestId: string;
+    responseId: string;
     response: Response<any>;
   };
 
@@ -127,6 +135,7 @@ export type ListensMap = Map<
     options: {
       hasRespond: Options['hasRespond'];
       transportId: Options[typeof transportKey];
+      requestId: string;
       [key: string]: any;
     }
   ) => any

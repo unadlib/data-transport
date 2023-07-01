@@ -30,7 +30,7 @@ test('base merge transport by main', async () => {
     'WorkerInternal',
     'WebRTC',
     'Broadcast',
-    'SharedWorkerMain',
+    'SharedWorkerClient',
     'SharedWorkerInternal',
     'MainProcess',
     'ChildProcess',

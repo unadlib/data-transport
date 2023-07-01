@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid';
 import {
   listenerKey,
   originalListensMapKey,
@@ -27,6 +26,7 @@ import type {
   EmitParameter,
   BaseInteraction,
 } from './interface';
+import { generateId } from './utils';
 
 const DEFAULT_TIMEOUT = 60 * 1000;
 const DEFAULT_PREFIX = 'DataTransport';
@@ -180,7 +180,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
         if (typeof fn === 'function') {
           const response: Response<P[K]> = await fn.apply(this, request);
           if (!hasRespond) return;
-          this[senderKey]({
+          const data: IResponse = {
             ...args,
             action,
             response: (typeof response !== 'undefined' &&
@@ -190,7 +190,9 @@ export abstract class Transport<T extends BaseInteraction = any> {
             hasRespond,
             [transportKey]: transportId,
             type: transportType.response,
-          });
+            responseId: this.id,
+          };
+          this[senderKey](data);
         } else {
           throw new Error(
             `The listener for event ${name} should be a function.`
@@ -234,6 +236,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
     };
   }
 
+  public id = generateId();
+
   /**
    * Emit an event that transport data.
    *
@@ -251,42 +255,38 @@ export abstract class Transport<T extends BaseInteraction = any> {
     const hasRespond = params.respond ?? true;
     const timeout = params.timeout ?? this[timeoutKey];
     const name = params.name ?? options;
-    const transportId = uuid({
-      // In nodejs, crypto.getRandomValues() not supported.
-      // workaround: https://github.com/uuidjs/uuid/issues/375
-      rng() {
-        const randomNumbers: number[] = new Array(16);
-        let r;
-        for (let i = 0; i < 16; i++) {
-          if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-          randomNumbers[i] = ((r as number) >>> ((i & 0x03) << 3)) & 0xff;
-        }
-        return randomNumbers;
-      },
-    });
+    const transportId = generateId();
     if (__DEV__ && (!name || typeof name !== 'string')) {
       throw new Error(`The event name should be a string, and it's required.`);
     }
     const action = getAction(this[prefixKey]!, name as string);
-    const data = {
+    const rawRequestData: IRequest = {
+      ...(params._extra ? { _extra: params._extra } : {}),
       type: transportType.request,
       action,
-      request:
-        typeof request !== 'undefined' && this[serializerKey]?.stringify
-          ? this[serializerKey]!.stringify!(request)
-          : request,
+      request: (typeof request !== 'undefined' && this[serializerKey]?.stringify
+        ? this[serializerKey]!.stringify!(request)
+        : request) as unknown[],
       hasRespond,
       [transportKey]: transportId,
+      requestId: this.id,
     };
+    if (this[verboseKey]) {
+      if (typeof this[logKey] === 'function') {
+        this[logKey]!(rawRequestData);
+      } else {
+        console.info('DataTransport Send: ', rawRequestData);
+      }
+    }
     if (!hasRespond) {
-      this[senderKey](data);
+      this[senderKey](rawRequestData);
       return Promise.resolve(undefined as Response<T['emit'][K]>);
     }
     let timeoutId: NodeJS.Timeout | number;
     const promise = Promise.race<any>([
       new Promise((resolve) => {
         this[requestsMapKey].set(transportId, resolve);
-        this[senderKey](data);
+        this[senderKey](rawRequestData);
       }),
       new Promise((_, reject) => {
         timeoutId = setTimeout(() => {

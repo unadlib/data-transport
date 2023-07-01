@@ -1,18 +1,15 @@
 import { listen, SharedWorkerTransport } from 'data-transport';
-import { Main, Worker } from './interface';
+import { Client, Worker } from './interface';
 
-class MainTransport
-  extends SharedWorkerTransport.Main<{ emit: Main }>
-  implements Worker {
+class ClientTransport
+  extends SharedWorkerTransport.Client<{ emit: Client }>
+  implements Worker
+{
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     const div = document.createElement('div');
     div.innerText = `${new Date()}: ${response.text}`;
     document.body.appendChild(div);
-  }
-
-  onConnect() {
-    console.log('connect');
   }
 
   @listen
@@ -26,10 +23,18 @@ class MainTransport
 
 const worker = new SharedWorker('worker.bundle.js');
 
-(window as any).mainTransport = new MainTransport({
-  worker,
-});
+// just mock async load
+setTimeout(() => {
+  (window as any).transport = new ClientTransport({
+    worker,
+    verbose: true,
+  });
 
-document.getElementById('btn')?.addEventListener('click', () => {
-  (window as any).mainTransport.help();
-});
+  (window as any).transport.onConnect(() => {
+    console.log('onConnect');
+  });
+
+  document.getElementById('btn')?.addEventListener('click', () => {
+    (window as any).transport.help();
+  });
+}, 1000);

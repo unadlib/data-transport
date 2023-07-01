@@ -24,7 +24,7 @@ import {
   BrowserExtensionsGenericTransportOptions,
   SharedWorkerTransport,
   SharedWorkerInternalTransportOptions,
-  SharedWorkerMainTransportOptions,
+  SharedWorkerClientTransportOptions,
   MessageTransport,
   MessageTransportOptions,
   IFrameMainTransport,
@@ -35,7 +35,7 @@ import {
   ServiceWorkerServiceTransport,
   WorkerInternalTransport,
   WorkerMainTransport,
-  SharedWorkerMainTransport,
+  SharedWorkerClientTransport,
   SharedWorkerInternalTransport,
   ProcessTransport,
   MainProcessTransport,
@@ -60,7 +60,7 @@ interface TransportOptionsMap {
   WorkerInternal: WorkerInternalTransportOptions;
   WebRTC: WebRTCTransportOptions;
   Broadcast: BroadcastTransportOptions;
-  SharedWorkerMain: SharedWorkerMainTransportOptions;
+  SharedWorkerClient: SharedWorkerClientTransportOptions;
   SharedWorkerInternal: SharedWorkerInternalTransportOptions;
   Base: TransportOptions;
   MessageTransport: MessageTransportOptions;
@@ -73,7 +73,7 @@ interface Transports {
   MessageTransport: MessageTransport;
   IFrameMain: IFrameMainTransport;
   IFrameInternal: IFrameInternalTransport;
-  SharedWorkerMain: SharedWorkerMainTransport;
+  SharedWorkerClient: SharedWorkerClientTransport;
   SharedWorkerInternal: SharedWorkerInternalTransport;
   ServiceWorkerClient: ServiceWorkerClientTransport;
   ServiceWorkerService: ServiceWorkerServiceTransport;
@@ -106,7 +106,7 @@ const TransportMap = {
   WorkerInternal: WorkerTransport.Worker,
   WebRTC: WebRTCTransport,
   Broadcast: BroadcastTransport,
-  SharedWorkerMain: SharedWorkerTransport.Main,
+  SharedWorkerClient: SharedWorkerTransport.Client,
   SharedWorkerInternal: SharedWorkerTransport.Worker,
   MainProcess: ProcessTransport.Main,
   ChildProcess: ProcessTransport.Child,

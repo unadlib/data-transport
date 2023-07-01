@@ -1,4 +1,4 @@
-export type Main = {
+export type Client = {
   help(options: { text: string }): Promise<{ text: string }>;
 };
 

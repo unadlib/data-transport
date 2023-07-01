@@ -70,7 +70,7 @@ expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 - `MessageTransport`
 - `IFrameMainTransport`
 - `IFrameInternalTransport`
-- `SharedWorkerMainTransport`
+- `SharedWorkerClientTransport`
 - `SharedWorkerInternalTransport`
 - `ServiceWorkerClientTransport`
 - `ServiceWorkerServiceTransport`
