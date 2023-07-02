@@ -123,7 +123,12 @@ export abstract class ServiceWorkerServiceTransport<
           return;
         }
 
-        // TODO: select a client for sender.
+        const client = message._extra?._client;
+        if (client) {
+          delete message._extra!._client;
+          client.postMessage(data, transfer);
+          return;
+        }
         self.clients
           .matchAll()
           .then((all) =>
