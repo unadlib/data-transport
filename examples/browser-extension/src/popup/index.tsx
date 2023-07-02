@@ -10,18 +10,31 @@ class PopupTransport extends BrowserExtensionsClientTransport<{ emit: PopupToBac
         respond: false,
       },
       {
-        path: 'client.html',
+        path: 'option.html',
         features: 'width=300,height=600',
       }
     );
   }
 }
 
-const popupTransport = new PopupTransport({
+const transport = new PopupTransport({
   browser: browser as any,
+  verbose: true,
 });
 
 const button = document.getElementById('button');
 button!.addEventListener('click', () => {
-  popupTransport.openClient();
+  transport.openClient();
 });
+
+(global as any).transport = transport;
+
+transport.onConnect(() => {
+  console.log('connect');
+});
+
+// @ts-ignore
+transport.listen('a', () => {
+  console.log('a event in popup');
+});
+

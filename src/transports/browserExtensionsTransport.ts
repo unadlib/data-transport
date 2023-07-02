@@ -50,6 +50,9 @@ interface BrowserExtensionsMainPort {
   _port?: Port;
 }
 
+type ClientCallback = () => void | Promise<void>;
+type MainCallback = (clientId: string) => void | Promise<void>;
+
 export abstract class BrowserExtensionsGenericTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
@@ -97,10 +100,12 @@ export abstract class BrowserExtensionsGenericTransport<
   }
 }
 
+const connectEventName = 'sharedworker-connect';
+
 export abstract class BrowserExtensionsMainTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
-  protected ports = new Set<Port>();
+  protected ports = new Map<string, Port>();
 
   private [callbackKey]!: (
     options: ListenerOptions<BrowserExtensionsMainPort>
@@ -118,12 +123,19 @@ export abstract class BrowserExtensionsMainTransport<
         };
       },
       sender = function (this: BrowserExtensionsMainTransport, message) {
-        const port = message._port;
+        const port = message._extra?._port;
         if (port) {
           delete message._port;
           port.postMessage(message);
+        } else if (
+          message.type === 'response' &&
+          // @ts-ignore
+          this.ports.has(message.requestId)
+        ) {
+          // @ts-ignore
+          const port = this.ports.get(message.requestId)!;
+          port.postMessage(message);
         } else {
-          // TODO: select an assignable port
           this.ports.forEach((port) => {
             port.postMessage(message);
           });
@@ -136,20 +148,53 @@ export abstract class BrowserExtensionsMainTransport<
       listener,
       sender,
     });
-    browser.runtime.onConnect.addListener((port: Port) => {
+    browser.runtime.onConnect.addListener(async (port: Port) => {
       if (port.name === transportName) {
-        this.ports.add(port);
         const handler = (data: any) => {
-          data._port = port;
+          data._extra = data._extra ?? {};
+          data._extra._port = port;
           this[callbackKey](data as ListenerOptions<BrowserExtensionsMainPort>);
         };
         port.onMessage.addListener(handler);
         port.onDisconnect.addListener(() => {
           port.onMessage.removeListener(handler);
-          this.ports.delete(port);
+          this.ports.forEach((_port, id) => {
+            if (_port === port) {
+              this.ports.delete(id);
+            }
+          });
+        });
+
+        // @ts-ignore
+        const id: string = await this.emit({
+          // @ts-ignore
+          name: connectEventName,
+          _extra: { _port: port },
+        });
+        this.ports.set(id, port);
+        this._onConnectCallback.forEach((callback) => {
+          callback(id);
         });
       }
     });
+  }
+
+  private _onConnectCallback = new Set<MainCallback>();
+
+  onConnect(callback: MainCallback) {
+    this._onConnectCallback.add(callback);
+    return () => {
+      this._onConnectCallback.delete(callback);
+    };
+  }
+
+  private _onDisconnectCallback = new Set<MainCallback>();
+
+  onDisconnect(callback: MainCallback) {
+    this._onDisconnectCallback.add(callback);
+    return () => {
+      this._onDisconnectCallback.delete(callback);
+    };
   }
 }
 
@@ -179,6 +224,24 @@ export abstract class BrowserExtensionsClientTransport<
       listener,
       sender,
     });
+    // @ts-ignore
+    this.listen(connectEventName, async () => {
+      Promise.resolve().then(() => {
+        this._onConnectCallback.forEach((callback) => {
+          callback();
+        });
+      });
+      return this.id;
+    });
+  }
+
+  private _onConnectCallback = new Set<ClientCallback>();
+
+  onConnect(callback: ClientCallback) {
+    this._onConnectCallback.add(callback);
+    return () => {
+      this._onConnectCallback.delete(callback);
+    };
   }
 }
 

@@ -27,11 +27,18 @@ class BackgroundTransport
   }
 }
 
-const backgroundTransport = new BackgroundTransport({
+const transport = new BackgroundTransport({
   browser: browser as any,
 });
 
-(global as any).backgroundTransport = backgroundTransport;
+(global as any).transport = transport;
+
+transport.onConnect((id) => {
+  console.log('connect:', id);
+});
+
+// @ts-ignore
+transport.listen('contentToBg', async (a, b) => a);
 
 // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 //   //

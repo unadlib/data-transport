@@ -21,8 +21,8 @@ export interface SharedWorkerClientTransportOptions
   worker: SharedWorker;
 }
 
-type WorkerCallback = () => void | Promise<void>;
-type ClientCallback = (clientId: string) => void | Promise<void>;
+type ClientCallback = () => void | Promise<void>;
+type WorkerCallback = (clientId: string) => void | Promise<void>;
 
 const connectEventName = 'sharedworker-connect';
 const disconnectEventName = 'sharedworker-disconnect';
@@ -75,9 +75,9 @@ export abstract class SharedWorkerClientTransport<
     });
   }
 
-  private _onConnectCallback = new Set<WorkerCallback>();
+  private _onConnectCallback = new Set<ClientCallback>();
 
-  onConnect(callback: WorkerCallback) {
+  onConnect(callback: ClientCallback) {
     this._onConnectCallback.add(callback);
     return () => {
       this._onConnectCallback.delete(callback);
@@ -178,18 +178,18 @@ export abstract class SharedWorkerInternalTransport<
     });
   }
 
-  private _onConnectCallback = new Set<ClientCallback>();
+  private _onConnectCallback = new Set<WorkerCallback>();
 
-  onConnect(callback: ClientCallback) {
+  onConnect(callback: WorkerCallback) {
     this._onConnectCallback.add(callback);
     return () => {
       this._onConnectCallback.delete(callback);
     };
   }
 
-  private _onDisconnectCallback = new Set<ClientCallback>();
+  private _onDisconnectCallback = new Set<WorkerCallback>();
 
-  onDisconnect(callback: ClientCallback) {
+  onDisconnect(callback: WorkerCallback) {
     this._onDisconnectCallback.add(callback);
     return () => {
       this._onDisconnectCallback.delete(callback);
