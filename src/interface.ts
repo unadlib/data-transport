@@ -1,10 +1,14 @@
 import { transportKey, transportType } from './constant';
-import { listen } from './decorators';
 
 export interface BaseInteraction {
   listen?: Record<string, (...args: any) => any>;
   emit?: Record<string, (...args: any) => any>;
 }
+
+export type Reverse<T extends BaseInteraction> = {
+  emit: T['listen'];
+  listen: T['emit'];
+};
 
 export type MergeInteraction<
   T extends BaseInteraction,
