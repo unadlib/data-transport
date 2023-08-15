@@ -6,9 +6,8 @@ export const listensMapKey: unique symbol = Symbol('listensMap');
 export const serializerKey: unique symbol = Symbol('serializer');
 export const logKey: unique symbol = Symbol('log');
 export const verboseKey: unique symbol = Symbol('verbose');
-export const originalListensMapKey: unique symbol = Symbol(
-  'originalListensMap'
-);
+export const originalListensMapKey: unique symbol =
+  Symbol('originalListensMap');
 export const callbackKey: unique symbol = Symbol('callback');
 export const timeoutKey: unique symbol = Symbol('timeout');
 export const prefixKey: unique symbol = Symbol('prefix');

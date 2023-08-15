@@ -8,6 +8,7 @@
   "scripts": {
     "test": "jest",
     "clean": "rimraf dist",
+    "prettier": "prettier src --write",
     "build": "yarn clean && tsc --skipLibCheck && yarn build:prod && yarn build:dev",
     "build:prod": "NODE_ENV=production rollup --config",
     "build:dev": "NODE_ENV=development rollup --config",
