@@ -93,6 +93,7 @@ export abstract class SharedWorkerInternalTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
   protected ports = new Map<string, MessagePort>();
+  protected tempPorts = new Set<MessagePort>();
   private [callbackKey]!: (options: ListenerOptions<SharedWorkerPort>) => void;
 
   constructor(_options: SharedWorkerInternalTransportOptions = {}) {
@@ -125,6 +126,9 @@ export abstract class SharedWorkerInternalTransport<
           port.postMessage(message, transfer);
         } else {
           this.ports.forEach((port) => {
+            port.postMessage(message, transfer);
+          });
+          this.tempPorts.forEach((port) => {
             port.postMessage(message, transfer);
           });
         }
@@ -164,17 +168,24 @@ export abstract class SharedWorkerInternalTransport<
       };
       port.addEventListener('message', port._handler);
       port.start();
-      // because parameters is unknown
-      // @ts-ignore
-      const id: string = await this.emit({
+      this.tempPorts.add(port);
+      try {
+        // because parameters is unknown
         // @ts-ignore
-        name: connectEventName,
-        _extra: { _port: port },
-      });
-      this.ports.set(id, port);
-      this._onConnectCallback.forEach((callback) => {
-        callback(id);
-      });
+        const id: string = await this.emit({
+          // @ts-ignore
+          name: connectEventName,
+          _extra: { _port: port },
+        });
+        this.ports.set(id, port);
+        this.tempPorts.delete(port);
+        this._onConnectCallback.forEach((callback) => {
+          callback(id);
+        });
+      } catch (err) {
+        this.tempPorts.delete(port);
+        console.error(err);
+      }
     });
   }
 
