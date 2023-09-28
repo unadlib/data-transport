@@ -97,16 +97,12 @@ export abstract class ServiceWorkerServiceTransport<
     const {
       useOnSafari = DEFAULT_USE_ON_SAFARI,
       listener = (callback) => {
-        const handler = ({
-          data,
-          source,
-        }: MessageEvent<ListenerOptions<ServiceWorkerClientId>>) => {
-          // TODO: fix source type
-          data._clientId = (source as any).id as string;
+        const handler = ({ data, source }: ExtendableMessageEvent) => {
+          data._clientId = (source as Client).id as string;
           callback(data);
         };
-        addEventListener('message', handler);
-        return () => removeEventListener('message', handler);
+        self.addEventListener('message', handler);
+        return () => self.removeEventListener('message', handler);
       },
       sender = async (message) => {
         const transfer = message.transfer || [];

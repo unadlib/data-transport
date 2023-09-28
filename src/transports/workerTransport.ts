@@ -6,6 +6,10 @@ import type {
 } from '../interface';
 import { Transport } from '../transport';
 
+// follow issue: https://github.com/microsoft/TypeScript/issues/20595
+// workaround: `tsc --skipLibCheck`.
+declare var self: WorkerGlobalScope;
+
 export interface WorkerMainTransportOptions
   extends Partial<TransportOptions<TransferableWorker>> {
   /**
@@ -55,14 +59,12 @@ export abstract class WorkerInternalTransport<
   constructor(_options: WorkerInternalTransportOptions = {}) {
     const {
       listener = (callback) => {
-        const handler = ({ data }: MessageEvent<any>) => {
+        const handler = (({ data }: MessageEvent<any>) => {
           callback(data);
-        };
-        addEventListener('message', handler);
+        }) as EventListenerOrEventListenerObject;
+        self.addEventListener('message', handler);
         return () => {
-          // TODO: fix type
-          // @ts-ignore
-          removeListener('message', handler);
+          self.removeEventListener('message', handler);
         };
       },
       sender = (message) => {
