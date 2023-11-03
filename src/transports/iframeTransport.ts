@@ -28,18 +28,17 @@ export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
 }
 
 const connectEventName = 'iframe-connect';
-const disconnectEventName = 'iframe-disconnect';
 
 export abstract class IFrameMainTransport<
   T extends BaseInteraction = any
 > extends Transport<T> {
   constructor(_options: IFrameMainTransportOptions) {
     const {
-      iframe = undefined,
+      iframe = document.querySelector('iframe'),
       targetOrigin = '*',
       listener = (callback) => {
         const handler = ({ data, source }: MessageEvent<ListenerOptions>) => {
-          const contentWindow = iframe?.contentWindow ?? window.frames[0];
+          const contentWindow = iframe!.contentWindow;
           if (contentWindow && contentWindow === (source as any)) {
             return callback(data);
           }
@@ -82,8 +81,7 @@ export abstract class IFrameMainTransport<
       this[beforeEmitResolveKey]!();
       return true;
     });
-    // @ts-ignore
-    this.listen(disconnectEventName, async () => {
+    iframe!.addEventListener('load', () => {
       this[beforeEmitKey] = new Promise((resolve) => {
         this[beforeEmitResolveKey] = resolve;
       });
@@ -129,13 +127,6 @@ export abstract class IFrameInternalTransport<
     this.listen(connectEventName, async () => {
       this[beforeEmitResolveKey]!();
       return true;
-    });
-    window.addEventListener('unload', () => {
-      this.emit({
-        // @ts-ignore
-        name: disconnectEventName,
-        respond: false,
-      });
     });
   }
 }

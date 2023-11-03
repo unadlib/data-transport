@@ -1,7 +1,10 @@
 import { IFrameTransport, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
-class MainTransport extends IFrameTransport.Main<{ emit: Main }> implements IFrame {
+class MainTransport
+  extends IFrameTransport.Main<{ emit: Main }>
+  implements IFrame
+{
   async help() {
     const response = await this.emit('help', { text: 'SOS!!!' });
     return response;
@@ -31,7 +34,7 @@ const useMainTransport = (iframe: HTMLIFrameElement) =>
         console.error('The current page does not have any iframe elements');
       }
       window.postMessage(message, '*');
-    }
+    },
   });
 
 const init = async () => {
@@ -51,9 +54,14 @@ const init = async () => {
     document.body.appendChild(div);
   };
   button.onclick = handler;
+  iframe.addEventListener('load', () => {
+    console.log('iframe loaded');
+  });
   document.body.appendChild(button);
   setTimeout(async () => {
     mainTransport = useMainTransport(iframe);
+    // @ts-ignore
+    window.transport = mainTransport;
     await handler();
   }, 1000);
   return iframe;
