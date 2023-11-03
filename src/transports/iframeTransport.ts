@@ -81,7 +81,7 @@ export abstract class IFrameMainTransport<
       this[beforeEmitResolveKey]!();
       return true;
     });
-    iframe!.addEventListener('load', () => {
+    iframe?.addEventListener('load', () => {
       this[beforeEmitKey] = new Promise((resolve) => {
         this[beforeEmitResolveKey] = resolve;
       });
