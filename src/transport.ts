@@ -29,6 +29,8 @@ import type {
 import { generateId } from './utils';
 
 const DEFAULT_TIMEOUT = 60 * 1000;
+const DEFAULT_RESPOND = true;
+const DEFAULT_SILENT = false;
 const DEFAULT_PREFIX = 'DataTransport';
 
 export const getAction = (prefix: string, name: string) =>
@@ -252,7 +254,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
   ): Promise<Response<T['emit'][K]>> {
     const params =
       typeof options === 'object' ? options : ({} as EmitParameter<K>);
-    const hasRespond = params.respond ?? true;
+    const hasRespond = params.respond ?? DEFAULT_RESPOND;
+    const isSilent = params.silent ?? DEFAULT_SILENT;
     const timeout = params.timeout ?? this[timeoutKey];
     const name = params.name ?? options;
     const transportId = generateId();
@@ -305,6 +308,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
         clearTimeout(timeoutId as NodeJS.Timeout);
         this[requestsMapKey].delete(transportId);
         if (typeof error === 'undefined') {
+          if (isSilent) return;
           console.warn(
             `The event '${action}' timed out for ${timeout} seconds...`
           );

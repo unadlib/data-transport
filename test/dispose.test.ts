@@ -35,4 +35,14 @@ test('dispose in base transport', async () => {
   expect(warn.mock.calls[0][0]).toBe(
     "The event 'DataTransport-hello' timed out for 1001 seconds..."
   );
+  expect(warn.mock.calls.length).toBe(1);
+
+
+  const result1 = await internal.emit(
+    { name: 'hello', timeout: 1002, silent: true },
+    { num: 42 },
+    'Universe'
+  );
+  expect(result1).toBeUndefined();
+  expect(warn.mock.calls.length).toBe(1);
 });

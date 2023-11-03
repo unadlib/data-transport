@@ -40,17 +40,21 @@ export interface EmitParameter<T> {
    */
   name: T;
   /**
-   * Whether a response is required.
+   * Whether a response is required, true by default.
    */
   respond?: boolean;
   /**
-   * Timeout for the emitting event.
+   * Timeout for the emitting event, 60s by default.
    */
   timeout?: number;
   /**
    * Extra data for the emitting event.
    */
   _extra?: Record<string, any>;
+  /**
+   * silent for timeout error, false by default.
+   */
+  silent?: boolean;
 }
 
 export type EmitOptions<T> = T | EmitParameter<T>;
