@@ -13,6 +13,10 @@ export interface IFrameTransportInternalOptions
    * by default, it's the literal string "*" (indicating no preference).
    */
   targetOrigin?: string;
+  /**
+   * Whether skip connection check, false by default.
+   */
+  skipConnectionCheck?: boolean;
 }
 
 export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
@@ -25,6 +29,10 @@ export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
    * by default, it's the literal string "*" (indicating no preference).
    */
   targetOrigin?: string;
+  /**
+   * Whether skip connection check, false by default.
+   */
+  skipConnectionCheck?: boolean;
 }
 
 const connectEventName = 'iframe-connect';
@@ -57,6 +65,7 @@ export abstract class IFrameMainTransport<
           console.error('The current page does not have any iframe elements');
         }
       },
+      skipConnectionCheck,
       ...options
     } = _options;
     super({
@@ -64,28 +73,30 @@ export abstract class IFrameMainTransport<
       listener,
       sender,
     });
-    this.emit({
-      // @ts-ignore
-      name: connectEventName,
-      silent: true,
-    }).then((connected) => {
-      if (connected) {
-        this[beforeEmitResolveKey]!();
-      }
-    });
-    this[beforeEmitKey] = new Promise((resolve) => {
-      this[beforeEmitResolveKey] = resolve;
-    });
-    // @ts-ignore
-    this.listen(connectEventName, async () => {
-      this[beforeEmitResolveKey]!();
-      return true;
-    });
-    iframe?.addEventListener('load', () => {
+    if (!skipConnectionCheck) {
+      this.emit({
+        // @ts-ignore
+        name: connectEventName,
+        silent: true,
+      }).then((connected) => {
+        if (connected) {
+          this[beforeEmitResolveKey]!();
+        }
+      });
       this[beforeEmitKey] = new Promise((resolve) => {
         this[beforeEmitResolveKey] = resolve;
       });
-    });
+      // @ts-ignore
+      this.listen(connectEventName, async () => {
+        this[beforeEmitResolveKey]!();
+        return true;
+      });
+      iframe?.addEventListener('load', () => {
+        this[beforeEmitKey] = new Promise((resolve) => {
+          this[beforeEmitResolveKey] = resolve;
+        });
+      });
+    }
   }
 }
 
@@ -104,6 +115,7 @@ export abstract class IFrameInternalTransport<
         };
       },
       sender = (message) => window.parent.postMessage(message, targetOrigin),
+      skipConnectionCheck,
       ...options
     } = _options;
     super({
@@ -111,23 +123,25 @@ export abstract class IFrameInternalTransport<
       listener,
       sender,
     });
-    this.emit({
+    if (!skipConnectionCheck) {
+      this.emit({
+        // @ts-ignore
+        name: connectEventName,
+        silent: true,
+      }).then((connected) => {
+        if (connected) {
+          this[beforeEmitResolveKey]!();
+        }
+      });
+      this[beforeEmitKey] = new Promise((resolve) => {
+        this[beforeEmitResolveKey] = resolve;
+      });
       // @ts-ignore
-      name: connectEventName,
-      silent: true,
-    }).then((connected) => {
-      if (connected) {
+      this.listen(connectEventName, async () => {
         this[beforeEmitResolveKey]!();
-      }
-    });
-    this[beforeEmitKey] = new Promise((resolve) => {
-      this[beforeEmitResolveKey] = resolve;
-    });
-    // @ts-ignore
-    this.listen(connectEventName, async () => {
-      this[beforeEmitResolveKey]!();
-      return true;
-    });
+        return true;
+      });
+    }
   }
 }
 
