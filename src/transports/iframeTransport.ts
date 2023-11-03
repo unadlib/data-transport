@@ -1,3 +1,4 @@
+import { beforeEmitKey, beforeEmitResolveKey } from '../constant';
 import type {
   BaseInteraction,
   ListenerOptions,
@@ -25,6 +26,9 @@ export interface IFrameMainTransportOptions extends Partial<TransportOptions> {
    */
   targetOrigin?: string;
 }
+
+const connectEventName = 'iframe-connect';
+const disconnectEventName = 'iframe-disconnect';
 
 export abstract class IFrameMainTransport<
   T extends BaseInteraction = any
@@ -61,6 +65,29 @@ export abstract class IFrameMainTransport<
       listener,
       sender,
     });
+    this.emit({
+      // @ts-ignore
+      name: connectEventName,
+      silent: true,
+    }).then((connected) => {
+      if (connected) {
+        this[beforeEmitResolveKey]!();
+      }
+    });
+    this[beforeEmitKey] = new Promise((resolve) => {
+      this[beforeEmitResolveKey] = resolve;
+    });
+    // @ts-ignore
+    this.listen(connectEventName, async () => {
+      this[beforeEmitResolveKey]!();
+      return true;
+    });
+    // @ts-ignore
+    this.listen(disconnectEventName, async () => {
+      this[beforeEmitKey] = new Promise((resolve) => {
+        this[beforeEmitResolveKey] = resolve;
+      });
+    });
   }
 }
 
@@ -85,6 +112,30 @@ export abstract class IFrameInternalTransport<
       ...options,
       listener,
       sender,
+    });
+    this.emit({
+      // @ts-ignore
+      name: connectEventName,
+      silent: true,
+    }).then((connected) => {
+      if (connected) {
+        this[beforeEmitResolveKey]!();
+      }
+    });
+    this[beforeEmitKey] = new Promise((resolve) => {
+      this[beforeEmitResolveKey] = resolve;
+    });
+    // @ts-ignore
+    this.listen(connectEventName, async () => {
+      this[beforeEmitResolveKey]!();
+      return true;
+    });
+    window.addEventListener('unload', () => {
+      this.emit({
+        // @ts-ignore
+        name: disconnectEventName,
+        respond: false,
+      });
     });
   }
 }

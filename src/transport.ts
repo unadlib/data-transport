@@ -13,6 +13,8 @@ import {
   serializerKey,
   logKey,
   verboseKey,
+  beforeEmitKey,
+  beforeEmitResolveKey,
 } from './constant';
 import type {
   EmitOptions,
@@ -53,6 +55,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
   private [originalListensMapKey]!: Map<string, Function>;
   private [logKey]?: (listenOptions: ListenerOptions<any>) => void;
   private [verboseKey]: boolean;
+  protected [beforeEmitKey]?: Promise<void>;
+  protected  [beforeEmitResolveKey]?: () => void;
   /**
    * dispose transport
    */
@@ -274,6 +278,9 @@ export abstract class Transport<T extends BaseInteraction = any> {
       [transportKey]: transportId,
       requestId: this.id,
     };
+    if (this[beforeEmitKey]) {
+      await this[beforeEmitKey];
+    }
     if (this[verboseKey]) {
       if (typeof this[logKey] === 'function') {
         this[logKey]!(rawRequestData);
