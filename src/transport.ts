@@ -56,7 +56,7 @@ export abstract class Transport<T extends BaseInteraction = any> {
   private [logKey]?: (listenOptions: ListenerOptions<any>) => void;
   private [verboseKey]: boolean;
   protected [beforeEmitKey]?: Promise<void>;
-  protected  [beforeEmitResolveKey]?: () => void;
+  protected [beforeEmitResolveKey]?: () => void;
   /**
    * dispose transport
    */
@@ -278,9 +278,6 @@ export abstract class Transport<T extends BaseInteraction = any> {
       [transportKey]: transportId,
       requestId: this.id,
     };
-    if (this[beforeEmitKey]) {
-      await this[beforeEmitKey];
-    }
     if (this[verboseKey]) {
       if (typeof this[logKey] === 'function') {
         this[logKey]!(rawRequestData);
@@ -289,12 +286,18 @@ export abstract class Transport<T extends BaseInteraction = any> {
       }
     }
     if (!hasRespond) {
+      if (this[beforeEmitKey] && !params.skipBeforeEmit) {
+        await this[beforeEmitKey];
+      }
       this[senderKey](rawRequestData);
       return Promise.resolve(undefined as Response<T['emit'][K]>);
     }
     let timeoutId: NodeJS.Timeout | number;
     const promise = Promise.race<any>([
-      new Promise((resolve) => {
+      new Promise(async (resolve) => {
+        if (this[beforeEmitKey] && !params.skipBeforeEmit) {
+          await this[beforeEmitKey];
+        }
         this[requestsMapKey].set(transportId, resolve);
         this[senderKey](rawRequestData);
       }),

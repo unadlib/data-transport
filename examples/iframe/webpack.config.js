@@ -24,4 +24,7 @@ module.exports = {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  devServer: {
+    host: '0.0.0.0',
+  },
 };

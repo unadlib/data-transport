@@ -44,4 +44,11 @@ const init = () => {
   });
 };
 
+window.addEventListener('beforeunload', function (e) {
+  const confirmationMessage = 'something';
+  e.preventDefault(); //
+  e.returnValue = confirmationMessage; // Gecko or Trident
+  return confirmationMessage; // WebKit
+});
+
 init();

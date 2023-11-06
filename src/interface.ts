@@ -55,6 +55,10 @@ export interface EmitParameter<T> {
    * silent for timeout error, false by default.
    */
   silent?: boolean;
+  /**
+   * skip before emit, false by default.
+   */
+  skipBeforeEmit?: boolean;
 }
 
 export type EmitOptions<T> = T | EmitParameter<T>;
