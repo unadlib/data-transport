@@ -74,15 +74,19 @@ export abstract class IFrameMainTransport<
       sender,
     });
     if (!skipConnectionCheck) {
-      this.emit({
-        // @ts-ignore
-        name: connectEventName,
-        silent: true,
-      }).then((connected) => {
-        if (connected) {
-          this[beforeEmitResolveKey]!();
-        }
-      });
+      const connect = () => {
+        this.emit({
+          // @ts-ignore
+          name: connectEventName,
+          silent: true,
+          skipBeforeEmit: true,
+        }).then((connected) => {
+          if (connected) {
+            this[beforeEmitResolveKey]!();
+          }
+        });
+      };
+      connect();
       this[beforeEmitKey] = new Promise((resolve) => {
         this[beforeEmitResolveKey] = resolve;
       });
@@ -91,10 +95,12 @@ export abstract class IFrameMainTransport<
         this[beforeEmitResolveKey]!();
         return true;
       });
+      // for iframe reload
       iframe?.addEventListener('load', () => {
         this[beforeEmitKey] = new Promise((resolve) => {
           this[beforeEmitResolveKey] = resolve;
         });
+        connect();
       });
     }
   }
