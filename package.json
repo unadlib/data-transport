@@ -1,6 +1,6 @@
 {
   "name": "data-transport",
-  "version": "4.3.3",
+  "version": "4.3.4",
   "description": "A simple and responsible transport",
   "main": "lib/index.js",
   "unpkg": "dist/index.umd.js",
