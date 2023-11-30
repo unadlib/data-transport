@@ -217,12 +217,9 @@ export abstract class Transport<T extends BaseInteraction = any> {
   public listen<K extends keyof T['listen']>(name: K, fn: T['listen'][K]) {
     if (typeof name === 'string') {
       if (this[originalListensMapKey].get(name)) {
-        if (__DEV__) {
-          console.warn(
-            `Failed to listen to the event "${name}", the event "${name}" is already listened to.`
-          );
-        }
-        return;
+        throw new Error(
+          `Failed to listen to the event "${name}", the event "${name}" is already listened to.`
+        );
       }
       if (typeof fn === 'function') {
         this[originalListensMapKey].set(name, fn);

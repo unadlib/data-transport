@@ -24,6 +24,13 @@ test('enable verbose', async () => {
     text: 'hello 42 Universe',
   });
 
+  expect(() => {
+    // @ts-expect-error
+    external.listen('hello', () => {});
+  }).toThrowErrorMatchingInlineSnapshot(
+    `"Failed to listen to the event "hello", the event "hello" is already listened to."`
+  );
+
   const warnLog = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
   dispose?.();
