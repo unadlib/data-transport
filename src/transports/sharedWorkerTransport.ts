@@ -60,7 +60,9 @@ export abstract class SharedWorkerClientTransport<
       listener,
       sender,
     });
-    window.addEventListener('unload', () => {
+    // do not use `unload` event
+    // https://developer.chrome.com/docs/web-platform/deprecating-unload
+    window.addEventListener('pagehide', () => {
       // @ts-ignore
       this.emit({ name: disconnectEventName, respond: false }, this.id);
     });
