@@ -46,7 +46,7 @@ import {
 import { Transport } from './transport';
 import type { TransportOptions } from './interface';
 
-interface TransportOptionsMap {
+export interface TransportOptionsMap {
   IFrameMain: IFrameMainTransportOptions;
   IFrameInternal: IFrameTransportInternalOptions;
   BrowserExtensions: BrowserExtensionsGenericTransportOptions;
@@ -68,7 +68,7 @@ interface TransportOptionsMap {
   ChildProcess: ChildProcessTransportOptions;
 }
 
-interface Transports {
+export interface Transports {
   Base: Transport;
   MessageTransport: MessageTransport;
   IFrameMain: IFrameMainTransport;
@@ -90,7 +90,7 @@ interface Transports {
   ChildProcess: ChildProcessTransport;
 }
 
-const TransportMap = {
+export const TransportMap = {
   Base: Transport,
   MessageTransport: MessageTransport,
   IFrameMain: IFrameTransport.Main,
