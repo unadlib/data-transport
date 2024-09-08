@@ -18,4 +18,11 @@ class WebWorkerTransport
   }
 }
 
-(self as any).webWorkerTransport = new WebWorkerTransport();
+// mock async init worker
+setTimeout(() => {
+  (self as any).webWorkerTransport = new WebWorkerTransport();
+
+  (self as any).webWorkerTransport.onConnect(() => {
+    console.log('connected');
+  });
+}, 2000);

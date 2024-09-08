@@ -10,6 +10,10 @@ import { Transport } from '../transport';
 // workaround: `tsc --skipLibCheck`.
 declare var self: WorkerGlobalScope;
 
+type ClientCallback = () => void | Promise<void>;
+
+const connectEventName = 'worker-connect';
+
 export interface WorkerMainTransportOptions
   extends Partial<TransportOptions<TransferableWorker>> {
   /**
@@ -50,6 +54,41 @@ export abstract class WorkerMainTransport<
       listener,
       sender,
     });
+
+    this.emit({
+      // @ts-ignore
+      name: connectEventName,
+      respond: true,
+      silent: true,
+    }).then(this._handleConnectCallbacks);
+
+    // @ts-ignore
+    this.listen(connectEventName, this._handleConnectCallbacks);
+  }
+
+  private _connected = false;
+
+  private _handleConnectCallbacks = async () => {
+    if (this._connected) {
+      return;
+    }
+    this._connected = true;
+    this._onConnectCallback.forEach((callback) => {
+      callback();
+    });
+    this._onConnectCallback.clear();
+  };
+
+  private _onConnectCallback = new Set<ClientCallback>();
+
+  onConnect(callback: ClientCallback) {
+    if (this._connected) {
+      return callback();
+    }
+    this._onConnectCallback.add(callback);
+    return () => {
+      this._onConnectCallback.delete(callback);
+    };
   }
 }
 
@@ -79,6 +118,41 @@ export abstract class WorkerInternalTransport<
       listener,
       sender,
     });
+
+    this.emit({
+      // @ts-ignore
+      name: connectEventName,
+      respond: true,
+      silent: true,
+    }).then(this._handleConnectCallbacks);
+
+    // @ts-ignore
+    this.listen(connectEventName, this._handleConnectCallbacks);
+  }
+
+  private _handleConnectCallbacks = async () => {
+    if (this._connected) {
+      return;
+    }
+    this._connected = true;
+    this._onConnectCallback.forEach((callback) => {
+      callback();
+    });
+    this._onConnectCallback.clear();
+  };
+
+  private _connected = false;
+
+  private _onConnectCallback = new Set<ClientCallback>();
+
+  onConnect(callback: ClientCallback) {
+    if (this._connected) {
+      return callback();
+    }
+    this._onConnectCallback.add(callback);
+    return () => {
+      this._onConnectCallback.delete(callback);
+    };
   }
 }
 
