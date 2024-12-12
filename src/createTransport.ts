@@ -56,8 +56,8 @@ export interface TransportOptionsMap {
   ElectronRenderer: ElectronRendererTransportOptions;
   ServiceWorkerClient: ServiceWorkerClientTransportOptions;
   ServiceWorkerService: ServiceWorkerServiceTransportOptions;
-  WorkerMain: WorkerMainTransportOptions;
-  WorkerInternal: WorkerInternalTransportOptions;
+  WebWorkerClient: WorkerMainTransportOptions;
+  WebWorkerInternal: WorkerInternalTransportOptions;
   WebRTC: WebRTCTransportOptions;
   Broadcast: BroadcastTransportOptions;
   SharedWorkerClient: SharedWorkerClientTransportOptions;
@@ -77,8 +77,8 @@ export interface Transports {
   SharedWorkerInternal: SharedWorkerInternalTransport;
   ServiceWorkerClient: ServiceWorkerClientTransport;
   ServiceWorkerService: ServiceWorkerServiceTransport;
-  WorkerMain: WorkerMainTransport;
-  WorkerInternal: WorkerInternalTransport;
+  WebWorkerClient: WorkerMainTransport;
+  WebWorkerInternal: WorkerInternalTransport;
   BrowserExtensions: BrowserExtensionsGenericTransport;
   BrowserExtensionsMain: BrowserExtensionsMainTransport;
   BrowserExtensionsClient: BrowserExtensionsClientTransport;
@@ -102,8 +102,8 @@ export const TransportMap = {
   ElectronRenderer: ElectronTransport.Renderer,
   ServiceWorkerClient: ServiceWorkerTransport.Client,
   ServiceWorkerService: ServiceWorkerTransport.Service,
-  WorkerMain: WorkerTransport.Main,
-  WorkerInternal: WorkerTransport.Worker,
+  WebWorkerClient: WorkerTransport.Main,
+  WebWorkerInternal: WorkerTransport.Worker,
   WebRTC: WebRTCTransport,
   Broadcast: BroadcastTransport,
   SharedWorkerClient: SharedWorkerTransport.Client,

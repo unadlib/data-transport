@@ -1,4 +1,4 @@
-import { WorkerTransport, listen } from 'data-transport';
+import { WorkerTransport, listen, createTransport } from 'data-transport';
 import { Worker, Main } from './interface';
 
 class MainTransport
