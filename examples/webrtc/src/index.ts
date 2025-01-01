@@ -29,6 +29,9 @@ const init = () => {
   const peer = new SimplePeer({
     initiator: true,
     trickle: false,
+    config: {
+      iceServers: [],
+    }
   });
 
   peer.on('signal', (data) => {
