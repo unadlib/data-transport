@@ -163,6 +163,9 @@ export abstract class BrowserExtensionsMainTransport<
               this.ports.delete(id);
             }
           });
+          this._onDisconnectCallback.forEach((callback) => {
+            callback(id);
+          });
         });
 
         // @ts-ignore
