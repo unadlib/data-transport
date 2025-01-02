@@ -37,6 +37,10 @@ transport.onConnect((id) => {
   console.log('connect:', id);
 });
 
+transport.onDisconnect((id) => {
+  console.log('disconnect:', id);
+});
+
 // @ts-ignore
 transport.listen('contentToBg', async (a, b) => a);
 
