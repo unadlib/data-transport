@@ -3,17 +3,19 @@
 ![Node CI](https://github.com/unadlib/data-transport/workflows/Node%20CI/badge.svg)
 [![npm version](https://badge.fury.io/js/data-transport.svg)](http://badge.fury.io/js/data-transport)
 
-A simple and responsible transport
+A simple and responsive transport
 
 ## Motivation
 
-Many front-end communication APIs based on JavaScript are almost one-way communication, and their communication interface are often different. In terms of communication interaction protocols, we need an universal and responsive communication library that will help us communicate in any scenario very simply and easily. 
+Many front-end communication APIs based on JavaScript are almost one-way communication, and their communication interface are often different. In terms of communication interaction protocols, we need an universal and responsive communication library that will help us communicate in any scenario very simply and easily.
 
 And It is also very easy to mock to be used for testing, and it is also easy to design an common interface that is compatible with multiple communication APIs.
 
+You can use `data-transport` to communicate between different front-end communication APIs.
+
 ## Support Transport
 
-`data-transport` is a generic and responsible communication transporter
+`data-transport` is a generic and responsive communication transporter
 
 - iframe
 - Broadcast
@@ -90,5 +92,8 @@ expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 ## Example
 
 - [More examples](./examples)
-
 - [Online with Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
+
+## License
+
+[MIT](./LICENSE)

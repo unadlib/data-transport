@@ -1,7 +1,7 @@
 {
   "name": "data-transport",
   "version": "4.5.1",
-  "description": "A simple and responsible transport",
+  "description": "A simple and responsive transport",
   "main": "lib/index.js",
   "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
