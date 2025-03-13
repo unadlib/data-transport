@@ -128,10 +128,18 @@ export abstract class SharedWorkerInternalTransport<
           port.postMessage(message, transfer);
         } else {
           this.ports.forEach((port) => {
-            port.postMessage(message, transfer);
+            try {
+              port.postMessage(message, transfer);
+            } catch (error) {
+              console.error(error);
+            }
           });
           this.tempPorts.forEach((port) => {
-            port.postMessage(message, transfer);
+            try {
+              port.postMessage(message, transfer);
+            } catch (error) {
+              console.error(error);
+            }
           });
         }
       },

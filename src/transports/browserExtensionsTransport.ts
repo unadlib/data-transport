@@ -137,7 +137,11 @@ export abstract class BrowserExtensionsMainTransport<
           port.postMessage(message);
         } else {
           this.ports.forEach((port) => {
-            port.postMessage(message);
+            try {
+              port.postMessage(message);
+            } catch (error) {
+              console.error(error);
+            }
           });
         }
       },
