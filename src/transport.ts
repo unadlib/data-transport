@@ -317,7 +317,8 @@ export abstract class Transport<T extends BaseInteraction = any> {
         if (typeof error === 'undefined') {
           if (isSilent) return;
           console.warn(
-            `The event '${action}' timed out for ${timeout} seconds...`
+            `The event '${action}' timed out for ${timeout} seconds...`,
+            rawRequestData
           );
         } else {
           if (__DEV__) {
