@@ -1,6 +1,8 @@
 import { IFrameTransport, listen } from 'data-transport';
 import { Main, IFrame } from './interface';
 
+console.log('IFrameTransport', IFrameTransport);
+
 class MainTransport
   extends IFrameTransport.Main<{ emit: Main }>
   implements IFrame

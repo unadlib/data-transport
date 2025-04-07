@@ -1,17 +1,33 @@
 {
   "name": "data-transport",
-  "version": "4.5.3",
+  "version": "5.0.0",
   "description": "A simple and responsive transport",
-  "main": "lib/index.js",
-  "unpkg": "dist/index.umd.js",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "umd:main": "dist/index.umd.production.min.js",
+  "unpkg": "dist/index.umd.production.min.js",
+  "jsdelivr": "dist/index.umd.production.min.js",
+  "jsnext:main": "dist/index.esm.js",
+  "react-native": "dist/index.esm.js",
+  "source": "src/index.ts",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": "./*"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "test": "jest",
     "clean": "rimraf dist",
     "prettier": "prettier src --write",
-    "build": "yarn clean && tsc --skipLibCheck && yarn build:prod && yarn build:dev",
-    "build:prod": "NODE_ENV=production rollup --config",
-    "build:dev": "NODE_ENV=development rollup --config",
+    "build": "yarn clean && tsc --skipLibCheck && rollup --config --bundleConfigAsCjs",
     "commit": "yarn git-cz"
   },
   "repository": {
@@ -38,10 +54,11 @@
     "Electron"
   ],
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^15.0.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "@rollup/plugin-replace": "^2.3.3",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@types/chrome": "^0.0.193",
     "@types/firefox-webext-browser": "^94.0.1",
     "@types/jest": "^27.4.0",
@@ -61,7 +78,7 @@
     "jest-environment-jsdom": "^29.5.0",
     "prettier": "^2.8.5",
     "rimraf": "^3.0.2",
-    "rollup": "^2.26.5",
+    "rollup": "^4.39.0",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
