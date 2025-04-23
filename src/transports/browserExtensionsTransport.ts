@@ -1,4 +1,5 @@
 import { callbackKey } from '../constant';
+import { global } from '../global';
 import type {
   BaseInteraction,
   IRequest,
