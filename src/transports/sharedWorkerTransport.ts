@@ -69,13 +69,24 @@ export abstract class SharedWorkerClientTransport<
     // @ts-ignore
     this.listen(connectEventName, async () => {
       Promise.resolve().then(() => {
-        this._onConnectCallback.forEach((callback) => {
-          callback();
-        });
+        this._handleConnect();
       });
       return this.id;
     });
+    // ensure the connect event is sent when the client connect to the worker
+    // @ts-ignore
+    this.emit({ name: connectEventName, respond: false, silent: true });
   }
+
+  private _handleConnect() {
+    if (this._connected) return;
+    this._connected = true;
+    this._onConnectCallback.forEach((callback) => {
+      callback();
+    });
+  }
+
+  private _connected = false;
 
   private _onConnectCallback = new Set<ClientCallback>();
 
@@ -151,10 +162,8 @@ export abstract class SharedWorkerInternalTransport<
       sender,
     });
 
-    const disconnectActionName = getAction(
-      this[prefixKey]!,
-      disconnectEventName
-    );
+    const disconnectAction = getAction(this[prefixKey]!, disconnectEventName);
+    const connectEvent = getAction(this[prefixKey]!, connectEventName);
     self.addEventListener('connect', async (e) => {
       const port: SharedWorkerTransportPort = e.ports[0];
       port._handler = ({
@@ -165,7 +174,7 @@ export abstract class SharedWorkerInternalTransport<
           data._extra._port = port;
         }
         if (
-          data.action === disconnectActionName &&
+          data.action === disconnectAction &&
           this.ports.has(data.requestId)
         ) {
           // clear port and clientId when the port's client is disconnected.
@@ -173,6 +182,16 @@ export abstract class SharedWorkerInternalTransport<
           this._onDisconnectCallback.forEach((callback) => {
             callback(data.requestId);
           });
+        }
+        if (data.type === 'request' && data.action === connectEvent) {
+          this.emit({
+            // @ts-ignore
+            name: connectEventName,
+            _extra: { _port: port },
+            silent: true,
+            respond: false,
+          });
+          this._handleConnect(data.requestId, port);
         }
         this[callbackKey](data);
       };
@@ -186,12 +205,9 @@ export abstract class SharedWorkerInternalTransport<
           // @ts-ignore
           name: connectEventName,
           _extra: { _port: port },
+          silent: true,
         });
-        this.ports.set(id, port);
-        this.tempPorts.delete(port);
-        this._onConnectCallback.forEach((callback) => {
-          callback(id);
-        });
+        this._handleConnect(id, port);
       } catch (err) {
         this.tempPorts.delete(port);
         console.error(err);
@@ -206,6 +222,16 @@ export abstract class SharedWorkerInternalTransport<
     return () => {
       this._onConnectCallback.delete(callback);
     };
+  }
+
+  private _handleConnect(id: string, port: MessagePort) {
+    if (id && !this.ports.has(id)) {
+      this.ports.set(id, port);
+      this.tempPorts.delete(port);
+      this._onConnectCallback.forEach((callback) => {
+        callback(id);
+      });
+    }
   }
 
   private _onDisconnectCallback = new Set<WorkerCallback>();
