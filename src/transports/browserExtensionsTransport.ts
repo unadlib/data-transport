@@ -71,6 +71,9 @@ export abstract class BrowserExtensionsGenericTransport<
         ) => {
           data._sendResponse = sendResponse;
           callback(data);
+          // https://developer.chrome.com/docs/extensions/develop/concepts/messaging#simple
+          // support async callback
+          return true;
         };
         browser.runtime.onMessage.addListener(handler);
         return () => {

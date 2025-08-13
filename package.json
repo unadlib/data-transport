@@ -1,6 +1,6 @@
 {
   "name": "data-transport",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "A simple and responsive transport",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
