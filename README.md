@@ -3,40 +3,42 @@
 ![Node CI](https://github.com/unadlib/data-transport/workflows/Node%20CI/badge.svg)
 [![npm version](https://badge.fury.io/js/data-transport.svg)](http://badge.fury.io/js/data-transport)
 
-A simple and responsive transport
+**data-transport** orchestrates request-response messaging across iframes, workers, browser extensions, Node.js processes, Electron, BroadcastChannel, and WebRTC peers with one consistent API. Each transport handles connection setup, timeouts, and logging so you can focus on your payloads.
 
-## Motivation
+## Table of Contents
+- [data-transport unlocks cross-context messaging](#data-transport-unlocks-cross-context-messaging)
+- [Why data-transport reduces boilerplate](#why-data-transport-reduces-boilerplate)
+- [Install the package](#install-the-package)
+- [Start with a request-response example](#start-with-a-request-response-example)
+- [Understand how transports are organized](#understand-how-transports-are-organized)
+- [Combine advanced capabilities when you need them](#combine-advanced-capabilities-when-you-need-them)
+- [Run the examples locally](#run-the-examples-locally)
+- [Develop and contribute with confidence](#develop-and-contribute-with-confidence)
 
-Many front-end communication APIs based on JavaScript are almost one-way communication, and their communication interface are often different. In terms of communication interaction protocols, we need an universal and responsive communication library that will help us communicate in any scenario very simply and easily.
+## data-transport unlocks cross-context messaging
+The library exposes a small set of composable primitives: a base `Transport` class, the `createTransport` factory, decorators for registering listeners, and helpers for merging or mocking transports. All transports enforce the same request-response contract, share timeout handling, and use unique identifiers under the hood to avoid collisions.
 
-And It is also very easy to mock to be used for testing, and it is also easy to design an common interface that is compatible with multiple communication APIs.
+## Why data-transport reduces boilerplate
+- **One API everywhere.** Swap the transport key to reuse the same emit and listen code across iframes, workers, extensions, WebRTC, BroadcastChannel, or Node.js child processes.
+- **Bi-directional by default.** Every emit returns a promise, and listeners can opt out of responding for fire-and-forget events.
+- **Connection-aware transports.** Iframe, worker, and browser-extension transports delay sends until the peer reports that it is ready, exposing `onConnect` and `onDisconnect` hooks when the runtime supports them.
+- **Structured logging and serialization.** Pass `serializer`, `timeout`, `prefix`, and `logger` options once to standardize payload formatting and diagnostics.
+- **Testing-friendly helpers.** `mockPorts()` provides in-memory listeners for unit tests, while `merge()` fans out messages to multiple transports without re-registering listeners.
 
-You can use `data-transport` to communicate between different front-end communication APIs.
-
-## Support Transport
-
-`data-transport` is a generic and responsive communication transporter
-
-- iframe
-- Broadcast
-- Web Worker
-- Service Worker
-- Shared Worker
-- Browser Extension
-- Node.js
-- WebRTC
-- Electron
-- More transport port
-
-## Usage
-
-- Installation
+## Install the package
+Install from npm or yarn and let TypeScript discover the included type definitions.
 
 ```sh
+npm install data-transport
+# or
 yarn add data-transport
+# or
+pnpm add data-transport
 ```
 
-- Create transport in main page
+## Start with a request-response example
+
+Create transport in main page:
 
 ```js
 import { createTransport } from 'data-transport';
@@ -45,7 +47,7 @@ const external = createTransport('IFrameMain');
 external.listen('hello', async (num) => ({ text: `hello ${num}` }));
 ```
 
-- Create transport in the iframe
+Create transport in the iframe:
 
 ```js
 import { createTransport } from 'data-transport'
@@ -54,46 +56,102 @@ const internal = createTransport('IFrameInternal');
 expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
 ```
 
-### APIs
 
-- `createTransport()`
-  Create a transport instance by transport options.
+## Understand how transports are organized
+`createTransport(name, options)` instantiates the matching transport class. The table lists the available keys and highlights when to use them.
 
-- `mockPorts()`
-  Mock ports for testing.
+| Transport key | Runtime | Highlights |
+| --- | --- | --- |
+| `MessageTransport` | Any window | Uses `window.postMessage` for simple page-to-page messaging. |
+| `IFrameMain` | Host window | Targets a specific iframe, includes handshake and reload handling. |
+| `IFrameInternal` | Iframe window | Connects back to the parent and syncs on reload. |
+| `Broadcast` | Modern browsers | Wraps `BroadcastChannel`, configurable channel name or instance. |
+| `WebWorkerClient` | Main thread | Sends transferable objects to a `Worker`, exposes `onConnect`. |
+| `WebWorkerInternal` | Worker thread | Mirrors the client transport and queues emits until connected. |
+| `SharedWorkerClient` | Page connected to a `SharedWorker` | Auto-sends connect and disconnect signals, exposes `onConnect`. |
+| `SharedWorkerInternal` | Shared worker | Tracks ports, broadcasts to all clients, and surfaces `onConnect`/`onDisconnect`. |
+| `ServiceWorkerClient` | Page controlled by a service worker | Handles Safari serialization quirks via the `useOnSafari` flag. |
+| `ServiceWorkerService` | Service worker | Routes responses back to the correct client, supporting `_clientId`. |
+| `BrowserExtensions` | Generic extension context | Bridges `browser.runtime.sendMessage` to transports. |
+| `BrowserExtensionsMain` | Background/service worker script | Manages ports and emits connect/disconnect callbacks. |
+| `BrowserExtensionsClient` | Content script or popup | Connects over `runtime.connect`, supports `onConnect`. |
+| `ElectronMain` | Electron main process | Uses IPC to communicate with renderer windows. |
+| `ElectronRenderer` | Electron renderer process | Talks back to the main process over the same channel. |
+| `WebRTC` | WebRTC data channel | Chunks large payloads, queues writes when buffers fill. |
+| `MainProcess` | Node.js parent process | Wraps `child.send`/`child.on`. |
+| `ChildProcess` | Node.js child process | Wraps `process.send`/`process.on`. |
 
-- `merge()`
-  Merge multiple transports into one transport.
+Each transport accepts the generic `TransportOptions` so you can override `listener`, `sender`, `timeout`, `serializer`, or `logger` to match your environment.
 
-<details>
-<summary>Transport class</summary>
+## Combine advanced capabilities when you need them
+### Decorate listeners to register once
+Use the provided `@listen` decorator to attach class methods as listeners without exposing them for manual calls.
 
-- `Transport`
-- `MessageTransport`
-- `IFrameMainTransport`
-- `IFrameInternalTransport`
-- `SharedWorkerClientTransport`
-- `SharedWorkerInternalTransport`
-- `ServiceWorkerClientTransport`
-- `ServiceWorkerServiceTransport`
-- `WorkerMainTransport`
-- `WorkerInternalTransport`
-- `BrowserExtensionsGenericTransport`
-- `BrowserExtensionsMainTransport`
-- `BrowserExtensionsClientTransport`
-- `ElectronMainTransport`
-- `ElectronRendererTransport`
-- `WebRTCTransport`
-- `BroadcastTransport`
-- `MainProcessTransport`
-- `ChildProcessTransport`
-</details>
+```ts
+import { Transport, listen, mockPorts } from 'data-transport';
 
-## Example
+const ports = mockPorts();
 
-- [More examples](./examples)
-- [Online with Broadcast](https://codesandbox.io/s/data-transport-example-lkg8k)
+class ExternalTransport extends Transport {
+  constructor() {
+    super(ports.create());
+  }
+
+  @listen
+  async ping() {
+    return 'pong';
+  }
+}
+```
+
+### Emit with fine-grained control
+`emit` accepts either the event name or an options object. Set `respond: false` for fire-and-forget events, change `timeout`, pass `silent` to suppress timeout warnings, and use `_extra` to forward metadata without polluting your payload.
+
+```ts
+await transport.emit(
+  { name: 'notify', respond: false, _extra: { source: 'dashboard' } },
+  { status: 'ready' }
+);
+```
+
+### Merge transports to broadcast widely
+`merge(first, second, ...others)` combines transports so all listeners receive the same events while respecting the shared timeout, serializer, and logger.
+
+```ts
+import { createTransport, merge } from 'data-transport';
+
+const broadcast = createTransport('Broadcast', {});
+const serviceWorker = createTransport('ServiceWorkerClient', { worker });
+const merged = merge(broadcast, serviceWorker);
+
+await merged.emit('announce', { version: '5.0.3' });
+```
+
+### Mock ports to test without a runtime
+`mockPorts()` provides in-memory `listener`/`sender` pairs so you can assert end-to-end flows in Jest or any node-based test runner.
+
+```ts
+const ports = mockPorts();
+const internal = createTransport('Base', ports.main);
+const external = createTransport('Base', ports.create());
+```
+
+### Rely on built-in connection lifecycles
+Iframes, workers, browser extensions, and shared workers expose `.onConnect()` (and `.onDisconnect()` where supported) so you can delay expensive initialization until a peer is actually present. WebRTC transports buffer messages when the data channel is saturated and replay them once the browser signals that the buffer dropped below `bufferedAmountLow`.
+
+## Run the examples locally
+Real-world samples live in the `examples` directory, covering BroadcastChannel, browser extensions, Electron, iframes, Node.js, service workers, shared workers, WebRTC, and web workers.
+
+- Clone the repository.
+- Install dependencies with `yarn`.
+- Run the example you care about by opening the matching folder (for example, `examples/webworker`) and following the instructions documented inside.
+- Try the hosted BroadcastChannel demo on CodeSandbox: [data-transport Broadcast example](https://codesandbox.io/s/data-transport-example-lkg8k).
+
+## Develop and contribute with confidence
+- `yarn build` compiles TypeScript and bundles the distributable with Rollup.
+- `yarn test` executes the Jest suite, including transport handshakes and serializer scenarios.
+- `yarn clean` removes build artifacts, while `yarn prettier` enforces formatting in `src`.
+- The project ships type definitions (`dist/index.d.ts`) so downstream TypeScript projects get autocomplete out of the box.
 
 ## License
-
 [MIT](./LICENSE)
