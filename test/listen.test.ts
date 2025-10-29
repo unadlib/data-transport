@@ -182,4 +182,40 @@ describe('listen decorator', () => {
     const result = await internal.complexMethod('test', 42, { key: 'value' });
     expect(result).toBe('test-42-value');
   });
+
+  test("listen decorator warns when decorating non-function", () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const descriptor: PropertyDescriptor = {
+      configurable: true,
+      enumerable: false,
+    };
+    const result = listen({} as unknown as Transport, 'notFn', descriptor);
+    expect(result).toBe(descriptor);
+    expect(warn).toHaveBeenCalledWith(
+      "The decorator '@listen' can only decorate methods, 'notFn' is NOT a methods."
+    );
+    warn.mockRestore();
+  });
+
+  test('listen decorator resolves when __DEV__ is false', async () => {
+    const ports = mockPorts();
+    const originalDev = (global as any).__DEV__;
+    (global as any).__DEV__ = false;
+
+    class TestTransport extends Transport {
+      constructor() {
+        super(ports.create());
+      }
+
+      @listen
+      async noop() {
+        return 'ok';
+      }
+    }
+
+    const transport = new TestTransport();
+    await expect(transport.noop()).resolves.toBeUndefined();
+
+    (global as any).__DEV__ = originalDev;
+  });
 });
