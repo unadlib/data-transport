@@ -44,7 +44,7 @@ import {
   ChildProcessTransportOptions,
 } from './transports';
 import { Transport } from './transport';
-import type { TransportOptions } from './interface';
+import type { BaseInteraction, TransportOptions } from './interface';
 
 export interface TransportOptionsMap {
   IFrameMain: IFrameMainTransportOptions;
@@ -68,26 +68,26 @@ export interface TransportOptionsMap {
   ChildProcess: ChildProcessTransportOptions;
 }
 
-export interface Transports {
-  Base: Transport;
-  MessageTransport: MessageTransport;
-  IFrameMain: IFrameMainTransport;
-  IFrameInternal: IFrameInternalTransport;
-  SharedWorkerClient: SharedWorkerClientTransport;
-  SharedWorkerInternal: SharedWorkerInternalTransport;
-  ServiceWorkerClient: ServiceWorkerClientTransport;
-  ServiceWorkerService: ServiceWorkerServiceTransport;
-  WebWorkerClient: WorkerMainTransport;
-  WebWorkerInternal: WorkerInternalTransport;
-  BrowserExtensions: BrowserExtensionsGenericTransport;
-  BrowserExtensionsMain: BrowserExtensionsMainTransport;
-  BrowserExtensionsClient: BrowserExtensionsClientTransport;
-  ElectronMain: ElectronMainTransport;
-  ElectronRenderer: ElectronRendererTransport;
-  WebRTC: WebRTCTransport;
-  Broadcast: BroadcastTransport;
-  MainProcess: MainProcessTransport;
-  ChildProcess: ChildProcessTransport;
+export interface Transports<T extends BaseInteraction = any> {
+  Base: Transport<T>;
+  MessageTransport: MessageTransport<T>;
+  IFrameMain: IFrameMainTransport<T>;
+  IFrameInternal: IFrameInternalTransport<T>;
+  SharedWorkerClient: SharedWorkerClientTransport<T>;
+  SharedWorkerInternal: SharedWorkerInternalTransport<T>;
+  ServiceWorkerClient: ServiceWorkerClientTransport<T>;
+  ServiceWorkerService: ServiceWorkerServiceTransport<T>;
+  WebWorkerClient: WorkerMainTransport<T>;
+  WebWorkerInternal: WorkerInternalTransport<T>;
+  BrowserExtensions: BrowserExtensionsGenericTransport<T>;
+  BrowserExtensionsMain: BrowserExtensionsMainTransport<T>;
+  BrowserExtensionsClient: BrowserExtensionsClientTransport<T>;
+  ElectronMain: ElectronMainTransport<T>;
+  ElectronRenderer: ElectronRendererTransport<T>;
+  WebRTC: WebRTCTransport<T>;
+  Broadcast: BroadcastTransport<T>;
+  MainProcess: MainProcessTransport<T>;
+  ChildProcess: ChildProcessTransport<T>;
 }
 
 export const TransportMap = {
@@ -120,9 +120,12 @@ export const TransportMap = {
  *
  * @returns Return a transport instance.
  */
-export const createTransport = <T extends keyof typeof TransportMap>(
+export const createTransport = <
+  T extends keyof typeof TransportMap,
+  I extends BaseInteraction = any
+>(
   name: T,
   options: TransportOptionsMap[T]
-): Transports[T] => {
+): Transports<I>[T] => {
   return new (TransportMap[name] as any)(options);
 };

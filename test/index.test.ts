@@ -184,7 +184,7 @@ test('base with two-way', async () => {
   const internal = new InternalTransport();
   const external = new ExternalTransport();
   expect(await internal.hello({ num: 42 })).toEqual({ text: 'hello 42' });
-  expect(externalTransportListener).toBeCalledTimes(1);
+  expect(externalTransportListener).toHaveBeenCalledTimes(1);
   expect(
     Object.prototype.hasOwnProperty.call(
       externalTransportListener.mock.calls[0][0],
@@ -200,7 +200,7 @@ test('base with two-way', async () => {
   expect(typeof externalTransportListener.mock.calls[0][0].request).toBe(
     'string'
   );
-  expect(internalTransportListener).toBeCalledTimes(1);
+  expect(internalTransportListener).toHaveBeenCalledTimes(1);
   expect(
     Object.prototype.hasOwnProperty.call(
       internalTransportListener.mock.calls[0][0],
@@ -235,12 +235,12 @@ test('base with two-way', async () => {
   expect(await external.help({ key: 65 })).toEqual({ text: 'A' });
   expect(() => {
     external.hello({ num: 42 });
-  }).toThrowError(
+  }).toThrow(
     "The method 'hello' is a listen function that can NOT be actively called."
   );
   expect(() => {
     internal.help({ key: 1 });
-  }).toThrowError(
+  }).toThrow(
     "The method 'help' is a listen function that can NOT be actively called."
   );
 });
@@ -358,11 +358,11 @@ test('base with createTransport', async () => {
 
   const ports = mockPorts();
 
-  const internal: Transport<{ emit: Internal }> = createTransport(
+  const internal = createTransport<'Base', { emit: Internal }>(
     'Base',
     ports.main
   );
-  const external: Transport<{ listen: Internal }> = createTransport(
+  const external = createTransport<'Base', { listen: Internal }>(
     'Base',
     ports.create()
   );

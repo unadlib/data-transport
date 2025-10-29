@@ -37,6 +37,6 @@ test('base merge transport by main', async () => {
   ].forEach((key) => {
     expect(() => {
       createTransport(key as any, ports.create());
-    }).not.toThrowError();
+    }).not.toThrow();
   });
 });

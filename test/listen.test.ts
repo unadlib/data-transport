@@ -45,7 +45,7 @@ describe('listen decorator', () => {
     // Verify that calling the decorated method directly throws error
     expect(() => {
       external.hello({ num: 42 });
-    }).toThrowError(
+    }).toThrow(
       "The method 'hello' is a listen function that can NOT be actively called."
     );
   });
@@ -103,13 +103,13 @@ describe('listen decorator', () => {
     // Both methods should throw when called directly
     expect(() => {
       external.method1();
-    }).toThrowError(
+    }).toThrow(
       "The method 'method1' is a listen function that can NOT be actively called."
     );
 
     expect(() => {
       external.method2();
-    }).toThrowError(
+    }).toThrow(
       "The method 'method2' is a listen function that can NOT be actively called."
     );
   });
@@ -136,7 +136,7 @@ describe('listen decorator', () => {
     // But calling it should throw
     expect(() => {
       transport.testMethod('test');
-    }).toThrowError(
+    }).toThrow(
       "The method 'testMethod' is a listen function that can NOT be actively called."
     );
   });

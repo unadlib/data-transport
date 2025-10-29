@@ -40,20 +40,26 @@ pnpm add data-transport
 
 Create transport in main page:
 
-```js
+```ts
+type Internal = {
+  hello(options: { num: number }, word: string): Promise<{ text: string }>;
+};
+```
+
+```ts
 import { createTransport } from 'data-transport';
 
-const external = createTransport('IFrameMain');
+const external = createTransport<'IFrameMain', { listen: Internal }>('IFrameMain');
 external.listen('hello', async (num) => ({ text: `hello ${num}` }));
 ```
 
 Create transport in the iframe:
 
-```js
+```ts
 import { createTransport } from 'data-transport'
 
-const internal = createTransport('IFrameInternal');
-expect(await internal.emit('hello', 42).toEqual({ text: 'hello 42' });
+const internal = createTransport<'IFrameInternal', { emit: Internal }>('IFrameInternal');
+expect(await internal.emit('hello', { num: 42 }, 'Universe')).toEqual({ text: 'hello 42 Universe' });
 ```
 
 
