@@ -358,11 +358,11 @@ test('base with createTransport', async () => {
 
   const ports = mockPorts();
 
-  const internal: Transport<{ emit: Internal }> = createTransport(
+  const internal = createTransport<'Base', { emit: Internal }>(
     'Base',
     ports.main
   );
-  const external: Transport<{ listen: Internal }> = createTransport(
+  const external = createTransport<'Base', { listen: Internal }>(
     'Base',
     ports.create()
   );
