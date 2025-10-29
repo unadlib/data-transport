@@ -74,22 +74,22 @@ test('base merge transport by main', async () => {
     text: `hello, ${options.num} ${word}`,
   }));
 
-  expect(fn0).toBeCalledTimes(0);
-  expect(fn1).toBeCalledTimes(0);
+  expect(fn0).toHaveBeenCalledTimes(0);
+  expect(fn1).toHaveBeenCalledTimes(0);
 
   expect(await internal.emit('hello', { num: 42 }, 'Universe')).toEqual({
     text: 'hello0, 42 Universe',
   });
 
-  expect(fn0).toBeCalledTimes(1);
-  expect(fn1).toBeCalledTimes(0);
+  expect(fn0).toHaveBeenCalledTimes(1);
+  expect(fn1).toHaveBeenCalledTimes(0);
 
   expect(await internal.emit('hi', { num: 42 }, 'Universe')).toEqual({
     text: 'hi1, 42 Universe',
   });
 
-  expect(fn0).toBeCalledTimes(1);
-  expect(fn1).toBeCalledTimes(1);
+  expect(fn0).toHaveBeenCalledTimes(1);
+  expect(fn1).toHaveBeenCalledTimes(1);
 
   expect(await external1.emit('hello', { num: 42 }, 'Universe')).toEqual({
     text: 'hello, 42 Universe',
@@ -119,11 +119,11 @@ test('base merge transport error', async () => {
   expect(() => {
     // @ts-expect-error
     merge();
-  }).toThrowError();
+  }).toThrow();
   expect(() => {
     const ports0 = mockPorts();
     const internal0 = createTransport('Base', ports0.main);
     // @ts-expect-error
     merge(internal0);
-  }).toThrowError();
+  }).toThrow();
 });
