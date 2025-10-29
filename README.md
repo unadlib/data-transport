@@ -38,13 +38,15 @@ pnpm add data-transport
 
 ## Start with a request-response example
 
-Create transport in main page:
+Define interaction types:
 
 ```ts
 type Internal = {
   hello(options: { num: number }, word: string): Promise<{ text: string }>;
 };
 ```
+
+Create transport in main page:
 
 ```ts
 import { createTransport } from 'data-transport';
@@ -88,6 +90,21 @@ expect(await internal.emit('hello', { num: 42 }, 'Universe')).toEqual({ text: 'h
 | `ChildProcess` | Node.js child process | Wraps `process.send`/`process.on`. |
 
 Each transport accepts the generic `TransportOptions` so you can override `listener`, `sender`, `timeout`, `serializer`, or `logger` to match your environment.
+
+### Know What `TransportOptions` Controls
+| Option | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `listener: (callback) => (() => void) \| void` | Yes | — | Attach a low-level event handler to the underlying channel. Return a disposer to avoid warnings from the constructor’s safety checks. |
+| `sender: (message) => void` | Yes | — | Deliver outbound messages. Remove the `transfer` array before forwarding if the runtime demands it. |
+| `timeout: number` | No | `60000` (ms) | Max wait before an emit rejects with a timeout warning when a response is expected. |
+| `verbose: boolean` | No | `false` | Switch on structured logging for every send/receive. Use `logger` to pipe it elsewhere; otherwise `console.info` is used. |
+| `prefix: string` | No | `DataTransport` | Namespace for action names. Helpful when multiple transports share the same channel. |
+| `listenKeys: string[]` | No | `[]` | Class method names that should be auto-registered as listeners. In dev builds, calling them directly throws to prevent misuse. |
+| `checkListen: boolean` | No | `true` | Keep dev-time guards that surface duplicate responses or missing listener decorators. Toggle off to silence those warnings in production. |
+| `serializer: { stringify?: (data) => string; parse?: (text) => any }` | No | — | Supply custom codecs for runtimes with serialization constraints (e.g., structured cloning gaps). Both functions are optional, so you can enable only one direction. |
+| `logger: (options) => void` | No | — | Replace the default verbose logger. Receives the raw request/response payload for auditing. |
+
+Every custom transport you construct via `createTransport` simply forwards these options to the base `Transport` class, so you can rely on them in any environment (browser, worker, Node.js, or extensions).
 
 ## Combine advanced capabilities when you need them
 ### Decorate listeners to register once
