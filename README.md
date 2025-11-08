@@ -2,6 +2,7 @@
 
 ![Node CI](https://github.com/unadlib/data-transport/workflows/Node%20CI/badge.svg)
 [![npm version](https://badge.fury.io/js/data-transport.svg)](http://badge.fury.io/js/data-transport)
+![license](https://img.shields.io/npm/l/data-transport)
 
 **data-transport** orchestrates request-response messaging across iframes, workers, browser extensions, Node.js processes, Electron, BroadcastChannel, and WebRTC peers with one consistent API. Each transport handles connection setup, timeouts, and logging so you can focus on your payloads.
 
