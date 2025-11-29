@@ -9,8 +9,8 @@
 ## Table of Contents
 - [data-transport unlocks cross-context messaging](#data-transport-unlocks-cross-context-messaging)
 - [Why data-transport reduces boilerplate](#why-data-transport-reduces-boilerplate)
-- [Install the package](#install-the-package)
-- [Start with a request-response example](#start-with-a-request-response-example)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
 - [Understand how transports are organized](#understand-how-transports-are-organized)
 - [Combine advanced capabilities when you need them](#combine-advanced-capabilities-when-you-need-them)
 - [Run the examples locally](#run-the-examples-locally)
@@ -26,7 +26,7 @@ The library exposes a small set of composable primitives: a base `Transport` cla
 - **Structured logging and serialization.** Pass `serializer`, `timeout`, `prefix`, and `logger` options once to standardize payload formatting and diagnostics.
 - **Testing-friendly helpers.** `mockPorts()` provides in-memory listeners for unit tests, while `merge()` fans out messages to multiple transports without re-registering listeners.
 
-## Install the package
+## Installation
 Install from npm or yarn and let TypeScript discover the included type definitions.
 
 ```sh
@@ -37,7 +37,7 @@ yarn add data-transport
 pnpm add data-transport
 ```
 
-## Start with a request-response example
+## Quick Start
 
 Define interaction types:
 
