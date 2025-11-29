@@ -7,19 +7,17 @@
 **data-transport** orchestrates request-response messaging across iframes, workers, browser extensions, Node.js processes, Electron, BroadcastChannel, and WebRTC peers with one consistent API. Each transport handles connection setup, timeouts, and logging so you can focus on your payloads.
 
 ## Table of Contents
-- [data-transport unlocks cross-context messaging](#data-transport-unlocks-cross-context-messaging)
-- [Why data-transport reduces boilerplate](#why-data-transport-reduces-boilerplate)
+- [Motivation](#motivation)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-- [Understand how transports are organized](#understand-how-transports-are-organized)
-- [Combine advanced capabilities when you need them](#combine-advanced-capabilities-when-you-need-them)
-- [Run the examples locally](#run-the-examples-locally)
-- [Develop and contribute with confidence](#develop-and-contribute-with-confidence)
+- [Transports](#transports)
+- [Advanced Usage](#advanced-usage)
+- [Examples](#examples)
+- [Development](#development)
 
-## data-transport unlocks cross-context messaging
+## Motivation
 The library exposes a small set of composable primitives: a base `Transport` class, the `createTransport` factory, decorators for registering listeners, and helpers for merging or mocking transports. All transports enforce the same request-response contract, share timeout handling, and use unique identifiers under the hood to avoid collisions.
 
-## Why data-transport reduces boilerplate
 - **One API everywhere.** Swap the transport key to reuse the same emit and listen code across iframes, workers, extensions, WebRTC, BroadcastChannel, or Node.js child processes.
 - **Bi-directional by default.** Every emit returns a promise, and listeners can opt out of responding for fire-and-forget events.
 - **Connection-aware transports.** Iframe, worker, and browser-extension transports delay sends until the peer reports that it is ready, exposing `onConnect` and `onDisconnect` hooks when the runtime supports them.
@@ -66,7 +64,7 @@ expect(await internal.emit('hello', { num: 42 }, 'Universe')).toEqual({ text: 'h
 ```
 
 
-## Understand how transports are organized
+## Transports
 `createTransport(name, options)` instantiates the matching transport class. The table lists the available keys and highlights when to use them.
 
 | Transport key | Runtime | Highlights |
@@ -107,7 +105,7 @@ Each transport accepts the generic `TransportOptions` so you can override `liste
 
 Every custom transport you construct via `createTransport` simply forwards these options to the base `Transport` class, so you can rely on them in any environment (browser, worker, Node.js, or extensions).
 
-## Combine advanced capabilities when you need them
+## Advanced Usage
 ### Decorate listeners to register once
 Use the provided `@listen` decorator to attach class methods as listeners without exposing them for manual calls.
 
@@ -163,7 +161,7 @@ const external = createTransport('Base', ports.create());
 ### Rely on built-in connection lifecycles
 Iframes, workers, browser extensions, and shared workers expose `.onConnect()` (and `.onDisconnect()` where supported) so you can delay expensive initialization until a peer is actually present. WebRTC transports buffer messages when the data channel is saturated and replay them once the browser signals that the buffer dropped below `bufferedAmountLow`.
 
-## Run the examples locally
+## Examples
 Real-world samples live in the `examples` directory, covering BroadcastChannel, browser extensions, Electron, iframes, Node.js, service workers, shared workers, WebRTC, and web workers.
 
 - Clone the repository.
@@ -171,7 +169,7 @@ Real-world samples live in the `examples` directory, covering BroadcastChannel, 
 - Run the example you care about by opening the matching folder (for example, `examples/webworker`) and following the instructions documented inside.
 - Try the hosted BroadcastChannel demo on CodeSandbox: [data-transport Broadcast example](https://codesandbox.io/s/data-transport-example-lkg8k).
 
-## Develop and contribute with confidence
+## Development
 - `yarn build` compiles TypeScript and bundles the distributable with Rollup.
 - `yarn test` executes the Jest suite, including transport handshakes and serializer scenarios.
 - `yarn clean` removes build artifacts, while `yarn prettier` enforces formatting in `src`.
